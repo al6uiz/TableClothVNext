@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWindowsForms>true</UseWindowsForms>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
+		<ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
+	</PropertyGroup>
+	<ItemGroup>
+	  <PackageReference Include="AsyncAwaitBestPractices.MVVM" Version="9.0.0" />
+	  <PackageReference Include="OswaldTechnologies.Extensions.Hosting.WindowsFormsLifetime" Version="1.1.0" />
+	  <PackageReference Include="System.Text.Json" Version="9.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\TableCloth2.Shared\TableCloth2.Shared.csproj" />
+	  <ProjectReference Include="..\TableCloth2.Spork\TableCloth2.Spork.csproj" />
+	  <ProjectReference Include="..\TableCloth2.TableCloth\TableCloth2.TableCloth.csproj" />
+	</ItemGroup>
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+	  <Exec Command="curl.exe -L https://yourtablecloth.app/TableClothCatalog/Catalog.xml -o &quot;$(OutDir)Catalog.xml&quot;&#xD;&#xA;curl.exe -L https://yourtablecloth.app/TableClothCatalog/Images.zip -o &quot;$(OutDir)Images.zip&quot;" />
+	</Target>
+</Project>

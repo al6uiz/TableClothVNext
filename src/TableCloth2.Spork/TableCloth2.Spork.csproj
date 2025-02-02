@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWindowsForms>true</UseWindowsForms>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
+		<ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AsyncAwaitBestPractices.MVVM" Version="9.0.0" />
+		<PackageReference Include="OswaldTechnologies.Extensions.Hosting.WindowsFormsLifetime" Version="1.1.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\TableCloth2.Shared\TableCloth2.Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="SporkForm.cs">
+			<SubType>Form</SubType>
+		</Compile>
+	</ItemGroup>
+
+</Project>

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Windows.Input;
 using TableCloth2.Contracts;
+using TableCloth2.Shared.Services;
 using TableCloth2.TableCloth.Contracts;
 using TableCloth2.TableCloth.Services;
 using WindowsFormsLifetime;
@@ -18,6 +19,7 @@ public sealed class TableClothViewModel : ViewModelBase
         IHostApplicationLifetime lifetime,
         IFormProvider formProvider,
         SettingsService settingsService,
+        SettingsManager settingsManager,
         ISandboxComposer sandboxComposer,
         IMessageBoxService messageBoxService,
         SessionService sessionService)
@@ -27,6 +29,7 @@ public sealed class TableClothViewModel : ViewModelBase
         _lifetime = lifetime;
         _formProvider = formProvider;
         _settingsService = settingsService;
+        _settingsManager = settingsManager;
         _sandboxComposer = sandboxComposer;
         _messageBoxService = messageBoxService;
         _sessionService = sessionService;
@@ -43,6 +46,7 @@ public sealed class TableClothViewModel : ViewModelBase
     private readonly IHostApplicationLifetime _lifetime;
     private readonly IFormProvider _formProvider;
     private readonly SettingsService _settingsService;
+    private readonly SettingsManager _settingsManager;
     private readonly ISandboxComposer _sandboxComposer;
     private readonly IMessageBoxService _messageBoxService;
     private readonly SessionService _sessionService;
@@ -88,12 +92,12 @@ public sealed class TableClothViewModel : ViewModelBase
     {
         using var settingsForm = await _formProvider.GetFormAsync<SettingsForm>();
 
-        await _settingsService.ImportSettingsToViewModelAsync(settingsForm.ViewModel);
+        await _settingsManager.ImportSettingsToViewModelAsync(settingsForm.ViewModel);
 
         if (settingsForm.ShowDialog() != DialogResult.OK)
             return;
 
-        await _settingsService.ExportSettingsFromViewModelAsync(settingsForm.ViewModel);
+        await _settingsManager.ExportSettingsFromViewModelAsync(settingsForm.ViewModel);
     }
 
     private void Launch(object? _)

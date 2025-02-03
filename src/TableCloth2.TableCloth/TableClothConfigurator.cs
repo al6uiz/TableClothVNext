@@ -24,7 +24,7 @@ public static class TableClothConfigurator
         builder.Services.AddSingleton<ISandboxComposer, WindowsSandboxComposer>();
 
         builder.Services.AddSingleton<SessionService>();
-        builder.Services.AddSingleton<SettingsService>();
+        builder.Services.AddSingleton<SettingsManager>();
 
         builder.Services.AddTransient<SettingsViewModel>();
         builder.Services.AddTransient<SettingsForm>();

@@ -19,6 +19,7 @@ public static class TableCloth2Configurator
         builder.Services.AddSingleton<KnownPathsService>();
         builder.Services.AddSingleton<ProcessUtility>();
         builder.Services.AddSingleton<Configurations>();
+        builder.Services.AddSingleton<SettingsService>();
 
         builder.Services.AddTransient<BootstrapViewModel>();
         builder.Services.AddTransient<BootstrapForm>();

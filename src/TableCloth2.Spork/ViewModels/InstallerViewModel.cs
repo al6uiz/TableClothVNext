@@ -2,20 +2,25 @@
 using System.Windows.Input;
 using TableCloth2.Shared;
 using TableCloth2.Shared.Models.Catalog;
-using Windows.Networking.Sockets;
+using TableCloth2.Spork.Services;
 
 namespace TableCloth2.Spork.ViewModels;
 
 public sealed class InstallerViewModel : ViewModelBase
 {
-    public InstallerViewModel()
+    public InstallerViewModel(
+        StepFactory stepFactory)
     {
+        _stepFactory = stepFactory;
+
         _message = string.Empty;
         _services = new List<CatalogInternetService>();
         _steps = new List<StepViewModel>();
 
         _installCommand = new RelayCommand(Install);
     }
+
+    private readonly StepFactory _stepFactory;
 
     private string _message;
 
@@ -47,25 +52,29 @@ public sealed class InstallerViewModel : ViewModelBase
 
     private async Task InstallAsync(object? _)
     {
-        foreach (var eachService in _services)
+        var packages = _services.SelectMany(x => x.Packages).DistinctBy(x => x.Url);
+        var downloadSteps = new List<StepViewModel>();
+        var installerSteps = new List<StepViewModel>();
+
+        foreach (var eachPackage in packages)
         {
-            foreach (var eachPackage in eachService.Packages)
+            var downloadStep = _stepFactory.CreateDownloadStep(eachPackage);
+            downloadSteps.Add(new StepViewModel()
             {
-                var step = new StepViewModel();
-                step.StepName = $"[{eachService.DisplayName}] Downloading {eachPackage}";
-                _steps.Add(step);
-            }
+                StepName = downloadStep.StepName,
+                InstallerStep = downloadStep,
+            });
+
+            var installerStep = _stepFactory.CreateInstallerStep(eachPackage);
+            installerSteps.Add(new StepViewModel()
+            {
+                StepName = installerStep.StepName,
+                InstallerStep = installerStep,
+            });
         }
 
-        foreach (var eachService in _services)
-        {
-            foreach (var eachPackage in eachService.Packages)
-            {
-                var step = new StepViewModel();
-                step.StepName = $"[{eachService.DisplayName}] Installing {eachPackage}";
-                _steps.Add(step);
-            }
-        }
+        _steps.AddRange(downloadSteps);
+        _steps.AddRange(installerSteps);
 
         RenderRequested?.Invoke(this, new RelayEventArgs<List<StepViewModel>>(_steps));
 
@@ -76,7 +85,7 @@ public sealed class InstallerViewModel : ViewModelBase
 
             try
             {
-                await Task.Delay(TimeSpan.FromSeconds(1d));
+                await eachStep.InstallerStep.PerformStepAsync();
                 eachStep.StepSucceed = true;
             }
             catch

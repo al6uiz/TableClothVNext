@@ -1,9 +1,6 @@
-﻿using System.Drawing;
-using TableCloth2.Shared;
+﻿using TableCloth2.Shared;
 using TableCloth2.Shared.Models.Catalog;
 using TableCloth2.Spork.ViewModels;
-using Windows.Services.Maps;
-using WindowsFormsLifetime;
 
 namespace TableCloth2.Spork;
 

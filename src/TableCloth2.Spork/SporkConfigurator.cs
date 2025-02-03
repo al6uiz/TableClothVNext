@@ -21,6 +21,7 @@ public static class SporkConfigurator
 
         builder.Services.AddSingleton<IBootstrapper, SporkBootstrapper>();
 
+        builder.Services.AddSingleton<StepFactory>();
         builder.Services.AddSingleton<SporkConfigurations>();
 
         builder.Services.AddTransient<InstallerViewModel>();

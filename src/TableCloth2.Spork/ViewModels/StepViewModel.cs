@@ -1,5 +1,5 @@
-﻿using AsyncAwaitBestPractices;
-using System.Windows.Input;
+﻿using TableCloth2.Spork.Contracts;
+using TableCloth2.Spork.Steps;
 
 namespace TableCloth2.Spork.ViewModels;
 
@@ -7,30 +7,18 @@ public sealed class StepViewModel : ViewModelBase
 {
     public StepViewModel()
     {
-        _initializeEvent = new RelayCommand(Initialize);
-
         _isActiveStep = false;
         _stepName = string.Empty;
         _result = string.Empty;
         _stepSucceed = null;
-    }
-
-    internal ICommand InitializeEvent => _initializeEvent;
-
-    private readonly RelayCommand _initializeEvent;
-
-    private void Initialize(object? _)
-        => InitializeAsync(_).SafeFireAndForget();
-
-    private Task InitializeAsync(object? _)
-    {
-        return Task.CompletedTask;
+        _installerStep = NoOpStep.Instance;
     }
 
     private bool _isActiveStep;
     private string _stepName;
     private string _result;
     private bool? _stepSucceed;
+    private IInstallerStep _installerStep;
 
     public bool IsActiveStep
     {
@@ -54,5 +42,11 @@ public sealed class StepViewModel : ViewModelBase
     {
         get => _stepSucceed;
         set => SetField(ref _stepSucceed, value);
+    }
+
+    public IInstallerStep InstallerStep
+    {
+        get => _installerStep;
+        set => SetField(ref _installerStep, value);
     }
 }

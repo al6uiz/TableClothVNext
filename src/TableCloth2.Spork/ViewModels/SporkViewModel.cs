@@ -1,12 +1,10 @@
 ﻿using AsyncAwaitBestPractices;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using TableCloth2.Contracts;
 using TableCloth2.Services;
-using TableCloth2.Shared;
 using TableCloth2.Shared.Models.Catalog;
 using WindowsFormsLifetime;
 

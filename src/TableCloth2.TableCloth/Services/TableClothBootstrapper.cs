@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.IO.Compression;
-using System.Threading;
 using TableCloth2.Services;
 using TableCloth2.Shared.Contracts;
 using TableCloth2.Shared.Models;

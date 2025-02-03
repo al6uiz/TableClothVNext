@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using TableCloth2.Spork.ViewModels;
+﻿using TableCloth2.Spork.ViewModels;
 
 namespace TableCloth2.Spork;
 
@@ -18,8 +17,6 @@ public partial class StepControl : UserControl
         _viewModel = viewModel;
 
         SuspendLayout();
-
-        Load += _viewModel.InitializeEvent.ToEventHandler();
 
         stateLabel
             .Bind(c => c.Text, _viewModel, vm => vm.StepSucceed)

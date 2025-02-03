@@ -26,9 +26,6 @@ public static class SporkConfigurator
         builder.Services.AddTransient<InstallerViewModel>();
         builder.Services.AddTransient<InstallerForm>();
 
-        builder.Services.AddTransient<StepViewModel>();
-        builder.Services.AddTransient<StepControl>();
-
         builder.Services.AddTransient<SporkViewModel>();
         builder.UseWindowsFormsLifetime<SporkForm>(winFormConfigure);
     }

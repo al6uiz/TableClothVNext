@@ -1,17 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AsyncAwaitBestPractices;
+using System.Windows.Input;
 
 namespace TableCloth2.Spork.ViewModels;
 
 public sealed class StepViewModel : ViewModelBase
 {
+    public StepViewModel()
+    {
+        _initializeEvent = new RelayCommand(Initialize);
+
+        _isActiveStep = false;
+        _stepName = string.Empty;
+        _result = string.Empty;
+        _stepSucceed = null;
+    }
+
+    internal ICommand InitializeEvent => _initializeEvent;
+
+    private readonly RelayCommand _initializeEvent;
+
+    private void Initialize(object? _)
+        => InitializeAsync(_).SafeFireAndForget();
+
+    private Task InitializeAsync(object? _)
+    {
+        return Task.CompletedTask;
+    }
+
     private bool _isActiveStep;
-    private string _stepName = string.Empty;
-    private int _stepProgress = 0;
-    private bool? _stepSucceed = null;
+    private string _stepName;
+    private string _result;
+    private bool? _stepSucceed;
 
     public bool IsActiveStep
     {
@@ -25,10 +44,10 @@ public sealed class StepViewModel : ViewModelBase
         set => SetField(ref _stepName, value);
     }
 
-    public int StepProgress
+    public string Result
     {
-        get => _stepProgress;
-        set => SetField(ref _stepProgress, Math.Min(100, Math.Max(0, value)));
+        get => _result;
+        set => SetField(ref _result, value);
     }
 
     public bool? StepSucceed

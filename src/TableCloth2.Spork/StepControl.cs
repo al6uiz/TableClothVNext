@@ -1,4 +1,5 @@
-﻿using TableCloth2.Spork.ViewModels;
+﻿using System.ComponentModel;
+using TableCloth2.Spork.ViewModels;
 
 namespace TableCloth2.Spork;
 
@@ -18,22 +19,29 @@ public partial class StepControl : UserControl
 
         SuspendLayout();
 
-        progressBar.Bind(c => c.Visible, _viewModel, vm => vm.IsActiveStep);
-        progressBar.Bind(c => c.Value, _viewModel, vm => vm.StepProgress);
+        Load += _viewModel.InitializeEvent.ToEventHandler();
 
         stateLabel
             .Bind(c => c.Text, _viewModel, vm => vm.StepSucceed)
             .ApplyValueConverter((_, e) =>
             {
-                e.Value = e.Value switch
+                switch (e.Value)
                 {
-                    true => "\u2714",
-                    false => "\u2716",
-                    _ => string.Empty
-                };
+                    case null:
+                        e.Value = "\u25B6";
+                        return;
+                    case false:
+                        e.Value = "\u2716";
+                        return;
+                    case true:
+                        ((ScrollableControl?)Parent)?.ScrollControlIntoView(this);
+                        e.Value = "\u2714";
+                        return;
+                }
             });
 
         stepNameLabel.Bind(c => c.Text, _viewModel, vm => vm.StepName);
+        resultLabel.Bind(c => c.Text, _viewModel, vm => vm.Result);
 
         ResumeLayout();
     }

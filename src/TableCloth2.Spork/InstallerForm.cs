@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TableCloth2.Shared;
 using TableCloth2.Spork.ViewModels;
 
 namespace TableCloth2.Spork;
@@ -37,21 +38,22 @@ public partial class InstallerForm : Form
         ResumeLayout();
     }
 
-    private void _viewModel_RenderRequested(object? sender, EventArgs e)
+    private void _viewModel_RenderRequested(object? sender, RelayEventArgs<List<StepViewModel>> e)
     {
-        foreach (var eachService in _viewModel.Services)
-        {
-            foreach (var eachStep in eachService.Packages)
-            {
-                var stepControl = _serviceProvider.GetRequiredService<StepControl>();
-                stepControl.ViewModel.StepName = eachStep.Name;
-                stepControl.ViewModel.IsActiveStep = false;
-                stepControl.ViewModel.StepProgress = 0;
-                stepControl.ViewModel.StepSucceed = null;
+        const int stepControlHeight = 50;
+        panel.AutoScrollMargin = new Size(panel.AutoScrollMargin.Width, stepControlHeight);
 
-                stepControl.Parent = this.panel;
-                stepControl.Dock = DockStyle.Top;
-            }
+        var list = new List<StepViewModel>(e.Value);
+        list.Reverse();
+
+        foreach (var eachStep in list)
+        {
+            var stepControl = new StepControl(eachStep)
+            {
+                Parent = panel,
+                Dock = DockStyle.Top,
+                Height = stepControlHeight,
+            };
         }
     }
 

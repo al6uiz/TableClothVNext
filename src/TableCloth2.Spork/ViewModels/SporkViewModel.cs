@@ -83,44 +83,48 @@ public sealed class SporkViewModel : ViewModelBase
             return;
         }
 
-        var imagesPath = _knownPathsService.EnsureTableClothSettingsDirectoryExists().Combine("Images");
-
-        if (Directory.Exists(imagesPath))
+        // 별도 스레드에서 이미지 파일과 카탈로그 문서를 불러들입니다.
+        await Task.Run(() =>
         {
-            foreach (var image in Directory.EnumerateFiles(imagesPath, "*.png"))
+            var imagesPath = _knownPathsService.EnsureTableClothSettingsDirectoryExists().Combine("Images");
+
+            if (Directory.Exists(imagesPath))
             {
-                var fileName = Path.GetFileNameWithoutExtension(image);
-                _images[fileName] = image;
+                foreach (var image in Directory.EnumerateFiles(imagesPath, "*.png"))
+                {
+                    var fileName = Path.GetFileNameWithoutExtension(image);
+                    _images[fileName] = image;
+                }
+
+                foreach (var icon in Directory.EnumerateFiles(imagesPath, "*.ico"))
+                {
+                    var fileName = Path.GetFileNameWithoutExtension(icon);
+                    _icons[fileName] = icon;
+                }
             }
 
-            foreach (var icon in Directory.EnumerateFiles(imagesPath, "*.ico"))
+            var catalogsPath = _knownPathsService.EnsureTableClothSettingsDirectoryExists().Combine("Catalog.xml");
+
+            if (!File.Exists(catalogsPath))
             {
-                var fileName = Path.GetFileNameWithoutExtension(icon);
-                _icons[fileName] = icon;
+                MessageBox.Show("Catalog.xml not found.");
+                _lifetime.StopApplication();
+                return;
             }
-        }
 
-        var catalogsPath = _knownPathsService.EnsureTableClothSettingsDirectoryExists().Combine("Catalog.xml");
+            using var catalogStream = File.OpenRead(catalogsPath);
+            var serializer = new XmlSerializer(typeof(CatalogDocument));
+            var catalog = serializer.Deserialize(catalogStream) as CatalogDocument;
 
-        if (!File.Exists(catalogsPath))
-        {
-            MessageBox.Show("Catalog.xml not found.");
-            _lifetime.StopApplication();
-            return;
-        }
+            if (catalog == null)
+            {
+                MessageBox.Show("Catalog.xml is invalid.");
+                _lifetime.StopApplication();
+                return;
+            }
 
-        using var catalogStream = File.OpenRead(catalogsPath);
-        var serializer = new XmlSerializer(typeof(CatalogDocument));
-        var catalog = serializer.Deserialize(catalogStream) as CatalogDocument;
-
-        if (catalog == null)
-        {
-            MessageBox.Show("Catalog.xml is invalid.");
-            _lifetime.StopApplication();
-            return;
-        }
-
-        _catalog = catalog;
+            _catalog = catalog;
+        });
 
         LoadImageListRequested?.Invoke(this, EventArgs.Empty);
     }

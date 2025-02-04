@@ -2,6 +2,7 @@
 using Polly;
 using Polly.Extensions.Http;
 using System.Linq.Expressions;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Windows.Input;
 using TableCloth2.Shared;
@@ -117,28 +118,6 @@ public static class Helpers
         });
     }
 
-    internal static readonly string TableClothHttpClient = nameof(TableClothHttpClient);
-
-    public static IServiceCollection AddTableClothHttpClient(
-        this IServiceCollection collection,
-        int retryCount = 5)
-    {
-        var policyHandler = HttpPolicyExtensions
-            .HandleTransientHttpError()
-            .WaitAndRetryAsync(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
-        collection
-            .AddHttpClient(TableClothHttpClient, c =>
-            {
-                c.BaseAddress = new Uri("https://yourtablecloth.app", UriKind.Absolute);
-                c.DefaultRequestHeaders.UserAgent.ParseAdd($"TableCloth/2.0 ({RuntimeInformation.FrameworkDescription}; {RuntimeInformation.RuntimeIdentifier}) TableClothHttpClient/2.0");
-            })
-            .AddPolicyHandler(policyHandler);
-        return collection;
-    }
-
-    public static HttpClient GetTableClothHttpClient(this IHttpClientFactory factory)
-        => factory.CreateClient(TableClothHttpClient);
-
     public static string Combine<TFileSystemInfo>(this TFileSystemInfo fileInfo, params string[] paths)
         where TFileSystemInfo : FileSystemInfo
         => Path.Combine(new string[] { fileInfo.FullName, }.Concat(paths).ToArray());
@@ -154,4 +133,74 @@ public static class Helpers
 
         return binding;
     }
+}
+
+public static class HttpClientHelpers
+{
+    internal static IServiceCollection AddCustomHttpClient(
+        this IServiceCollection collection,
+        string name,
+        Action<HttpClient>? configureClient = null,
+        Func<HttpMessageHandler>? configureMessageHandler = null,
+        int retryCount = 5)
+    {
+        var policyHandler = HttpPolicyExtensions
+            .HandleTransientHttpError()
+            .WaitAndRetryAsync(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+
+        var clientBuilder = collection.AddHttpClient(name);
+        if (configureClient != null)
+            clientBuilder.ConfigureHttpClient(configureClient);
+        if (configureMessageHandler != null)
+            clientBuilder.ConfigurePrimaryHttpMessageHandler(configureMessageHandler);
+        clientBuilder.AddPolicyHandler(policyHandler);
+
+        return collection;
+    }
+
+    internal static readonly string TableClothHttpClient = nameof(TableClothHttpClient);
+
+    public static IServiceCollection AddTableClothHttpClient(this IServiceCollection collections, int retryCount = 5)
+    {
+        return collections.AddCustomHttpClient(
+            TableClothHttpClient,
+            (client) =>
+            {
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(
+                    $"TableCloth/2.0 ({RuntimeInformation.FrameworkDescription}; {RuntimeInformation.RuntimeIdentifier}) TableClothHttpClient/2.0");
+                client.BaseAddress = new Uri("https://yourtablecloth.app", UriKind.Absolute);
+            },
+            default,
+            retryCount);
+    }
+
+    public static HttpClient GetTableClothHttpClient(this IHttpClientFactory factory)
+        => factory.CreateClient(TableClothHttpClient);
+
+    internal static readonly string ChromeLikeHttpClient = nameof(ChromeLikeHttpClient);
+
+    public static IServiceCollection AddChromeLikeHttpClient(this IServiceCollection collections, int retryCount = 5)
+    {
+        return collections.AddCustomHttpClient(
+            ChromeLikeHttpClient,
+            (client) =>
+            {
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36");
+                client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+                client.DefaultRequestHeaders.Add("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7");
+                client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+                client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            },
+            () => new HttpClientHandler
+            {
+                UseCookies = true,
+                AllowAutoRedirect = true,
+                CookieContainer = new CookieContainer(),
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli,
+            },
+            retryCount);
+    }
+
+    public static HttpClient GetChromeLikeHttpClient(this IHttpClientFactory factory)
+        => factory.CreateClient(ChromeLikeHttpClient);
 }

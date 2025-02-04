@@ -15,6 +15,7 @@ public static class TableCloth2Configurator
         builder.Services.AddSingleton<IMessageBoxService, MessageBoxService>();
 
         builder.Services.AddTableClothHttpClient();
+        builder.Services.AddChromeLikeHttpClient();
 
         builder.Services.AddSingleton<KnownPathsService>();
         builder.Services.AddSingleton<ProcessUtility>();

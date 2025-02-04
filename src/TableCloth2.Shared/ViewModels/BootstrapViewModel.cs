@@ -1,53 +1,47 @@
-﻿using AsyncAwaitBestPractices;
-using System.Windows.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using TableCloth2.Shared;
 using TableCloth2.Shared.Contracts;
-using TableCloth2.Shared.Models;
 
 namespace TableCloth2.ViewModels;
 
-public sealed partial class BootstrapViewModel : ViewModelBase
+public sealed partial class BootstrapViewModel : ObservableObject
 {
     public BootstrapViewModel(
-        IBootstrapper bootstrapper)
+        IBootstrapper bootstrapper,
+        IMessenger messenger)
     {
         _bootstrapper = bootstrapper;
+        _messenger = messenger;
 
-        _initializeEvent = new RelayCommand(Initialize);
-
-        _statusMessage = "In Progress...";
+        statusMessage = "In Progress...";
     }
 
     private readonly IBootstrapper _bootstrapper;
+    private readonly IMessenger _messenger;
 
-    internal ICommand InitializeEvent => _initializeEvent;
+    [ObservableProperty]
+    private string statusMessage;
 
-    private readonly RelayCommand _initializeEvent;
+    [ObservableProperty]
+    private bool bootstrapSucceed;
 
-    private void Initialize(object? _)
-        => InitializeAsync(_).SafeFireAndForget();
-
-    private async Task InitializeAsync(object? _)
+    [RelayCommand]
+    private async Task InitializeAsync()
     {
         StatusMessage = "Preparing...";
 
         var result = await _bootstrapper.PerformBootstrapAsync();
+        BootstrapSucceed = result.IsSuccessful;
 
-        if (!result.IsSuccessful)
-            StatusMessage = "Bootstrap Failed.";
-        else
+        if (BootstrapSucceed)
             StatusMessage = "Completed.";
+        else
+            StatusMessage = "Bootstrap Failed.";
 
-        BootstrapCompleted?.Invoke(this, new RelayEventArgs<BootstrapResult>(result));
+        await _messenger.Send<AsyncRequestMessage<bool>, int>(
+            (int)Messages.MarkBootsrapAsCompleted);
     }
-
-    private string _statusMessage;
-
-    public string StatusMessage
-    {
-        get => _statusMessage;
-        set => SetField(ref _statusMessage, value);
-    }
-
-    public event EventHandler<RelayEventArgs<BootstrapResult>>? BootstrapCompleted;
 }

@@ -1,58 +1,43 @@
-﻿using AsyncAwaitBestPractices;
-using System.Windows.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using TableCloth2.Shared;
 using TableCloth2.Shared.Models.Catalog;
 using TableCloth2.Spork.Services;
 
 namespace TableCloth2.Spork.ViewModels;
 
-public sealed class InstallerViewModel : ViewModelBase
+public sealed partial class InstallerViewModel : ObservableObject
 {
     public InstallerViewModel(
-        StepFactory stepFactory)
+        StepFactory stepFactory,
+        IMessenger messenger)
     {
         _stepFactory = stepFactory;
 
         _message = string.Empty;
-        _services = new List<CatalogInternetService>();
-        _steps = new List<StepViewModel>();
-
-        _installCommand = new RelayCommand(Install);
+        _services = new ObservableListSource<CatalogInternetService>();
+        _steps = new ObservableListSource<StepViewModel>();
+        _messenger = messenger;
     }
 
     private readonly StepFactory _stepFactory;
+    private readonly IMessenger _messenger;
 
+    [ObservableProperty]
     private string _message;
 
-    public string Message
+    [ObservableProperty]
+    private ObservableListSource<CatalogInternetService> _services;
+
+    [ObservableProperty]
+    private ObservableListSource<StepViewModel> _steps;
+
+    [RelayCommand]
+    private async Task InstallAsync()
     {
-        get => _message;
-        set => SetField(ref _message, value);
-    }
-
-    private List<CatalogInternetService> _services;
-    private List<StepViewModel> _steps;
-
-    public List<CatalogInternetService> Services
-    {
-        get => _services;
-    }
-
-    public List<StepViewModel> Steps
-    {
-        get => _steps;
-    }
-
-    private RelayCommand _installCommand;
-
-    public ICommand InstallCommand => _installCommand;
-
-    private void Install(object? _)
-        => InstallAsync(_).SafeFireAndForget();
-
-    private async Task InstallAsync(object? _)
-    {
-        var packages = _services.SelectMany(x => x.Packages).DistinctBy(x => x.Url);
+        var packages = this.Services.SelectMany(x => x.Packages).DistinctBy(x => x.Url);
         var downloadSteps = new List<StepViewModel>();
         var installerSteps = new List<StepViewModel>();
 
@@ -73,12 +58,13 @@ public sealed class InstallerViewModel : ViewModelBase
             });
         }
 
-        _steps.AddRange(downloadSteps);
-        _steps.AddRange(installerSteps);
+        foreach (var eachStep in Enumerable.Concat(downloadSteps, installerSteps))
+            this.Steps.Add(eachStep);
 
-        RenderRequested?.Invoke(this, new RelayEventArgs<List<StepViewModel>>(_steps));
+        if (!await _messenger.Send(new AsyncRequestMessage<bool>(), (int)Messages.RenderSteps))
+            throw new Exception("Failed to render installer steps.");
 
-        foreach (var eachStep in _steps)
+        foreach (var eachStep in this.Steps)
         {
             eachStep.IsActiveStep = true;
             eachStep.Result = "In Progress...";
@@ -101,6 +87,4 @@ public sealed class InstallerViewModel : ViewModelBase
             }
         }
     }
-
-    public event EventHandler<RelayEventArgs<List<StepViewModel>>>? RenderRequested;
 }

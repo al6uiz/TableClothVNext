@@ -1,4 +1,6 @@
-﻿using TableCloth2.Shared;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
+using TableCloth2.Shared;
 using TableCloth2.Shared.Models.Catalog;
 using TableCloth2.Spork.ViewModels;
 
@@ -12,23 +14,29 @@ public partial class SporkForm : Form
     }
 
     public SporkForm(
-        SporkViewModel viewModel)
+        SporkViewModel viewModel,
+        IMessenger messenger)
         : this()
     {
         _viewModel = viewModel;
+        _messenger = messenger;
 
         SuspendLayout();
 
-        _viewModel.LoadImageListRequested += viewModel_LoadImageListRequested;
+        _messenger.Register<AsyncRequestMessage<bool>, int>(
+            this, (int)Messages.LoadImageList, OnLoadImageList);
 
         launchButton.Bind(c => c.Command, _viewModel, v => v.LaunchCommand);
 
-        Load += viewModel.InitializeEvent.ToEventHandler();
+        Load += viewModel.InitializeCommand.ToEventHandler();
         listView.ItemSelectionChanged += ListView_ItemSelectionChanged;
         listView.ItemActivate += viewModel.LaunchCommand.ToEventHandler();
 
         ResumeLayout();
     }
+
+    private readonly SporkViewModel _viewModel = default!;
+    private readonly IMessenger _messenger = default!;
 
     private void ListView_ItemSelectionChanged(object? sender, ListViewItemSelectionChangedEventArgs e)
     {
@@ -47,7 +55,7 @@ public partial class SporkForm : Form
         }
     }
 
-    private void viewModel_LoadImageListRequested(object? sender, EventArgs e)
+    private void OnLoadImageList(object recipient, AsyncRequestMessage<bool> message)
     {
         foreach (var eachImage in _viewModel.Images)
         {
@@ -82,7 +90,7 @@ public partial class SporkForm : Form
             nameof(CatalogInternetService.Url),
             "URL");
 
-        foreach (var eachService in _viewModel.Services)
+        foreach (var eachService in _viewModel.Catalog.Services)
         {
             var item = new ListViewItem(eachService.DisplayName, eachService.Id)
             {
@@ -103,9 +111,6 @@ public partial class SporkForm : Form
         }
 
         listView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+        message.Reply(true);
     }
-
-    private readonly SporkViewModel _viewModel = default!;
-
-    public SporkViewModel ViewModel => _viewModel;
 }

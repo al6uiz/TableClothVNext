@@ -1,8 +1,8 @@
-﻿using AsyncAwaitBestPractices;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.Windows.Input;
 using TableCloth2.Contracts;
 using TableCloth2.Shared.Services;
 using TableCloth2.TableCloth.Contracts;
@@ -11,7 +11,7 @@ using WindowsFormsLifetime;
 
 namespace TableCloth2.TableCloth.ViewModels;
 
-public sealed class TableClothViewModel : ViewModelBase
+public sealed partial class TableClothViewModel : ObservableObject
 {
     public TableClothViewModel(
         ILogger<TableClothViewModel> logger,
@@ -33,12 +33,6 @@ public sealed class TableClothViewModel : ViewModelBase
         _sandboxComposer = sandboxComposer;
         _messageBoxService = messageBoxService;
         _sessionService = sessionService;
-
-        _initializeEvent = new RelayCommand(Initialize);
-        _cleanupEvent = new RelayCommand(Cleanup);
-
-        _changeSettingsCommand = new RelayCommand(ChangeSettings);
-        _launchCommand = new RelayCommand(Launch);
     }
 
     private readonly ILogger _logger;
@@ -51,22 +45,8 @@ public sealed class TableClothViewModel : ViewModelBase
     private readonly IMessageBoxService _messageBoxService;
     private readonly SessionService _sessionService;
 
-    private readonly RelayCommand _initializeEvent;
-    private readonly RelayCommand _cleanupEvent;
-
-    private readonly RelayCommand _changeSettingsCommand;
-    private readonly RelayCommand _launchCommand;
-
-    internal ICommand InitializeEvent => _initializeEvent;
-    internal ICommand CleanupEvent => _cleanupEvent;
-
-    public ICommand ChangeSettingsCommand => _changeSettingsCommand;
-    public ICommand LaunchCommand => _launchCommand;
-
-    private void Initialize(object? _)
-        => InitializeAsync(_).SafeFireAndForget();
-
-    private async Task InitializeAsync(object? _)
+    [RelayCommand]
+    private async Task InitializeAsync()
     {
         var bootstrapForm = await _formProvider.GetFormAsync<BootstrapForm>();
         if (bootstrapForm.ShowDialog() != DialogResult.OK)
@@ -77,7 +57,8 @@ public sealed class TableClothViewModel : ViewModelBase
         }
     }
 
-    private void Cleanup(object? _)
+    [RelayCommand]
+    private void Cleanup()
     {
         var targetDirectory = _sessionService.CreateSessionDirectory();
 
@@ -85,10 +66,8 @@ public sealed class TableClothViewModel : ViewModelBase
         catch (Exception ex) { _logger.LogWarning(ex, "Cannot delete '{targetDirectory}'.", targetDirectory.FullName); }
     }
 
-    private void ChangeSettings(object? _)
-        => ChangeSettingsAsync(_).SafeFireAndForget();
-
-    private async Task ChangeSettingsAsync(object? _)
+    [RelayCommand]
+    private async Task ChangeSettingsAsync()
     {
         using var settingsForm = await _formProvider.GetFormAsync<SettingsForm>();
 
@@ -100,10 +79,8 @@ public sealed class TableClothViewModel : ViewModelBase
         await _settingsManager.ExportSettingsFromViewModelAsync(settingsForm.ViewModel);
     }
 
-    private void Launch(object? _)
-        => LaunchSettingsAsync(_).SafeFireAndForget();
-
-    private async Task LaunchSettingsAsync(object? _)
+    [RelayCommand]
+    private async Task LaunchAsync()
     {
         var candidates = new string[]
         {

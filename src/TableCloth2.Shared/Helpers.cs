@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Windows.Input;
-using TableCloth2.Shared;
 
 namespace TableCloth2;
 
@@ -91,30 +90,14 @@ public static class Helpers
         throw new ArgumentException("Invalid property expression", nameof(propertyExpression));
     }
 
-    public static EventHandler<TEventArgs> ToEventHandler<TEventArgs>(this ICommand command)
-        where TEventArgs : EventArgs
-    {
-        return new EventHandler<TEventArgs>((sender, e) =>
-        {
-            var args = new RelayCommandArgument(sender, e);
-
-            if (!command.CanExecute(args))
-                return;
-
-            command.Execute(args);
-        });
-    }
-
     public static EventHandler ToEventHandler(this ICommand command)
     {
         return new EventHandler((sender, e) =>
         {
-            var args = new RelayCommandArgument(sender, e);
-
-            if (!command.CanExecute(args))
+            if (!command.CanExecute(default))
                 return;
 
-            command.Execute(args);
+            command.Execute(default);
         });
     }
 

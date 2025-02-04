@@ -1,10 +1,12 @@
-﻿namespace TableCloth2.Models;
+﻿using TableCloth2.Shared;
+
+namespace TableCloth2.Models;
 
 public sealed class SettingsModel
 {
     public bool MountNPKICerts { get; set; } = true;
     public bool EnableFolderMount { get; set; } = true;
-    public List<string> FolderMountList { get; set; } = new List<string>();
+    public ObservableListSource<string> FolderMountList { get; set; } = new ObservableListSource<string>();
 
     public bool EnableAudioInput { get; set; } = false;
     public bool EnableVideoInput { get; set; } = false;

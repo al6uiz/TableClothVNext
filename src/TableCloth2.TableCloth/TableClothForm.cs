@@ -19,8 +19,8 @@ public partial class TableClothForm : Form
 
         SuspendLayout();
 
-        Load += viewModel.InitializeEvent.ToEventHandler();
-        FormClosed += (_, e) => { if (viewModel.CleanupEvent.CanExecute(e)) viewModel.CleanupEvent.Execute(e); };
+        Load += viewModel.InitializeCommand.ToEventHandler();
+        FormClosed += (_, e) => { if (viewModel.CleanupCommand.CanExecute(e)) viewModel.CleanupCommand.Execute(e); };
 
         settingsButton.Bind(c => c.Command, _viewModel, v => v.ChangeSettingsCommand);
         launchButton.Bind(c => c.Command, _viewModel, v => v.LaunchCommand);

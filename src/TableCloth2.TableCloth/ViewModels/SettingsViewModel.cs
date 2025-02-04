@@ -1,143 +1,90 @@
-﻿using System.Windows.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using TableCloth2.Shared;
 
 namespace TableCloth2.TableCloth.ViewModels;
 
-public sealed class SettingsViewModel : ViewModelBase
+public sealed partial class SettingsViewModel : ObservableObject
 {
-    public SettingsViewModel()
+    public SettingsViewModel(
+        IMessenger messenger)
     {
-        _includeFolderCommand = new RelayCommand(IncludeFolder);
-        _excludeFolderCommand = new RelayCommand(ExcludeFolder);
-        _excludeAllFoldersCommand = new RelayCommand(ExcludeAllFolders);
+        _messenger = messenger;
     }
 
-    private readonly RelayCommand _includeFolderCommand;
-    private readonly RelayCommand _excludeFolderCommand;
-    private readonly RelayCommand _excludeAllFoldersCommand;
+    private readonly IMessenger _messenger;
 
-    public ICommand IncludeFolderCommand => _includeFolderCommand;
-    public ICommand ExcludeFolderCommand => _excludeFolderCommand;
-    public ICommand ExcludeAllFoldersCommand => _excludeAllFoldersCommand;
+    [ObservableProperty]
+    private bool mountNPKICerts;
 
-    private void IncludeFolder(object? _)
+    [ObservableProperty]
+    private bool enableFolderMount;
+
+    [ObservableProperty]
+    private ObservableListSource<string> folderMountList = new ObservableListSource<string>();
+
+    [ObservableProperty]
+    private string? selectedFolderMountPath;
+
+    [ObservableProperty]
+    private bool enableAudioInput;
+
+    [ObservableProperty]
+    private bool enableVideoInput;
+
+    [ObservableProperty]
+    private bool enablePrinterRedirection;
+
+    [ObservableProperty]
+    private bool enableVirtualizedGpu;
+
+    [ObservableProperty]
+    private bool useCloudflareDns;
+
+    [ObservableProperty]
+    private bool collectSentryLog;
+
+    [ObservableProperty]
+    private bool collectAnalytics;
+
+    [RelayCommand]
+    private async Task IncludeFolder()
     {
-        var selectedPaths = new List<string>();
-        var args = new RelayEventArgs<List<string>>(selectedPaths);
-        FolderSelect?.Invoke(this, args);
+        var selectedPaths = await _messenger.Send<AsyncRequestMessage<IEnumerable<string>>, int>((int)Messages.FolderSelect);
 
-        if (!args.Accepted)
+        if (!selectedPaths.Any())
             return;
-
-        var modifiedList = new List<string>(_folderMountList);
 
         foreach (var eachSelectedPath in selectedPaths)
-            modifiedList.Add(eachSelectedPath);
-
-        FolderMountList = modifiedList;
+            FolderMountList.Add(eachSelectedPath);
     }
 
-    private void ExcludeFolder(object? _)
+    [RelayCommand]
+    private void ExcludeFolder()
     {
-        if (string.IsNullOrWhiteSpace(_selectedFolderMountPath))
+        if (string.IsNullOrWhiteSpace(SelectedFolderMountPath))
             return;
 
-        var foundIndex = _folderMountList
-            .FindIndex(x => string.Equals(x, _selectedFolderMountPath, StringComparison.OrdinalIgnoreCase));
+        var foundIndex = (-1);
+        for (var i = 0; i < FolderMountList.Count; i++)
+        {
+            if (string.Equals(FolderMountList[i], SelectedFolderMountPath, StringComparison.OrdinalIgnoreCase))
+            {
+                foundIndex = i;
+                break;
+            }
+        }
 
         if (foundIndex > (-1))
-        {
-            var modifiedList = new List<string>(_folderMountList);
-            modifiedList.RemoveAt(foundIndex);
-            FolderMountList = modifiedList;
-        }
+            FolderMountList.RemoveAt(foundIndex);
     }
 
-    private void ExcludeAllFolders(object? _)
+    [RelayCommand]
+    private void ExcludeAllFolders()
     {
-        var modifiedList = new List<string>(_folderMountList);
-        modifiedList.Clear();
-        FolderMountList = modifiedList;
+        FolderMountList.Clear();
         SelectedFolderMountPath = string.Empty;
     }
-
-    private bool _mountNPKICerts;
-    private bool _enableFolderMount;
-    private List<string> _folderMountList = new List<string>();
-    private string? _selectedFolderMountPath;
-    private bool _enableAudioInput;
-    private bool _enableVideoInput;
-    private bool _enablePrinterRedirection;
-    private bool _enableVirtualizedGpu;
-    private bool _useCloudflareDns;
-    private bool _collectSentryLog;
-    private bool _collectAnalytics;
-
-    public bool MountNPKICerts
-    {
-        get => _mountNPKICerts;
-        set => SetField(ref _mountNPKICerts, value);
-    }
-
-    public bool EnableFolderMount
-    {
-        get => _enableFolderMount;
-        set => SetField(ref _enableFolderMount, value);
-    }
-
-    public List<string> FolderMountList
-    {
-        get => _folderMountList;
-        set => SetField(ref _folderMountList, value);
-    }
-
-    public string? SelectedFolderMountPath
-    {
-        get => _selectedFolderMountPath;
-        set => SetField(ref _selectedFolderMountPath, value);
-    }
-
-    public bool EnableAudioInput
-    {
-        get => _enableAudioInput;
-        set => SetField(ref _enableAudioInput, value);
-    }
-
-    public bool EnableVideoInput
-    {
-        get => _enableVideoInput;
-        set => SetField(ref _enableVideoInput, value);
-    }
-
-    public bool EnablePrinterRedirection
-    {
-        get => _enablePrinterRedirection;
-        set => SetField(ref _enablePrinterRedirection, value);
-    }
-
-    public bool EnableVirtualizedGpu
-    {
-        get => _enableVirtualizedGpu;
-        set => SetField(ref _enableVirtualizedGpu, value);
-    }
-
-    public bool UseCloudflareDns
-    {
-        get => _useCloudflareDns;
-        set => SetField(ref _useCloudflareDns, value);
-    }
-
-    public bool CollectSentryLog
-    {
-        get => _collectSentryLog;
-        set => SetField(ref _collectSentryLog, value);
-    }
-
-    public bool CollectAnalytics
-    {
-        get => _collectAnalytics;
-        set => SetField(ref _collectAnalytics, value);
-    }
-
-    public event EventHandler<RelayEventArgs<List<string>>>? FolderSelect;
 }

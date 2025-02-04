@@ -1,4 +1,5 @@
-﻿using TableCloth2.Shared;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using TableCloth2.TableCloth.ViewModels;
 
 namespace TableCloth2.TableCloth;
@@ -11,10 +12,12 @@ public partial class SettingsForm : Form
     }
 
     public SettingsForm(
-        SettingsViewModel viewModel)
+        SettingsViewModel viewModel,
+        IMessenger messenger)
         : this()
     {
         _viewModel = viewModel;
+        _messenger = messenger;
 
         SuspendLayout();
 
@@ -44,21 +47,22 @@ public partial class SettingsForm : Form
         collectSentryLog.Bind(c => c.Checked, _viewModel, v => v.CollectSentryLog);
         collectAnalytics.Bind(c => c.Checked, _viewModel, v => v.CollectAnalytics);
 
-        _viewModel.FolderSelect += viewModel_FolderSelect;
+        _messenger.Register<AsyncRequestMessage<IEnumerable<string>>, int>(
+            this, (int)Messages.FolderSelect, OnFolderSelect);
 
         ResumeLayout();
     }
 
-    private void viewModel_FolderSelect(object? sender, RelayEventArgs<List<string>> e)
-    {
-        if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
-        {
-            e.Value.AddRange(folderBrowserDialog.SelectedPaths);
-            e.Accepted = true;
-        }
-    }
-
     private readonly SettingsViewModel _viewModel = default!;
+    private readonly IMessenger _messenger = default!;
 
     public SettingsViewModel ViewModel => _viewModel;
+
+    private void OnFolderSelect(object recipient, AsyncRequestMessage<IEnumerable<string>> message)
+    {
+        if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+            message.Reply(folderBrowserDialog.SelectedPaths);
+        else
+            message.Reply(Enumerable.Empty<string>());
+    }
 }

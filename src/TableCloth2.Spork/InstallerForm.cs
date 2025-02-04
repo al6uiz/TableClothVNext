@@ -1,4 +1,5 @@
-﻿using TableCloth2.Shared;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using TableCloth2.Spork.ViewModels;
 
 namespace TableCloth2.Spork;
@@ -13,13 +14,13 @@ public partial class InstallerForm : Form
 
     public InstallerForm(
         InstallerViewModel viewModel,
-        IServiceProvider serviceProvider)
+        IMessenger messenger)
         : this()
     {
         _viewModel = viewModel;
-        _viewModel.RenderRequested += _viewModel_RenderRequested;
+        _messenger = messenger;
 
-        _serviceProvider = serviceProvider;
+        _messenger.Register<AsyncRequestMessage<bool>, int>(this, (int)Messages.RenderSteps, OnRenderSteps);
 
         SuspendLayout();
 
@@ -28,12 +29,15 @@ public partial class InstallerForm : Form
         ResumeLayout();
     }
 
-    private void _viewModel_RenderRequested(object? sender, RelayEventArgs<List<StepViewModel>> e)
+    private readonly InstallerViewModel _viewModel = default!;
+    private readonly IMessenger _messenger = default!;
+
+    private void OnRenderSteps(object recipient, AsyncRequestMessage<bool> message)
     {
         const int stepControlHeight = 50;
         panel.AutoScrollMargin = new Size(panel.AutoScrollMargin.Width, stepControlHeight);
 
-        var list = new List<StepViewModel>(e.Value);
+        var list = new List<StepViewModel>(_viewModel.Steps);
         list.Reverse();
 
         foreach (var eachStep in list)
@@ -45,10 +49,9 @@ public partial class InstallerForm : Form
                 Height = stepControlHeight,
             };
         }
-    }
 
-    private readonly InstallerViewModel _viewModel = default!;
-    private readonly IServiceProvider _serviceProvider = default!;
+        message.Reply(true);
+    }
 
     public InstallerViewModel ViewModel => _viewModel;
 }

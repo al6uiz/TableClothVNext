@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TableCloth2.Contracts;
@@ -24,6 +25,8 @@ public static class TableCloth2Configurator
 
         builder.Services.AddTransient<BootstrapViewModel>();
         builder.Services.AddTransient<BootstrapForm>();
+
+        builder.Services.AddSingleton<IMessenger, WeakReferenceMessenger>();
     }
 
     public static IServiceProvider CreateOuterApplication(string[] args)

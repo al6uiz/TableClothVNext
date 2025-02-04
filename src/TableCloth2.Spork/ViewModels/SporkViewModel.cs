@@ -1,7 +1,9 @@
-﻿using AsyncAwaitBestPractices;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Windows.Input;
 using System.Xml.Serialization;
 using TableCloth2.Contracts;
 using TableCloth2.Services;
@@ -10,7 +12,7 @@ using WindowsFormsLifetime;
 
 namespace TableCloth2.Spork.ViewModels;
 
-public sealed class SporkViewModel : ViewModelBase
+public sealed partial class SporkViewModel : ObservableObject
 {
     public SporkViewModel(
         ILogger<SporkViewModel> logger,
@@ -18,7 +20,8 @@ public sealed class SporkViewModel : ViewModelBase
         IHostApplicationLifetime lifetime,
         IFormProvider formProvider,
         IMessageBoxService messageBoxService,
-        KnownPathsService knownPathsService)
+        KnownPathsService knownPathsService,
+        IMessenger messenger)
     {
         _logger = logger;
         _configurations = configurations;
@@ -26,9 +29,7 @@ public sealed class SporkViewModel : ViewModelBase
         _formProvider = formProvider;
         _messageBoxService = messageBoxService;
         _knownPathsService = knownPathsService;
-
-        _launchCommand = new RelayCommand(Launch);
-        _initializeEvent = new RelayCommand(Initialize);
+        _messenger = messenger;
     }
 
     private readonly ILogger _logger;
@@ -37,20 +38,32 @@ public sealed class SporkViewModel : ViewModelBase
     private readonly IFormProvider _formProvider;
     private readonly IMessageBoxService _messageBoxService;
     private readonly KnownPathsService _knownPathsService;
+    private readonly IMessenger _messenger;
 
-    private readonly RelayCommand _launchCommand;
+    [ObservableProperty]
+    private Dictionary<string, string> _images = new Dictionary<string, string>();
 
-    public ICommand LaunchCommand => _launchCommand;
+    [ObservableProperty]
+    private Dictionary<string, string> _icons = new Dictionary<string, string>();
 
-    private void Launch(object? selectedServicesArgs)
+    [ObservableProperty]
+    private HashSet<CatalogInternetService> _selectedServices = new HashSet<CatalogInternetService>();
+
+    [ObservableProperty]
+    private CatalogDocument _catalog = default!;
+
+    [RelayCommand]
+    private void Launch()
     {
         try
         {
-            if (_selectedServices.Count < 1)
+            if (this.SelectedServices.Count < 1)
                 return;
 
             using var installerForm = _formProvider.GetForm<InstallerForm>();
-            installerForm.ViewModel.Services.AddRange(_selectedServices);
+
+            foreach (var eachService in this.SelectedServices)
+                installerForm.ViewModel.Services.Add(eachService);
 
             if (installerForm.ShowDialog() != DialogResult.OK)
             {
@@ -64,14 +77,8 @@ public sealed class SporkViewModel : ViewModelBase
         }
     }
 
-    private readonly RelayCommand _initializeEvent;
-
-    internal ICommand InitializeEvent => _initializeEvent;
-
-    private void Initialize(object? _)
-        => InitializeAsync(_).SafeFireAndForget();
-
-    private async Task InitializeAsync(object? _)
+    [RelayCommand]
+    private async Task InitializeAsync()
     {
         var bootstrapForm = await _formProvider.GetFormAsync<BootstrapForm>();
         if (bootstrapForm.ShowDialog() != DialogResult.OK)
@@ -91,13 +98,13 @@ public sealed class SporkViewModel : ViewModelBase
                 foreach (var image in Directory.EnumerateFiles(imagesPath, "*.png"))
                 {
                     var fileName = Path.GetFileNameWithoutExtension(image);
-                    _images[fileName] = image;
+                    this.Images[fileName] = image;
                 }
 
                 foreach (var icon in Directory.EnumerateFiles(imagesPath, "*.ico"))
                 {
                     var fileName = Path.GetFileNameWithoutExtension(icon);
-                    _icons[fileName] = icon;
+                    this.Icons[fileName] = icon;
                 }
             }
 
@@ -121,21 +128,9 @@ public sealed class SporkViewModel : ViewModelBase
                 return;
             }
 
-            _catalog = catalog;
+            this.Catalog = catalog;
         });
 
-        LoadImageListRequested?.Invoke(this, EventArgs.Empty);
+        await _messenger.Send<AsyncRequestMessage<bool>, int>((int)Messages.LoadImageList);
     }
-
-    public event EventHandler? LoadImageListRequested;
-
-    private readonly Dictionary<string, string> _images = new Dictionary<string, string>();
-    private readonly Dictionary<string, string> _icons = new Dictionary<string, string>();
-    private CatalogDocument _catalog = default!;
-    private HashSet<CatalogInternetService> _selectedServices = new HashSet<CatalogInternetService>();
-
-    public IReadOnlyDictionary<string, string> Images => _images;
-    public IReadOnlyDictionary<string, string> Icons => _icons;
-    public IReadOnlyList<CatalogInternetService> Services => _catalog.Services;
-    public HashSet<CatalogInternetService> SelectedServices => _selectedServices;
 }

@@ -1,9 +1,10 @@
-﻿using TableCloth2.Spork.Contracts;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using TableCloth2.Spork.Contracts;
 using TableCloth2.Spork.Steps;
 
 namespace TableCloth2.Spork.ViewModels;
 
-public sealed class StepViewModel : ViewModelBase
+public sealed partial class StepViewModel : ObservableObject
 {
     public StepViewModel()
     {
@@ -14,39 +15,18 @@ public sealed class StepViewModel : ViewModelBase
         _installerStep = NoOpStep.Instance;
     }
 
+    [ObservableProperty]
     private bool _isActiveStep;
+
+    [ObservableProperty]
     private string _stepName;
+
+    [ObservableProperty]
     private string _result;
+
+    [ObservableProperty]
     private bool? _stepSucceed;
+
+    [ObservableProperty]
     private IInstallerStep _installerStep;
-
-    public bool IsActiveStep
-    {
-        get => _isActiveStep;
-        set => SetField(ref _isActiveStep, value);
-    }
-
-    public string StepName
-    {
-        get => _stepName;
-        set => SetField(ref _stepName, value);
-    }
-
-    public string Result
-    {
-        get => _result;
-        set => SetField(ref _result, value);
-    }
-
-    public bool? StepSucceed
-    {
-        get => _stepSucceed;
-        set => SetField(ref _stepSucceed, value);
-    }
-
-    public IInstallerStep InstallerStep
-    {
-        get => _installerStep;
-        set => SetField(ref _installerStep, value);
-    }
 }

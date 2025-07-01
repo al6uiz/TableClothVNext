@@ -1,0 +1,53 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:lang="clr-namespace:TableCloth3.Launcher.Languages"
+		xmlns:vm="clr-namespace:TableCloth3.Launcher.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="320"
+		Width="480" Height="320"
+		CanResize="False"
+        x:Class="TableCloth3.Launcher.Windows.LauncherMainWindow"
+		x:DataType="vm:LauncherMainWindowViewModel"
+        Title="{x:Static lang:LauncherStrings.LauncherMainWindowTitle}"
+		Padding="20" WindowStartupLocation="CenterScreen"
+		Icon="avares:/Assets/Images/TableCloth.png">
+	<Design.DataContext>
+		<vm:LauncherMainWindowViewModel />
+	</Design.DataContext>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+		<CheckBox Grid.Row="0" Content="{x:Static lang:LauncherStrings.UseMicrophone}" IsChecked="{Binding UseMicrophone}" />
+		<CheckBox Grid.Row="1" Content="{x:Static lang:LauncherStrings.UseWebCamera}" IsChecked="{Binding UseWebCamera}" />
+		<CheckBox Grid.Row="2" Content="{x:Static lang:LauncherStrings.SharePrinters}" IsChecked="{Binding SharePrinters}" />
+		<CheckBox Grid.Row="3" Content="{x:Static lang:LauncherStrings.MountNpkiFolders}" IsChecked="{Binding MountNpkiFolders}" />
+		<StackPanel Grid.Row="4" Orientation="Horizontal" Height="30">
+			<CheckBox Content="{x:Static lang:LauncherStrings.MountSpecificFolders}" IsChecked="{Binding MountSpecificFolders}" />
+			<TextBlock Margin="5" />
+			<Button Content="{x:Static lang:LauncherStrings.ManageFolders}" Command="{Binding ManageFolderButtonCommand}" IsEnabled="{Binding MountSpecificFolders}" />
+		</StackPanel>
+		<Grid Grid.Row="5" Height="30">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="50*" />
+				<ColumnDefinition Width="50*" />
+			</Grid.ColumnDefinitions>
+			<StackPanel Grid.Column="0" Orientation="Horizontal">
+				<Button Content="{x:Static lang:LauncherStrings.AboutApp}" Command="{Binding AboutButtonCommand}" />
+			</StackPanel>
+			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+				<Button Content="{x:Static lang:LauncherStrings.LaunchSandbox}" />
+				<!-- To Do: Sandbox 미지원 환경 또는 비 Windows 환경을 위한 Export 기능 추가 -->
+				<Button Content="E_xport" IsVisible="False" />
+				<TextBlock Margin="5" />
+ 				<Button Content="{x:Static lang:LauncherStrings.CloseApp}" Command="{Binding CloseButtonCommand}" />
+			</StackPanel>
+		</Grid>
+	</Grid>
+</Window>

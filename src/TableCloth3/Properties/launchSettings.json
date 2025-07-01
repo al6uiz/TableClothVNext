@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Launcher": {
+      "commandName": "Project",
+      "commandLineArgs": "--mode launcher"
+    },
+    "Spork": {
+      "commandName": "Project",
+      "commandLineArgs": "--mode spork"
+    }
+  }
+}

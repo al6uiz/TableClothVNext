@@ -1,0 +1,28 @@
+﻿using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using TableCloth3.Shared.Services;
+using TableCloth3.Spork.ViewModels;
+using TableCloth3.Spork.Windows;
+
+namespace TableCloth3.Spork;
+
+internal static class SporkHostExtensions
+{
+    public static IHostApplicationBuilder UseTableCloth3SporkComponents(this IHostApplicationBuilder builder)
+    {
+        builder.Services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
+        builder.Services.AddSingleton<AvaloniaWindowManager>();
+
+        builder.Services.AddTransient<InstallerProgressWindowViewModel>();
+        builder.Services.AddTransient<InstallerStepItemViewModel>();
+        builder.Services.AddTransient<InstallerProgressWindow>();
+
+        builder.Services.AddTransient<SporkMainWindowViewModel>();
+        builder.Services.AddTransient<TableClothCatalogItemViewModel>();
+        builder.Services.AddTransient<TableClothPackageItemViewModel>();
+        builder.Services.AddTransient<SporkMainWindow>();
+
+        return builder;
+    }
+}

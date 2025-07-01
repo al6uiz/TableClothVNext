@@ -1,0 +1,91 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+		<AssemblyName>TableCloth3</AssemblyName>
+		<RootNamespace>TableCloth3</RootNamespace>
+		<Title>TableCloth3</Title>
+		<Copyright>(c) 2021, rkttu.com. All rights reserved.</Copyright>
+		<PackageProjectUrl>https://yourtablecloth.app/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/yourtablecloth/TableCloth</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<AssemblyVersion>3.0.0.0</AssemblyVersion>
+		<FileVersion>3.0.0.0</FileVersion>
+		<PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<IncludeSymbols>True</IncludeSymbols>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<Version>3.0.0.0</Version>
+		<ApplicationIcon>App.ico</ApplicationIcon>
+		<EmitCompilerGeneratedFiles>True</EmitCompilerGeneratedFiles>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AsyncAwaitBestPractices" Version="9.0.0" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.3.2" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.2" />
+		<PackageReference Include="Avalonia.Themes.Simple" Version="11.3.2" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="Lemon.Hosting.AvaloniauiDesktop" Version="1.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
+		<PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AvaloniaResource Include="Assets\Fonts\*.ttf" />
+		<AvaloniaResource Include="Assets\Images\*.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="App.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="App.axaml.cs">
+			<DependentUpon>App.axaml</DependentUpon>
+		</Compile>
+		<Compile Update="Launcher\Languages\LauncherStrings.Designer.cs">
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		  <DependentUpon>LauncherStrings.resx</DependentUpon>
+		</Compile>
+		<Compile Update="Launcher\Windows\FolderManageWindow.axaml.cs">
+			<DependentUpon>FolderManageWindow.axaml</DependentUpon>
+		</Compile>
+		<Compile Update="Shared\Languages\SharedStrings.Designer.cs">
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		  <DependentUpon>SharedStrings.resx</DependentUpon>
+		</Compile>
+		<Compile Update="Spork\Languages\SporkStrings.Designer.cs">
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		  <DependentUpon>SporkStrings.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Update="Launcher\Languages\LauncherStrings.resx">
+	    <Generator>PublicResXFileCodeGenerator</Generator>
+	    <LastGenOutput>LauncherStrings.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	  <EmbeddedResource Update="Shared\Languages\SharedStrings.resx">
+	    <Generator>PublicResXFileCodeGenerator</Generator>
+	    <LastGenOutput>SharedStrings.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	  <EmbeddedResource Update="Spork\Languages\SporkStrings.resx">
+	    <Generator>PublicResXFileCodeGenerator</Generator>
+	    <LastGenOutput>SporkStrings.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Launcher\Services\" />
+	  <Folder Include="Spork\Services\" />
+	</ItemGroup>
+
+</Project>

@@ -59,5 +59,77 @@ namespace TableCloth3.Spork.Languages {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   _About...과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string AboutButton {
+            get {
+                return ResourceManager.GetString("AboutButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Close과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string CloseButton {
+            get {
+                return ResourceManager.GetString("CloseButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Select a web site to launch: 과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string InstructionLabel {
+            get {
+                return ResourceManager.GetString("InstructionLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Launch...과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string LaunchButton {
+            get {
+                return ResourceManager.GetString("LaunchButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   No items found.과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string NoResultsFound {
+            get {
+                return ResourceManager.GetString("NoResultsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Refresh과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string RefreshButton {
+            get {
+                return ResourceManager.GetString("RefreshButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Type the search keyword here...과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string SearchBoxWatermark {
+            get {
+                return ResourceManager.GetString("SearchBoxWatermark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Spork과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string SporkMainWindowTitle {
+            get {
+                return ResourceManager.GetString("SporkMainWindowTitle", resourceCulture);
+            }
+        }
     }
 }

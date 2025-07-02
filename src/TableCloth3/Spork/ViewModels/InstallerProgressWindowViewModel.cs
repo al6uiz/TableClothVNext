@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows.Input;
 using TableCloth3.Shared.ViewModels;
 
@@ -23,6 +24,12 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
 
     [ObservableProperty]
     private ObservableCollection<InstallerStepItemViewModel> _steps = [];
+
+    public async Task RunInstallerStepsAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var eachStep in Steps)
+            await eachStep.PerformInstallStepCommand.ExecuteAsync(default);
+    }
 }
 
 public sealed partial class InstallerStepItemViewModel : BaseViewModel
@@ -42,6 +49,30 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel
     [ObservableProperty]
     private StepProgress _stepProgress = StepProgress.None;
 
+    partial void OnStepErrorChanged(string value)
+        => OnPropertyChanged(nameof(HasError));
+
+    partial void OnStepProgressChanged(StepProgress value)
+        => OnPropertyChanged(nameof(StatusText));
+
+    [RelayCommand]
+    private async Task LoadInstallStep(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            StepProgress = StepProgress.None;
+            
+            await Task.Delay(TimeSpan.FromSeconds(1d), cancellationToken).ConfigureAwait(false);
+
+            StepProgress = StepProgress.Ready;
+        }
+        catch (Exception ex)
+        {
+            StepError = ex.Message;
+            StepProgress = StepProgress.Failed;
+        }
+    }
+
     [RelayCommand]
     private async Task PerformInstallStep(CancellationToken cancellationToken = default)
     {
@@ -59,11 +90,25 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel
             StepProgress = StepProgress.Failed;
         }
     }
+
+    public string StatusText => StepProgress switch
+    {
+        StepProgress.Loading => "⌛",
+        StepProgress.Ready => "📥",
+        StepProgress.Installing => "👟",
+        StepProgress.Succeed => "✅",
+        StepProgress.Failed => "❌",
+        StepProgress.Unknown => "?",
+        _ => "❯ ",
+    };
+
+    public bool HasError => !string.IsNullOrWhiteSpace(StepError);
 }
 
 public enum StepProgress
 {
     None,
+    Loading,
     Ready,
     Installing,
     Succeed,

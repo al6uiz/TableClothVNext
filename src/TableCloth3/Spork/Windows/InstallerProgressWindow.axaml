@@ -24,15 +24,15 @@
 			<ItemsControl ItemsSource="{Binding Steps}">
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
-						<Grid>
+						<Grid Margin="0 5 0 0">
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="Auto" />
 								<ColumnDefinition Width="90*" />
 								<ColumnDefinition Width="Auto" />
 							</Grid.ColumnDefinitions>
-							<Label Grid.Column="0" Content="{Binding StepProgress}" />
+							<Label Grid.Column="0" Content="{Binding StatusText}" />
 							<Label Grid.Column="1" Content="{Binding PackageName}" />
-							<HyperlinkButton Grid.Column="2" Content="Reason" Tag="{Binding StepError}" />
+							<HyperlinkButton Grid.Column="2" Content="Reason" IsVisible="{Binding HasError}" Tag="{Binding StepError}" />
 						</Grid>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>

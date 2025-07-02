@@ -7,8 +7,12 @@
 		mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="480"
 		Width="300" Height="400" CanResize="False"
         x:Class="TableCloth3.InstallerProgressWindow"
+		x:DataType="vm:InstallerProgressWindowViewModel"
         Title="Installer Work In Progress..."
 		Padding="20" Icon="avares:/Assets/Images/Spork.png">
+	<Design.DataContext>
+		<vm:InstallerProgressWindowViewModel />
+	</Design.DataContext>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
@@ -16,9 +20,30 @@
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 		<Label Grid.Row="0">프로그램을 설치 중입니다.</Label>
-		<ScrollViewer Grid.Row="1">
-			<Label>Test</Label>
+		<ScrollViewer Grid.Row="1" Margin="0 15 0 0">
+			<ItemsControl ItemsSource="{Binding Steps}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto" />
+								<ColumnDefinition Width="90*" />
+								<ColumnDefinition Width="Auto" />
+							</Grid.ColumnDefinitions>
+							<Label Grid.Column="0" Content="{Binding StepProgress}" />
+							<Label Grid.Column="1" Content="{Binding PackageName}" />
+							<HyperlinkButton Grid.Column="2" Content="Reason" Tag="{Binding StepError}" />
+						</Grid>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
 		</ScrollViewer>
-		<Label Grid.Row="2">설치 진행 상황 표시기 / 취소 버튼</Label>
+		<Grid Grid.Row="2" Margin="0 15 0 0">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="50*" />
+				<ColumnDefinition Width="50*" />
+			</Grid.ColumnDefinitions>
+			<Button Grid.Column="1" Content="취소" HorizontalAlignment="Right" />
+		</Grid>
 	</Grid>
 </Window>

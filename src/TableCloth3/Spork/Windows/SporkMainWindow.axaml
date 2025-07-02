@@ -110,12 +110,12 @@
 				<ColumnDefinition Width="50*" />
 			</Grid.ColumnDefinitions>
 			<StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0 20 0 0" Height="30">
-				<Button Content="{x:Static lang:SporkStrings.AboutButton}" />
+				<Button Content="{x:Static lang:SporkStrings.AboutButton}" Command="{Binding AboutButtonCommand}" />
 				<TextBlock Margin="3" />
-				<Button Content="{x:Static lang:SporkStrings.RefreshButton}" />
+				<Button Content="{x:Static lang:SporkStrings.RefreshButton}" Command="{Binding RefreshCatalogCommand}" />
 			</StackPanel>
 			<StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 20 0 0" Height="30">
-				<Button Content="{x:Static lang:SporkStrings.CloseButton}" />
+				<Button Content="{x:Static lang:SporkStrings.CloseButton}" Command="{Binding CloseButtonCommand}" />
 			</StackPanel>
 		</Grid>
 	</Grid>

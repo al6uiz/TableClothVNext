@@ -1,13 +1,25 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
-using TableCloth3.Shared.Services;
+using System.Net.Http;
 using TableCloth3.Shared.ViewModels;
 
 namespace TableCloth3.Spork.ViewModels;
 
 public sealed partial class SporkMainWindowViewModel : BaseViewModel
 {
+    [ActivatorUtilitiesConstructor]
+    public SporkMainWindowViewModel(
+        IMessenger messenger,
+        IHttpClientFactory httpClientFactory)
+        : this()
+    {
+        _messenger = messenger;
+        _httpClientFactory = httpClientFactory;
+    }
+
     public SporkMainWindowViewModel()
         : base()
     {
@@ -19,6 +31,17 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
         ApplyFilter();
     }
+    
+    public sealed record class AboutButtonRequest;
+
+    public interface IAboutButtonRequestRecipient : IRecipient<AboutButtonRequest>;
+
+    public sealed record class CloseButtonRequest;
+
+    public interface ICloseButtonRequestRecipient : IRecipient<CloseButtonRequest>;
+
+    private readonly IMessenger _messenger = default!;
+    private readonly IHttpClientFactory _httpClientFactory = default!;
 
     protected override void PrepareDesignTimePreview()
     {
@@ -68,9 +91,20 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void RefreshCatalog()
+    private void AboutButton()
+        => _messenger.Send<AboutButtonRequest>();
+
+    [RelayCommand]
+    private async Task RefreshCatalog(CancellationToken cancellationToken = default)
     {
+        var httpClient = _httpClientFactory.CreateCatalogHttpClient();
+        var content = await httpClient.GetStringAsync($"/TableClothCatalog/Catalog.xml?ts={Uri.EscapeDataString(DateTime.UtcNow.Ticks.ToString())}", cancellationToken).ConfigureAwait(false);
+        return;
     }
+
+    [RelayCommand]
+    private void CloseButton()
+        => _messenger.Send<CloseButtonRequest>();
 }
 
 public sealed partial class TableClothCatalogItemViewModel : BaseViewModel

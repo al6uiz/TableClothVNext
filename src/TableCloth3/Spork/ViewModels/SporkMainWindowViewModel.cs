@@ -1,9 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AsyncAwaitBestPractices;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
-using System.Net.Http;
 using System.Xml.XPath;
 using TableCloth3.Shared.ViewModels;
 using TableCloth3.Spork.Services;
@@ -25,10 +25,6 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     public SporkMainWindowViewModel()
         : base()
     {
-        _categoryItems = Enum.GetValues<TableClothItemCategory>()
-            .Select(x => new KeyValuePair<TableClothItemCategory, string>(x, x.ToString()))
-            .ToArray();
-
         Items.CollectionChanged += (s, e) =>
         {
             OnPropertyChanged(nameof(HasItems));
@@ -38,6 +34,10 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
         ApplyFilter();
     }
+
+    public sealed record class LoadingFailureNotification(Exception OccurredException);
+
+    public interface ILoadingFailureNotificationRecipient : IRecipient<LoadingFailureNotification>;
     
     public sealed record class AboutButtonRequest;
 
@@ -49,7 +49,6 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
     private readonly IMessenger _messenger = default!;
     private readonly TableClothCatalogService _catalogService = default!;
-    private readonly KeyValuePair<TableClothItemCategory, string>[] _categoryItems = [];
 
     protected override void PrepareDesignTimePreview()
     {
@@ -57,7 +56,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         {
             Items.Add(new()
             {
-                Category = TableClothItemCategory.Financing,
+                Category = "Financing",
                 DisplayName = $"Test {i + 1}",
                 ServiceId = $"test{i + 1}",
                 TargetUrl = "https://yourtablecloth.app",
@@ -78,14 +77,37 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     [ObservableProperty]
     private string _filterText = string.Empty;
 
-    public bool HasItems => FilteredItems.Any();
+    [ObservableProperty]
+    private TableClothCategoryItemViewModel? _selectedCategory = default;
 
-    public bool HasNoItems => !FilteredItems.Any();
+    [ObservableProperty]
+    private ObservableCollection<TableClothCategoryItemViewModel> _categoryItems = [];
 
-    public IReadOnlyList<KeyValuePair<TableClothItemCategory, string>> CategoryItems => _categoryItems;
+    [ObservableProperty]
+    private bool _isLoading = false;
+
+    public bool HasItems
+    {
+        get
+        {
+            if (IsLoading) return false;
+
+            try { return FilteredItems.Any(); }
+            catch { return false; }
+        }
+    }
+
+    public bool HasNoItems => !IsLoading && !HasItems;
 
     partial void OnFilterTextChanged(string value)
         => ApplyFilter();
+
+    partial void OnSelectedCategoryChanged(TableClothCategoryItemViewModel? value)
+        => ApplyFilter();
+
+    [RelayCommand]
+    private void Loaded()
+        => RefreshCatalog().SafeFireAndForget();
 
     [RelayCommand]
     private void ApplyFilter()
@@ -93,7 +115,8 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         var query = (IEnumerable<TableClothCatalogItemViewModel>)Items;
         if (!string.IsNullOrWhiteSpace(FilterText))
             query = query.Where(x => x.DisplayName.Contains(FilterText, StringComparison.OrdinalIgnoreCase));
-        query = query.OrderBy(x => x.DisplayName);
+        if (SelectedCategory != null && !SelectedCategory.IsWildcard)
+            query = query.Where(x => x.Category.Equals(SelectedCategory.CategoryName, StringComparison.OrdinalIgnoreCase));
         FilteredItems = query;
     }
 
@@ -104,29 +127,58 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     [RelayCommand]
     private async Task RefreshCatalog(CancellationToken cancellationToken = default)
     {
-        Items.Clear();
-
-        var doc = await _catalogService.LoadCatalogAsync(cancellationToken).ConfigureAwait(false);
-        var services = doc.XPathSelectElements("/TableClothCatalog/InternetServices/Service");
-
-        foreach (var eachService in services)
+        try
         {
-            var id = eachService.Attribute("Id")?.Value;
+            IsLoading = true;
+            Items.Clear();
 
-            if (string.IsNullOrWhiteSpace(id))
-                continue;
+            var doc = await _catalogService.LoadCatalogAsync(cancellationToken).ConfigureAwait(false);
+            var services = doc.XPathSelectElements("/TableClothCatalog/InternetServices/Service");
 
-            Enum.TryParse<TableClothItemCategory>(
-                eachService.Attribute("Category")?.Value, true, out var category);
-            var displayName = eachService.Attribute("DisplayName")?.Value;
-            var url = eachService.Attribute("Url")?.Value;
-
-            Items.Add(new()
+            foreach (var eachService in services)
             {
-                ServiceId = id,
-                DisplayName = displayName ?? "(Unknown)",
-                Category = category,
-                TargetUrl = url ?? string.Empty,
+                var id = eachService.Attribute("Id")?.Value;
+
+                if (string.IsNullOrWhiteSpace(id))
+                    continue;
+
+                var category = eachService.Attribute("Category")?.Value ?? "Unknown";
+                var displayName = eachService.Attribute("DisplayName")?.Value;
+                var url = eachService.Attribute("Url")?.Value;
+
+                Items.Add(new()
+                {
+                    ServiceId = id,
+                    DisplayName = displayName ?? "(Unknown)",
+                    Category = category,
+                    TargetUrl = url ?? string.Empty,
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            _messenger.Send<LoadingFailureNotification>(new(ex));
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+
+        CategoryItems.Clear();
+
+        var allItemCategory = new TableClothCategoryItemViewModel()
+        {
+            CategoryName = "All",
+            IsWildcard = true,
+        };
+        CategoryItems.Add(allItemCategory);
+        SelectedCategory = allItemCategory;
+        foreach (var eachCategory in Items.Select(x => x.Category).Distinct())
+        {
+            CategoryItems.Add(new TableClothCategoryItemViewModel()
+            {
+                CategoryName = eachCategory,
+                IsWildcard = false,
             });
         }
 
@@ -138,11 +190,6 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         => _messenger.Send<CloseButtonRequest>();
 }
 
-public sealed class TableClothCategoryFilterItem
-{
-    public string Name { get; set; }
-}
-
 public sealed partial class TableClothCatalogItemViewModel : BaseViewModel
 {
     [ObservableProperty]
@@ -152,7 +199,7 @@ public sealed partial class TableClothCatalogItemViewModel : BaseViewModel
     private string _displayName = string.Empty;
 
     [ObservableProperty]
-    private TableClothItemCategory _category;
+    private string _category = string.Empty;
 
     [ObservableProperty]
     private string _targetUrl = string.Empty;
@@ -178,15 +225,16 @@ public sealed partial class TableClothPackageItemViewModel : BaseViewModel
     private string _packageArguments = string.Empty;
 }
 
-public enum TableClothItemCategory
+public sealed partial class TableClothCategoryItemViewModel : BaseViewModel
 {
-    None,
-    Banking,
-    Financing,
-    Security,
-    CreditCard,
-    Insurance,
-    Government,
-    Education,
-    Other,
+    [ObservableProperty]
+    private string _categoryName = string.Empty;
+
+    [ObservableProperty]
+    private bool _isWildcard = false;
+
+    public string CategoryDisplayName
+    {
+        get { return CategoryName; }
+    }
 }

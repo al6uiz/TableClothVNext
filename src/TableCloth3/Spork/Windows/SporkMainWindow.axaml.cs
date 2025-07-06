@@ -1,6 +1,9 @@
+using AsyncAwaitBestPractices;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.Windows;
 using TableCloth3.Spork.ViewModels;
@@ -10,6 +13,7 @@ namespace TableCloth3.Spork.Windows;
 
 public partial class SporkMainWindow :
     Window,
+    IRecipient<LoadingFailureNotification>,
     IRecipient<AboutButtonRequest>,
     IRecipient<CloseButtonRequest>
 {
@@ -24,6 +28,7 @@ public partial class SporkMainWindow :
         _messenger = messenger;
         _windowManager = windowManager;
 
+        _messenger.Register<LoadingFailureNotification>(this);
         _messenger.Register<AboutButtonRequest>(this);
         _messenger.Register<CloseButtonRequest>(this);
 
@@ -46,13 +51,22 @@ public partial class SporkMainWindow :
         base.OnClosed(e);
     }
 
-    void IRecipient<AboutButtonRequest>.Receive(SporkMainWindowViewModel.AboutButtonRequest message)
+    void IRecipient<LoadingFailureNotification>.Receive(LoadingFailureNotification message)
+    {
+        var msgBox = MessageBoxManager.GetMessageBoxStandard(
+            "Unexpected error occurred",
+            $"Unexpected error occurred: {message.OccurredException.Message}",
+            ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
+        msgBox.ShowWindowDialogAsync(this).SafeFireAndForget();
+    }
+
+    void IRecipient<AboutButtonRequest>.Receive(AboutButtonRequest message)
     {
         var aboutWindow = _windowManager.GetAvaloniaWindow<AboutWindow>();
         aboutWindow.ShowDialog(this);
     }
 
-    void IRecipient<CloseButtonRequest>.Receive(SporkMainWindowViewModel.CloseButtonRequest message)
+    void IRecipient<CloseButtonRequest>.Receive(CloseButtonRequest message)
     {
         Close();
     }

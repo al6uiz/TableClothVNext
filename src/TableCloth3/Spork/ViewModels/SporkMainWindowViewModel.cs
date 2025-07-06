@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.Xml.XPath;
+using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
 using TableCloth3.Spork.Services;
 
@@ -16,11 +17,13 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     [ActivatorUtilitiesConstructor]
     public SporkMainWindowViewModel(
         IMessenger messenger,
-        TableClothCatalogService catalogService)
+        TableClothCatalogService catalogService,
+        AvaloniaViewModelManager avaloniaViewModelManager)
         : this()
     {
         _messenger = messenger;
         _catalogService = catalogService;
+        _avaloniaViewModelManager = avaloniaViewModelManager;
     }
 
     public SporkMainWindowViewModel()
@@ -50,6 +53,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
     private readonly IMessenger _messenger = default!;
     private readonly TableClothCatalogService _catalogService = default!;
+    private readonly AvaloniaViewModelManager _avaloniaViewModelManager = default!;
 
     protected override void PrepareDesignTimePreview()
     {
@@ -57,7 +61,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
         for (var i = 0; i < 100; i++)
         {
-            Items.Add(new()
+            Items.Add(new(default!)
             {
                 Category = "Financing",
                 DisplayName = $"Test {i + 1}",
@@ -154,13 +158,12 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
                 var displayName = eachService.Attribute("DisplayName")?.Value;
                 var url = eachService.Attribute("Url")?.Value;
 
-                Items.Add(new()
-                {
-                    ServiceId = id,
-                    DisplayName = displayName ?? "(Unknown)",
-                    Category = category,
-                    TargetUrl = url ?? string.Empty,
-                });
+                var viewModel = _avaloniaViewModelManager.GetAvaloniaViewModel<TableClothCatalogItemViewModel>();
+                viewModel.ServiceId = id;
+                viewModel.DisplayName = displayName ?? "(Unknown)";
+                viewModel.Category = category;
+                viewModel.TargetUrl = url ?? string.Empty;
+                Items.Add(viewModel);
             }
         }
         catch (Exception ex)
@@ -200,6 +203,19 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
 public sealed partial class TableClothCatalogItemViewModel : BaseViewModel
 {
+    public TableClothCatalogItemViewModel(
+        IMessenger messenger)
+        : base()
+    {
+        _messenger = messenger;
+    }
+
+    public sealed record class LaunchSiteRequest(TableClothCatalogItemViewModel ViewModel);
+
+    public interface ILaunchSiteRequestRecipient : IRecipient<LaunchSiteRequest>;
+
+    private readonly IMessenger _messenger = default!;
+
     [ObservableProperty]
     private string _serviceId = string.Empty;
 
@@ -216,9 +232,8 @@ public sealed partial class TableClothCatalogItemViewModel : BaseViewModel
     private ObservableCollection<TableClothPackageItemViewModel> _packages = new();
 
     [RelayCommand]
-    private void LaunchSite()
-    {
-    }
+    private void LaunchSite(string serviceId)
+        => _messenger.Send<LaunchSiteRequest>(new(this));
 }
 
 public sealed partial class TableClothPackageItemViewModel : BaseViewModel

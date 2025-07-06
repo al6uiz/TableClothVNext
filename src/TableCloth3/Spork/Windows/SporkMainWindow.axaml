@@ -169,7 +169,7 @@
 
 											<StackPanel Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
 														VerticalAlignment="Center" HorizontalAlignment="Right" Spacing="5">
-												<Button Content="{x:Static lang:SporkStrings.LaunchButton}" Command="{Binding LaunchSiteCommand}" MinWidth="60" />
+												<Button Content="{x:Static lang:SporkStrings.LaunchButton}" Command="{Binding LaunchSiteCommand}" CommandParameter="{Binding ServiceId}" MinWidth="60" />
 											</StackPanel>
 										</Grid>
 									</Border>

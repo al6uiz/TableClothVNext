@@ -8,6 +8,7 @@ using TableCloth3.Shared.Services;
 using TableCloth3.Shared.Windows;
 using TableCloth3.Spork.ViewModels;
 using static TableCloth3.Spork.ViewModels.SporkMainWindowViewModel;
+using static TableCloth3.Spork.ViewModels.TableClothCatalogItemViewModel;
 
 namespace TableCloth3.Spork.Windows;
 
@@ -15,7 +16,8 @@ public partial class SporkMainWindow :
     Window,
     IRecipient<LoadingFailureNotification>,
     IRecipient<AboutButtonRequest>,
-    IRecipient<CloseButtonRequest>
+    IRecipient<CloseButtonRequest>,
+    IRecipient<LaunchSiteRequest>
 {
     [ActivatorUtilitiesConstructor]
     public SporkMainWindow(
@@ -31,6 +33,7 @@ public partial class SporkMainWindow :
         _messenger.Register<LoadingFailureNotification>(this);
         _messenger.Register<AboutButtonRequest>(this);
         _messenger.Register<CloseButtonRequest>(this);
+        _messenger.Register<LaunchSiteRequest>(this);
 
         DataContext = _viewModel;
     }
@@ -69,5 +72,11 @@ public partial class SporkMainWindow :
     void IRecipient<CloseButtonRequest>.Receive(CloseButtonRequest message)
     {
         Close();
+    }
+
+    void IRecipient<LaunchSiteRequest>.Receive(LaunchSiteRequest message)
+    {
+        var installerWindow = _windowManager.GetAvaloniaWindow<InstallerProgressWindow>();
+        installerWindow.ShowDialog(this);
     }
 }

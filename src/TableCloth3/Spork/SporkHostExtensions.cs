@@ -10,23 +10,8 @@ namespace TableCloth3.Spork;
 
 internal static class SporkHostExtensions
 {
-    internal static readonly string CatalogHttpClient = nameof(CatalogHttpClient);
-
-    public static HttpClient CreateCatalogHttpClient(this IHttpClientFactory httpClientFactory)
-        => httpClientFactory.CreateClient(CatalogHttpClient);
-
     public static IHostApplicationBuilder UseTableCloth3SporkComponents(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
-        builder.Services.AddSingleton<AvaloniaWindowManager>();
-
-        builder.Services.AddHttpClient(CatalogHttpClient, client =>
-        {
-            client.BaseAddress = new Uri("https://yourtablecloth.app", UriKind.Absolute);
-        });
-
-        builder.Services.AddTransient<TableClothCatalogService>();
-
         builder.Services.AddTransient<InstallerProgressWindowViewModel>();
         builder.Services.AddTransient<InstallerStepItemViewModel>();
         builder.Services.AddTransient<InstallerProgressWindow>();

@@ -16,6 +16,7 @@
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="70*" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
@@ -71,7 +72,18 @@
 				HorizontalAlignment="Center"
 				Foreground="#3A3A4A"/>
 		</StackPanel>
-		<ScrollViewer Grid.Row="1" IsVisible="{Binding HasItems}">
+		<StackPanel Grid.Row="1" Orientation="Horizontal">
+			<ItemsControl ItemsSource="{Binding CategoryItems}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<Border Background="#FFD54F" CornerRadius="8" Padding="3,0" VerticalAlignment="Center" Margin="0,0,0,2">
+							<TextBlock Text="{Binding Value}" FontSize="12" Padding="3" Foreground="#665600"/>
+						</Border>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>>
+			</ItemsControl>
+		</StackPanel>
+		<ScrollViewer Grid.Row="2" IsVisible="{Binding HasItems}">
 			<ItemsControl ItemsSource="{Binding FilteredItems}" IsVisible="{x:True}">
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
@@ -104,7 +116,7 @@
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>
 		</ScrollViewer>
-		<Grid Grid.Row="2">
+		<Grid Grid.Row="3">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="50*" />
 				<ColumnDefinition Width="50*" />

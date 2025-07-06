@@ -86,7 +86,6 @@
 
 	<ItemGroup>
 	  <Folder Include="Launcher\Services\" />
-	  <Folder Include="Spork\Services\" />
 	</ItemGroup>
 
 </Project>

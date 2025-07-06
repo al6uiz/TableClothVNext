@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TableCloth3.Shared.Services;
+using TableCloth3.Spork.Services;
 using TableCloth3.Spork.ViewModels;
 using TableCloth3.Spork.Windows;
 
@@ -23,6 +24,8 @@ internal static class SporkHostExtensions
         {
             client.BaseAddress = new Uri("https://yourtablecloth.app", UriKind.Absolute);
         });
+
+        builder.Services.AddTransient<TableClothCatalogService>();
 
         builder.Services.AddTransient<InstallerProgressWindowViewModel>();
         builder.Services.AddTransient<InstallerStepItemViewModel>();

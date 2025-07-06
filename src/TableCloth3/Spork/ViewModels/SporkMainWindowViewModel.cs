@@ -4,7 +4,9 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.Net.Http;
+using System.Xml.XPath;
 using TableCloth3.Shared.ViewModels;
+using TableCloth3.Spork.Services;
 
 namespace TableCloth3.Spork.ViewModels;
 
@@ -13,20 +15,25 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     [ActivatorUtilitiesConstructor]
     public SporkMainWindowViewModel(
         IMessenger messenger,
-        IHttpClientFactory httpClientFactory)
+        TableClothCatalogService catalogService)
         : this()
     {
         _messenger = messenger;
-        _httpClientFactory = httpClientFactory;
+        _catalogService = catalogService;
     }
 
     public SporkMainWindowViewModel()
         : base()
     {
+        _categoryItems = Enum.GetValues<TableClothItemCategory>()
+            .Select(x => new KeyValuePair<TableClothItemCategory, string>(x, x.ToString()))
+            .ToArray();
+
         Items.CollectionChanged += (s, e) =>
         {
             OnPropertyChanged(nameof(HasItems));
             OnPropertyChanged(nameof(HasNoItems));
+            OnPropertyChanged(nameof(FilteredItems));
         };
 
         ApplyFilter();
@@ -41,7 +48,8 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     public interface ICloseButtonRequestRecipient : IRecipient<CloseButtonRequest>;
 
     private readonly IMessenger _messenger = default!;
-    private readonly IHttpClientFactory _httpClientFactory = default!;
+    private readonly TableClothCatalogService _catalogService = default!;
+    private readonly KeyValuePair<TableClothItemCategory, string>[] _categoryItems = [];
 
     protected override void PrepareDesignTimePreview()
     {
@@ -65,7 +73,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     private ObservableCollection<TableClothCatalogItemViewModel> _items = [];
 
     [ObservableProperty]
-    private ObservableCollection<TableClothCatalogItemViewModel> _filteredItems = [];
+    private IEnumerable<TableClothCatalogItemViewModel> _filteredItems = [];
 
     [ObservableProperty]
     private string _filterText = string.Empty;
@@ -74,7 +82,9 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
     public bool HasNoItems => !FilteredItems.Any();
 
-    partial void OnFilterTextChanged(string? oldValue, string newValue)
+    public IReadOnlyList<KeyValuePair<TableClothItemCategory, string>> CategoryItems => _categoryItems;
+
+    partial void OnFilterTextChanged(string value)
         => ApplyFilter();
 
     [RelayCommand]
@@ -84,10 +94,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         if (!string.IsNullOrWhiteSpace(FilterText))
             query = query.Where(x => x.DisplayName.Contains(FilterText, StringComparison.OrdinalIgnoreCase));
         query = query.OrderBy(x => x.DisplayName);
-
-        FilteredItems.Clear();
-        foreach (var eachFilteredItem in query)
-            FilteredItems.Add(eachFilteredItem);
+        FilteredItems = query;
     }
 
     [RelayCommand]
@@ -97,14 +104,43 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     [RelayCommand]
     private async Task RefreshCatalog(CancellationToken cancellationToken = default)
     {
-        var httpClient = _httpClientFactory.CreateCatalogHttpClient();
-        var content = await httpClient.GetStringAsync($"/TableClothCatalog/Catalog.xml?ts={Uri.EscapeDataString(DateTime.UtcNow.Ticks.ToString())}", cancellationToken).ConfigureAwait(false);
-        return;
+        Items.Clear();
+
+        var doc = await _catalogService.LoadCatalogAsync(cancellationToken).ConfigureAwait(false);
+        var services = doc.XPathSelectElements("/TableClothCatalog/InternetServices/Service");
+
+        foreach (var eachService in services)
+        {
+            var id = eachService.Attribute("Id")?.Value;
+
+            if (string.IsNullOrWhiteSpace(id))
+                continue;
+
+            Enum.TryParse<TableClothItemCategory>(
+                eachService.Attribute("Category")?.Value, true, out var category);
+            var displayName = eachService.Attribute("DisplayName")?.Value;
+            var url = eachService.Attribute("Url")?.Value;
+
+            Items.Add(new()
+            {
+                ServiceId = id,
+                DisplayName = displayName ?? "(Unknown)",
+                Category = category,
+                TargetUrl = url ?? string.Empty,
+            });
+        }
+
+        ApplyFilter();
     }
 
     [RelayCommand]
     private void CloseButton()
         => _messenger.Send<CloseButtonRequest>();
+}
+
+public sealed class TableClothCategoryFilterItem
+{
+    public string Name { get; set; }
 }
 
 public sealed partial class TableClothCatalogItemViewModel : BaseViewModel

@@ -196,5 +196,9 @@
 		</TabItem>
 		<TabItem Header="Softwares" IsVisible="False">
 		</TabItem>
+		<TabItem Header="Chat" IsVisible="False">
+		</TabItem>
+		<TabItem Header="About" IsVisible="False">
+		</TabItem>
 	</TabControl>
 </Window>

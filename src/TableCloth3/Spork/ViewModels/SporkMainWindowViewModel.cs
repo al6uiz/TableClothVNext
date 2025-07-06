@@ -1,4 +1,5 @@
 ﻿using AsyncAwaitBestPractices;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -52,6 +53,8 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
     protected override void PrepareDesignTimePreview()
     {
+        CategoryItems.Add(new() { CategoryName = "Financing", IsWildcard = false, });
+
         for (var i = 0; i < 100; i++)
         {
             Items.Add(new()
@@ -107,7 +110,12 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
     [RelayCommand]
     private void Loaded()
-        => RefreshCatalog().SafeFireAndForget();
+    {
+        if (Design.IsDesignMode)
+            return;
+
+        RefreshCatalog().SafeFireAndForget();
+    }
 
     [RelayCommand]
     private void ApplyFilter()
@@ -157,7 +165,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            _messenger.Send<LoadingFailureNotification>(new(ex));
+            _messenger?.Send<LoadingFailureNotification>(new(ex));
         }
         finally
         {

@@ -15,6 +15,7 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
         {
             Steps.Add(new()
             {
+                StepProgress = (StepProgress)(i % Enum.GetValues<StepProgress>().Count()),
                 PackageName = $"Item {i+1}",
                 PackageUrl = "https://yourtablecloth.app/",
                 PackageArguments = "/S",
@@ -93,13 +94,13 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel
 
     public string StatusText => StepProgress switch
     {
-        StepProgress.Loading => "⌛",
-        StepProgress.Ready => "📥",
-        StepProgress.Installing => "👟",
-        StepProgress.Succeed => "✅",
+        StepProgress.Loading => "⏳",
+        StepProgress.Ready => "📦",
+        StepProgress.Installing => "🛠️",
+        StepProgress.Succeed => "✔️",
         StepProgress.Failed => "❌",
-        StepProgress.Unknown => "?",
-        _ => "❯ ",
+        StepProgress.Unknown => "❔",
+        _ => "⬜",
     };
 
     public bool HasError => !string.IsNullOrWhiteSpace(StepError);

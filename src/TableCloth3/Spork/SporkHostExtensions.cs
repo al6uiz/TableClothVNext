@@ -19,6 +19,7 @@ internal static class SporkHostExtensions
         builder.Services.AddTransient<SporkMainWindowViewModel>();
         builder.Services.AddTransient<TableClothCatalogItemViewModel>();
         builder.Services.AddTransient<TableClothPackageItemViewModel>();
+        builder.Services.AddTransient<TableClothCategoryItemViewModel>();
         builder.Services.AddTransient<SporkMainWindow>();
 
         return builder;

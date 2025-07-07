@@ -125,6 +125,10 @@
     <value>About</value>
     <comment>AboutWindow</comment>
   </data>
+  <data name="AllCategoryDisplayName" xml:space="preserve">
+    <value>Category</value>
+    <comment>All</comment>
+  </data>
   <data name="AppCopyright" xml:space="preserve">
     <value>(c) 2025 rkttu.com, All rights reserved.</value>
   </data>
@@ -137,15 +141,47 @@
   <data name="AppTrademark" xml:space="preserve">
     <value>The 식탁보® (TableCloth) trademark is protected by trademark law in the Republic of Korea.</value>
   </data>
+  <data name="BankingCategoryDisplayName" xml:space="preserve">
+    <value>Banking</value>
+    <comment>Category</comment>
+  </data>
   <data name="CheckUpdateButton" xml:space="preserve">
     <value>Check _Update</value>
     <comment>AboutWindow</comment>
   </data>
+  <data name="CreditCardCategoryDisplayName" xml:space="preserve">
+    <value>Credit Cards</value>
+    <comment>Category</comment>
+  </data>
+  <data name="EducationCategoryDisplayName" xml:space="preserve">
+    <value>Education</value>
+    <comment>Category</comment>
+  </data>
+  <data name="FinancingCategoryDisplayName" xml:space="preserve">
+    <value>Financing</value>
+    <comment>Category</comment>
+  </data>
   <data name="GitHubUrl" xml:space="preserve">
     <value>https://github.com/yourtablecloth/TableCloth</value>
   </data>
+  <data name="GovernmentCategoryDisplayName" xml:space="preserve">
+    <value>Government</value>
+    <comment>Category</comment>
+  </data>
+  <data name="InsuranceCategoryDisplayName" xml:space="preserve">
+    <value>Insurance</value>
+    <comment>Category</comment>
+  </data>
+  <data name="OtherCategoryDisplayName" xml:space="preserve">
+    <value>Others</value>
+    <comment>Category</comment>
+  </data>
   <data name="ProjectWebSiteUrl" xml:space="preserve">
     <value>https://yourtablecloth.app</value>
+  </data>
+  <data name="SecurityCategoryDisplayName" xml:space="preserve">
+    <value>Securities</value>
+    <comment>Category</comment>
   </data>
   <data name="VisitGitHubButton" xml:space="preserve">
     <value>Visit _GitHub</value>

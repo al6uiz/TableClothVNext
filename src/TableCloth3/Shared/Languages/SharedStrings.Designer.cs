@@ -79,6 +79,15 @@ namespace TableCloth3.Shared.Languages {
         }
         
         /// <summary>
+        ///   Category과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string AllCategoryDisplayName {
+            get {
+                return ResourceManager.GetString("AllCategoryDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   (c) 2025 rkttu.com, All rights reserved.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string AppCopyright {
@@ -115,11 +124,47 @@ namespace TableCloth3.Shared.Languages {
         }
         
         /// <summary>
+        ///   Banking과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string BankingCategoryDisplayName {
+            get {
+                return ResourceManager.GetString("BankingCategoryDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Check _Update과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string CheckUpdateButton {
             get {
                 return ResourceManager.GetString("CheckUpdateButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Credit Cards과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string CreditCardCategoryDisplayName {
+            get {
+                return ResourceManager.GetString("CreditCardCategoryDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Education과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string EducationCategoryDisplayName {
+            get {
+                return ResourceManager.GetString("EducationCategoryDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Financing과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string FinancingCategoryDisplayName {
+            get {
+                return ResourceManager.GetString("FinancingCategoryDisplayName", resourceCulture);
             }
         }
         
@@ -133,11 +178,47 @@ namespace TableCloth3.Shared.Languages {
         }
         
         /// <summary>
+        ///   Government과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string GovernmentCategoryDisplayName {
+            get {
+                return ResourceManager.GetString("GovernmentCategoryDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Insurance과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string InsuranceCategoryDisplayName {
+            get {
+                return ResourceManager.GetString("InsuranceCategoryDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Others과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string OtherCategoryDisplayName {
+            get {
+                return ResourceManager.GetString("OtherCategoryDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   https://yourtablecloth.app과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string ProjectWebSiteUrl {
             get {
                 return ResourceManager.GetString("ProjectWebSiteUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Securities과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string SecurityCategoryDisplayName {
+            get {
+                return ResourceManager.GetString("SecurityCategoryDisplayName", resourceCulture);
             }
         }
         

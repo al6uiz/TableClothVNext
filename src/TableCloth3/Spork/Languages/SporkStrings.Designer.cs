@@ -70,11 +70,47 @@ namespace TableCloth3.Spork.Languages {
         }
         
         /// <summary>
+        ///   _Cancel과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string CancelButton {
+            get {
+                return ResourceManager.GetString("CancelButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Catalogs과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string CatalogHeader {
+            get {
+                return ResourceManager.GetString("CatalogHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   _Close과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string CloseButton {
             get {
                 return ResourceManager.GetString("CloseButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Installing plugins...과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string InProgressMessage {
+            get {
+                return ResourceManager.GetString("InProgressMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Installing Plugins과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string InstallerProgressWindowTitle {
+            get {
+                return ResourceManager.GetString("InstallerProgressWindowTitle", resourceCulture);
             }
         }
         
@@ -93,6 +129,15 @@ namespace TableCloth3.Spork.Languages {
         public static string LaunchButton {
             get {
                 return ResourceManager.GetString("LaunchButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Loading...과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string LoadingMessage {
+            get {
+                return ResourceManager.GetString("LoadingMessage", resourceCulture);
             }
         }
         

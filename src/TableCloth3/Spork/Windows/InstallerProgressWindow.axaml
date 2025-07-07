@@ -4,22 +4,31 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:lang="clr-namespace:TableCloth3.Spork.Languages"
 		xmlns:vm="clr-namespace:TableCloth3.Spork.ViewModels"
+		xmlns:ui="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
 		mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="480"
 		Width="300" Height="400" CanResize="False"
         x:Class="TableCloth3.InstallerProgressWindow"
 		x:DataType="vm:InstallerProgressWindowViewModel"
-        Title="Installer Work In Progress..."
-		Padding="20" Icon="avares:/Assets/Images/Spork.png">
+        Title="{x:Static lang:SporkStrings.InstallerProgressWindowTitle}"
+		Padding="20" Icon="avares:/Assets/Images/Spork.png"
+		WindowStartupLocation="CenterOwner"
+		ExtendClientAreaChromeHints="NoChrome"
+		ExtendClientAreaToDecorationsHint="True">
 	<Design.DataContext>
 		<vm:InstallerProgressWindowViewModel />
 	</Design.DataContext>
+	<Interaction.Behaviors>
+		<RoutedEventTriggerBehavior RoutedEvent="{x:Static ui:Control.LoadedEvent}">
+			<InvokeCommandAction Command="{Binding LoadedCommand}" />
+		</RoutedEventTriggerBehavior>
+	</Interaction.Behaviors>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="70*" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
-		<Label Grid.Row="0">프로그램을 설치 중입니다.</Label>
+		<Label Grid.Row="0" Content="{x:Static lang:SporkStrings.InProgressMessage}" />
 		<ScrollViewer Grid.Row="1" Margin="0 15 0 0">
 			<ItemsControl ItemsSource="{Binding Steps}">
 				<ItemsControl.ItemTemplate>
@@ -43,7 +52,9 @@
 				<ColumnDefinition Width="50*" />
 				<ColumnDefinition Width="50*" />
 			</Grid.ColumnDefinitions>
-			<Button Grid.Column="1" Content="취소" HorizontalAlignment="Right" />
+			<Button Grid.Column="1" Command="{Binding CancelButtonCommand}"
+					Content="{x:Static lang:SporkStrings.CancelButton}"
+					HorizontalAlignment="Right" />
 		</Grid>
 	</Grid>
 </Window>

@@ -1,7 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.DependencyInjection;
+using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Threading.Channels;
 using System.Windows.Input;
 using TableCloth3.Shared.ViewModels;
 
@@ -9,6 +13,29 @@ namespace TableCloth3.Spork.ViewModels;
 
 public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
 {
+    [ActivatorUtilitiesConstructor]
+    public InstallerProgressWindowViewModel(
+        IMessenger messenger)
+        : this()
+    {
+        _messenger = messenger;
+    }
+
+    public InstallerProgressWindowViewModel()
+        : base()
+    {
+    }
+
+    private readonly IMessenger _messenger = default!;
+
+    public sealed record class CancelNotification(bool dueToError, Exception? foundException);
+
+    public interface ICancelNotificationRecipient : IRecipient<CancelNotification>;
+
+    public sealed record class FinishNotification;
+
+    public interface IFinishNotificationRecipient : IRecipient<FinishNotification>;
+
     protected override void PrepareDesignTimePreview()
     {
         for (var i = 0; i < 100; i++)
@@ -26,10 +53,30 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
     [ObservableProperty]
     private ObservableCollection<InstallerStepItemViewModel> _steps = [];
 
-    public async Task RunInstallerStepsAsync(CancellationToken cancellationToken = default)
+    [RelayCommand]
+    private async Task Loaded(CancellationToken cancellationToken = default)
+        => await RunInstallerStepsAsync(cancellationToken).ConfigureAwait(false);
+
+    [RelayCommand]
+    private void CancelButton()
+        => _messenger.Send<CancelNotification>(new(false, default));
+
+    private async Task RunInstallerStepsAsync(CancellationToken cancellationToken = default)
     {
-        foreach (var eachStep in Steps)
-            await eachStep.PerformInstallStepCommand.ExecuteAsync(default);
+        try
+        {
+            foreach (var eachStep in Steps)
+                await eachStep.LoadInstallStepCommand.ExecuteAsync(cancellationToken);
+
+            foreach (var eachStep in Steps)
+                await eachStep.PerformInstallStepCommand.ExecuteAsync(cancellationToken);
+
+            _messenger.Send<FinishNotification>();
+        }
+        catch (Exception ex)
+        {
+            _messenger.Send<CancelNotification>(new(true, ex));
+        }
     }
 }
 
@@ -63,7 +110,7 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel
         {
             StepProgress = StepProgress.None;
             
-            await Task.Delay(TimeSpan.FromSeconds(1d), cancellationToken).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(2d), cancellationToken).ConfigureAwait(false);
 
             StepProgress = StepProgress.Ready;
         }

@@ -121,9 +121,25 @@
     <value>_About...</value>
     <comment>SporkMainWindow</comment>
   </data>
+  <data name="CancelButton" xml:space="preserve">
+    <value>_Cancel</value>
+    <comment>InstallerProgressWindow</comment>
+  </data>
+  <data name="CatalogHeader" xml:space="preserve">
+    <value>Catalogs</value>
+    <comment>SporkMainWindow</comment>
+  </data>
   <data name="CloseButton" xml:space="preserve">
     <value>_Close</value>
     <comment>SporkMainWindow</comment>
+  </data>
+  <data name="InProgressMessage" xml:space="preserve">
+    <value>Installing plugins...</value>
+    <comment>InstallerProgressWindow</comment>
+  </data>
+  <data name="InstallerProgressWindowTitle" xml:space="preserve">
+    <value>Installing Plugins</value>
+    <comment>InstallerProgressWIndow</comment>
   </data>
   <data name="InstructionLabel" xml:space="preserve">
     <value>Select a web site to launch: </value>
@@ -132,6 +148,10 @@
   <data name="LaunchButton" xml:space="preserve">
     <value>Launch...</value>
     <comment>SporkMainWindow</comment>
+  </data>
+  <data name="LoadingMessage" xml:space="preserve">
+    <value>Loading...</value>
+    <comment>SporkMainWIndow</comment>
   </data>
   <data name="NoResultsFound" xml:space="preserve">
     <value>No items found.</value>

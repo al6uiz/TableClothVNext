@@ -5,7 +5,9 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
+using System.Xml.Linq;
 using System.Xml.XPath;
+using TableCloth3.Shared.Languages;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
 using TableCloth3.Spork.Services;
@@ -154,15 +156,34 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
                 if (string.IsNullOrWhiteSpace(id))
                     continue;
 
-                var category = eachService.Attribute("Category")?.Value ?? "Unknown";
-                var displayName = eachService.Attribute("DisplayName")?.Value;
+                var category = eachService.Attribute("Category")?.Value ?? string.Empty;
+                var displayName = eachService.Attribute("DisplayName")?.Value ?? id;
                 var url = eachService.Attribute("Url")?.Value;
 
                 var viewModel = _avaloniaViewModelManager.GetAvaloniaViewModel<TableClothCatalogItemViewModel>();
                 viewModel.ServiceId = id;
-                viewModel.DisplayName = displayName ?? "(Unknown)";
+                viewModel.DisplayName = displayName;
                 viewModel.Category = category;
+                viewModel.CategoryDisplayName = _catalogService.GetCatalogDisplayName(category);
                 viewModel.TargetUrl = url ?? string.Empty;
+
+                foreach (var eachPackage in eachService?.Element("Packages")?.Elements("Package") ?? Array.Empty<XElement>())
+                {
+                    var packageUrl = eachPackage.Attribute("Url")?.Value ?? string.Empty;
+
+                    if (string.IsNullOrWhiteSpace(packageUrl))
+                        continue;
+
+                    var packageName = eachPackage.Attribute("Name")?.Value ?? "UnknownPackage";
+                    var packageArgs = eachPackage.Attribute("Arguments")?.Value ?? string.Empty;
+
+                    var packageViewModel = _avaloniaViewModelManager.GetAvaloniaViewModel<TableClothPackageItemViewModel>();
+                    packageViewModel.PackageUrl = packageUrl;
+                    packageViewModel.PackageName = packageName;
+                    packageViewModel.PackageArguments = packageArgs;
+                    viewModel.Packages.Add(packageViewModel);
+                }
+
                 Items.Add(viewModel);
             }
         }
@@ -177,20 +198,20 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
         CategoryItems.Clear();
 
-        var allItemCategory = new TableClothCategoryItemViewModel()
-        {
-            CategoryName = "All",
-            IsWildcard = true,
-        };
+        var allItemCategory = _avaloniaViewModelManager.GetAvaloniaViewModel<TableClothCategoryItemViewModel>();
+        allItemCategory.CategoryName = "All";
+        allItemCategory.CategoryDisplayName = SharedStrings.AllCategoryDisplayName;
+        allItemCategory.IsWildcard = true;
+
         CategoryItems.Add(allItemCategory);
         SelectedCategory = allItemCategory;
         foreach (var eachCategory in Items.Select(x => x.Category).Distinct())
         {
-            CategoryItems.Add(new TableClothCategoryItemViewModel()
-            {
-                CategoryName = eachCategory,
-                IsWildcard = false,
-            });
+            var eachItem = _avaloniaViewModelManager.GetAvaloniaViewModel<TableClothCategoryItemViewModel>();
+            eachItem.CategoryName = eachCategory;
+            eachItem.CategoryDisplayName = _catalogService.GetCatalogDisplayName(eachCategory);
+            eachItem.IsWildcard = false;
+            CategoryItems.Add(eachItem);
         }
 
         ApplyFilter();
@@ -226,6 +247,9 @@ public sealed partial class TableClothCatalogItemViewModel : BaseViewModel
     private string _category = string.Empty;
 
     [ObservableProperty]
+    private string _categoryDisplayName = string.Empty;
+
+    [ObservableProperty]
     private string _targetUrl = string.Empty;
 
     [ObservableProperty]
@@ -254,10 +278,8 @@ public sealed partial class TableClothCategoryItemViewModel : BaseViewModel
     private string _categoryName = string.Empty;
 
     [ObservableProperty]
-    private bool _isWildcard = false;
+    private string _categoryDisplayName = string.Empty;
 
-    public string CategoryDisplayName
-    {
-        get { return CategoryName; }
-    }
+    [ObservableProperty]
+    private bool _isWildcard = false;
 }

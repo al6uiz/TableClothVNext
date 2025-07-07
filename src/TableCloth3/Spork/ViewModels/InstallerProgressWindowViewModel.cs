@@ -141,13 +141,13 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel
 
     public string StatusText => StepProgress switch
     {
-        StepProgress.Loading => "⏳",
-        StepProgress.Ready => "📦",
-        StepProgress.Installing => "🛠️",
-        StepProgress.Succeed => "✔️",
-        StepProgress.Failed => "❌",
-        StepProgress.Unknown => "❔",
-        _ => "⬜",
+        StepProgress.Loading => "\u23f3",
+        StepProgress.Ready => "\ud83d\udce6",
+        StepProgress.Installing => "\ud83d\udee0\ufe0f",
+        StepProgress.Succeed => "\u2714\ufe0f",
+        StepProgress.Failed => "\u274c",
+        StepProgress.Unknown => "\u2754",
+        _ => "\u2b1c",
     };
 
     public bool HasError => !string.IsNullOrWhiteSpace(StepError);

@@ -12,6 +12,8 @@ internal static class SporkHostExtensions
 {
     public static IHostApplicationBuilder UseTableCloth3SporkComponents(this IHostApplicationBuilder builder)
     {
+        builder.Services.AddSingleton<SporkLocationService>();
+
         builder.Services.AddTransient<InstallerProgressWindowViewModel>();
         builder.Services.AddTransient<InstallerStepItemViewModel>();
         builder.Services.AddTransient<InstallerProgressWindow>();

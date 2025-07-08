@@ -26,6 +26,7 @@ internal static class SharedHostExtensions
             client.BaseAddress = new Uri("https://yourtablecloth.app", UriKind.Absolute);
         });
 
+        builder.Services.AddSingleton<ArchiveExpander>();
         builder.Services.AddTransient<TableClothCatalogService>();
 
         builder.Services.AddTransient<AboutWindowViewModel>();

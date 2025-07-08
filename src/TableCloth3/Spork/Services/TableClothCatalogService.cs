@@ -1,4 +1,5 @@
 ﻿using Avalonia.Xaml.Interactions.Custom;
+using System.IO.Compression;
 using System.Xml.Linq;
 using TableCloth3.Shared;
 using TableCloth3.Shared.Languages;
@@ -37,4 +38,12 @@ public sealed class TableClothCatalogService
             "EDUCATION" => SharedStrings.EducationCategoryDisplayName,
             _ => SharedStrings.OtherCategoryDisplayName,
         };
+
+    public async Task LoadImagesAsync(
+        string targetDirectoryToExtract,
+        CancellationToken cancellationToken = default)
+    {
+        var httpClient = _httpClientFactory.CreateCatalogHttpClient();
+        using var contentStream = await httpClient.GetStreamAsync($"/TableClothCatalog/Images.zip?ts={Uri.EscapeDataString(DateTime.UtcNow.Ticks.ToString())}", cancellationToken).ConfigureAwait(false);
+    }
 }

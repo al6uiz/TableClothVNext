@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
+using System.Net.Http.Headers;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using TableCloth3.Shared.Languages;
@@ -20,12 +21,14 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     public SporkMainWindowViewModel(
         IMessenger messenger,
         TableClothCatalogService catalogService,
-        AvaloniaViewModelManager avaloniaViewModelManager)
+        AvaloniaViewModelManager avaloniaViewModelManager,
+        SporkLocationService sporkLocationService)
         : this()
     {
         _messenger = messenger;
         _catalogService = catalogService;
         _avaloniaViewModelManager = avaloniaViewModelManager;
+        _sporkLocationService = sporkLocationService;
     }
 
     public SporkMainWindowViewModel()
@@ -35,6 +38,8 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         {
             OnPropertyChanged(nameof(HasItems));
             OnPropertyChanged(nameof(HasNoItems));
+            OnPropertyChanged(nameof(IsLoading));
+            OnPropertyChanged(nameof(IsLoadingCompleted));
             OnPropertyChanged(nameof(FilteredItems));
         };
 
@@ -56,6 +61,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     private readonly IMessenger _messenger = default!;
     private readonly TableClothCatalogService _catalogService = default!;
     private readonly AvaloniaViewModelManager _avaloniaViewModelManager = default!;
+    private readonly SporkLocationService _sporkLocationService = default!;
 
     protected override void PrepareDesignTimePreview()
     {
@@ -95,18 +101,18 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     [ObservableProperty]
     private bool _isLoading = false;
 
+    public bool IsLoadingCompleted => !IsLoading;
+
     public bool HasItems
     {
         get
         {
-            if (IsLoading) return false;
-
             try { return FilteredItems.Any(); }
             catch { return false; }
         }
     }
 
-    public bool HasNoItems => !IsLoading && !HasItems;
+    public bool HasNoItems => !HasItems;
 
     partial void OnFilterTextChanged(string value)
         => ApplyFilter();
@@ -215,6 +221,17 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         }
 
         ApplyFilter();
+    }
+
+    private async Task RefreshIcons(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var imagesDirectory = _sporkLocationService.EnsureImagesDirectoryCreated();
+        }
+        catch (Exception ex)
+        {
+        }
     }
 
     [RelayCommand]

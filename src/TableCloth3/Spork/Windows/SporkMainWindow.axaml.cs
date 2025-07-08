@@ -1,5 +1,6 @@
 using AsyncAwaitBestPractices;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
@@ -56,11 +57,14 @@ public partial class SporkMainWindow :
 
     void IRecipient<LoadingFailureNotification>.Receive(LoadingFailureNotification message)
     {
-        var msgBox = MessageBoxManager.GetMessageBoxStandard(
-            "Unexpected error occurred",
-            $"Unexpected error occurred: {message.OccurredException.Message}",
-            ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
-        msgBox.ShowWindowDialogAsync(this).SafeFireAndForget();
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            var msgBox = MessageBoxManager.GetMessageBoxStandard(
+                "Unexpected error occurred",
+                $"Unexpected error occurred: {message.OccurredException.Message}",
+                ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
+            msgBox.ShowWindowDialogAsync(this).SafeFireAndForget();
+        });
     }
 
     void IRecipient<AboutButtonRequest>.Receive(AboutButtonRequest message)

@@ -176,5 +176,23 @@ namespace TableCloth3.Spork.Languages {
                 return ResourceManager.GetString("SporkMainWindowTitle", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Unexpected Error Occurred: {0}과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string UnexpectedErrorMessage_Arg0 {
+            get {
+                return ResourceManager.GetString("UnexpectedErrorMessage_Arg0", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Unexpected Error Occurred과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string UnexpectedErrorMessage_Title {
+            get {
+                return ResourceManager.GetString("UnexpectedErrorMessage_Title", resourceCulture);
+            }
+        }
     }
 }

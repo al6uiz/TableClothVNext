@@ -7,6 +7,7 @@ using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.Windows;
+using TableCloth3.Spork.Languages;
 using TableCloth3.Spork.ViewModels;
 using static TableCloth3.Spork.ViewModels.SporkMainWindowViewModel;
 using static TableCloth3.Spork.ViewModels.TableClothCatalogItemViewModel;
@@ -60,8 +61,8 @@ public partial class SporkMainWindow :
         Dispatcher.UIThread.Invoke(() =>
         {
             var msgBox = MessageBoxManager.GetMessageBoxStandard(
-                "Unexpected error occurred",
-                $"Unexpected error occurred: {message.OccurredException.Message}",
+                SporkStrings.UnexpectedErrorMessage_Title,
+                string.Format(SporkStrings.UnexpectedErrorMessage_Arg0, message.OccurredException.Message),
                 ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
             msgBox.ShowWindowDialogAsync(this).SafeFireAndForget();
         });

@@ -156,4 +156,10 @@
   <data name="SporkMainWindowTitle" xml:space="preserve">
     <value>Spork</value>
   </data>
+  <data name="UnexpectedErrorMessage_Title" xml:space="preserve">
+    <value>예상하지 못한 오류 발생</value>
+  </data>
+  <data name="UnexpectedErrorMessage_Arg0" xml:space="preserve">
+    <value>예상하지 못한 오류가 발생했습니다: {0}</value>
+  </data>
 </root>

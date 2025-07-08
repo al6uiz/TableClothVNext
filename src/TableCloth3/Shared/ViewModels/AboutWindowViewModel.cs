@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace TableCloth3.Shared.ViewModels;
 
-public sealed partial class AboutWindowViewModel : ObservableObject
+public sealed partial class AboutWindowViewModel : BaseViewModel
 {
     [ActivatorUtilitiesConstructor]
     public AboutWindowViewModel(

@@ -41,7 +41,7 @@ public static class Program
         builder.Services.AddAvaloniauiDesktopApplication<App>(BuildAvaloniaApp);
 
         var app = builder.Build();
-        app.RunAvaloniauiApplication(args);
+        app.RunAvaloniauiApplication(args).GetAwaiter().GetResult();
     }
 
     // This method is used by both AppHost Avalonia runtime and the Avalonia Designer.

@@ -1,5 +1,7 @@
 ﻿using AsyncAwaitBestPractices;
 using Avalonia.Controls;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -39,12 +41,14 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
             OnPropertyChanged(nameof(HasItems));
             OnPropertyChanged(nameof(HasNoItems));
             OnPropertyChanged(nameof(IsLoading));
-            OnPropertyChanged(nameof(IsLoadingCompleted));
             OnPropertyChanged(nameof(FilteredItems));
         };
 
         ApplyFilter();
     }
+
+    partial void OnIsLoadingChanged(bool value)
+        => OnPropertyChanged(nameof(IsLoadingCompleted));
 
     public sealed record class LoadingFailureNotification(Exception OccurredException);
 
@@ -69,7 +73,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
         for (var i = 0; i < 100; i++)
         {
-            Items.Add(new(default!)
+            Items.Add(new(default!, default!, default!)
             {
                 Category = "Financing",
                 DisplayName = $"Test {i + 1}",
@@ -126,6 +130,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         if (Design.IsDesignMode)
             return;
 
+        RefreshIcons().SafeFireAndForget();
         RefreshCatalog().SafeFireAndForget();
     }
 
@@ -228,9 +233,11 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         try
         {
             var imagesDirectory = _sporkLocationService.EnsureImagesDirectoryCreated();
+            await _catalogService.LoadImagesAsync(imagesDirectory.FullName, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
+            _messenger?.Send<LoadingFailureNotification>(new(ex));
         }
     }
 
@@ -242,10 +249,14 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 public sealed partial class TableClothCatalogItemViewModel : BaseViewModel
 {
     public TableClothCatalogItemViewModel(
-        IMessenger messenger)
+        IMessenger messenger,
+        SporkLocationService sporkLocationService,
+        TableClothCatalogService catalogService)
         : base()
     {
         _messenger = messenger;
+        _sporkLocationService = sporkLocationService;
+        _catalogService = catalogService;
     }
 
     public sealed record class LaunchSiteRequest(TableClothCatalogItemViewModel ViewModel);
@@ -253,9 +264,28 @@ public sealed partial class TableClothCatalogItemViewModel : BaseViewModel
     public interface ILaunchSiteRequestRecipient : IRecipient<LaunchSiteRequest>;
 
     private readonly IMessenger _messenger = default!;
+    private readonly SporkLocationService _sporkLocationService = default!;
+    private readonly TableClothCatalogService _catalogService = default!;
+
+    partial void OnServiceIdChanged(string value)
+    {
+        if (Design.IsDesignMode)
+            return;
+
+        var imagePath = _sporkLocationService.EnsureImagesDirectoryCreated().FullName;
+        var targetPath = _catalogService.GetLocalImagePath(imagePath, value);
+
+        if (File.Exists(targetPath))
+            ServiceIcon = new Bitmap(targetPath);
+        else
+            ServiceIcon = new Bitmap(AssetLoader.Open(new Uri("avares://TableCloth3/Assets/Images/Spork.png")));
+    }
 
     [ObservableProperty]
     private string _serviceId = string.Empty;
+
+    [ObservableProperty]
+    private Bitmap? _serviceIcon = new Bitmap(AssetLoader.Open(new Uri("avares://TableCloth3/Assets/Images/Spork.png")));
 
     [ObservableProperty]
     private string _displayName = string.Empty;

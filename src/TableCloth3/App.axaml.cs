@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
@@ -25,16 +26,26 @@ internal partial class App : Application
     private readonly AvaloniaWindowManager _windowManager = default!;
 
     public override void Initialize()
-    {
-        AvaloniaXamlLoader.Load(this);
-    }
+        => AvaloniaXamlLoader.Load(this);
 
-    public override void OnFrameworkInitializationCompleted()
+    public override async void OnFrameworkInitializationCompleted()
     {
         RequestedThemeVariant = ThemeVariant.Default;
 
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            desktop.MainWindow = _windowManager.GetMainAvaloniaWindow();
+        if (!Design.IsDesignMode)
+        {
+            var splashWindow = _windowManager.GetAvaloniaWindow<LoadingSplashWindow>();
+            splashWindow.Show();
+
+            await Task.Delay(TimeSpan.FromSeconds(1d));
+            splashWindow.Hide();
+
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                desktop.MainWindow = _windowManager.GetMainAvaloniaWindow();
+                desktop.MainWindow.Show();
+            }
+        }
 
         base.OnFrameworkInitializationCompleted();
     }

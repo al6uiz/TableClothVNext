@@ -25,12 +25,14 @@ public partial class SporkMainWindow :
     public SporkMainWindow(
         SporkMainWindowViewModel viewModel,
         IMessenger messenger,
-        AvaloniaWindowManager windowManager)
+        AvaloniaWindowManager windowManager,
+        AvaloniaViewModelManager viewModelManager)
         : this()
     {
         _viewModel = viewModel;
         _messenger = messenger;
         _windowManager = windowManager;
+        _viewModelManager = viewModelManager;
 
         _messenger.Register<LoadingFailureNotification>(this);
         _messenger.Register<AboutButtonRequest>(this);
@@ -49,6 +51,7 @@ public partial class SporkMainWindow :
     private readonly SporkMainWindowViewModel _viewModel = default!;
     private readonly IMessenger _messenger = default!;
     private readonly AvaloniaWindowManager _windowManager = default!;
+    private readonly AvaloniaViewModelManager _viewModelManager = default!;
 
     protected override void OnClosed(EventArgs e)
     {
@@ -85,13 +88,18 @@ public partial class SporkMainWindow :
 
         foreach (var eachStep in message.ViewModel.Packages)
         {
-            installerWindow.ViewModel.Steps.Add(new InstallerStepItemViewModel()
-            {
-                PackageName = eachStep.PackageName,
-                PackageUrl = eachStep.PackageUrl,
-                PackageArguments = eachStep.PackageArguments,
-            });
+            var eachVM = _viewModelManager.GetAvaloniaViewModel<InstallerStepItemViewModel>();
+            eachVM.ItemType = ItemType.InstallerBinary;
+            eachVM.PackageName = eachStep.PackageName;
+            eachVM.PackageUrl = eachStep.PackageUrl;
+            eachVM.PackageArguments = eachStep.PackageArguments;
+            installerWindow.ViewModel.Steps.Add(eachVM);
         }
+
+        var endVM = _viewModelManager.GetAvaloniaViewModel<InstallerStepItemViewModel>();
+        endVM.ItemType = ItemType.EndOfSuite;
+        endVM.IsVisible = false;
+        installerWindow.ViewModel.Steps.Add(endVM);
 
         installerWindow.ShowDialog(this);
     }

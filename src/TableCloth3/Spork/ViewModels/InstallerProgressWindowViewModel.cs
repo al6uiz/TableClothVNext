@@ -66,7 +66,6 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
     {
         var loadQueue = new Queue<InstallerStepItemViewModel>();
         var installQueue = new Queue<InstallerStepItemViewModel>();
-        using var s = new AsyncManualResetEvent(false);
 
         try
         {
@@ -77,14 +76,15 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
             {
                 while (loadQueue.Count > 0)
                 {
-                    if (cancellationToken.IsCancellationRequested) break;
+                    if (cancellationToken.IsCancellationRequested)
+                        break;
                     var item = loadQueue.Dequeue();
                     try
                     {
                         item.StepProgress = StepProgress.Loading;
                         await item.LoadInstallStepCommand.ExecuteAsync(cancellationToken).ConfigureAwait(false);
                         installQueue.Enqueue(item);
-                        if (!s.IsSet) s.Set();
+                        item.Event.Set();
                         item.StepProgress = StepProgress.Ready;
                     }
                     catch (Exception ex)
@@ -98,24 +98,43 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
 
             var installTask = Task.Run(async () =>
             {
-                await s.WaitAsync(cancellationToken).ConfigureAwait(false);
+                var metEndOfSuite = false;
 
-                while (installQueue.Count > 0)
+                while (!metEndOfSuite)
                 {
-                    if (cancellationToken.IsCancellationRequested) break;
-                    var item = installQueue.Dequeue();
+                    if (cancellationToken.IsCancellationRequested)
+                        break;
 
-                    try
+                    if (!installQueue.TryDequeue(out var item))
                     {
-                        item.StepProgress = StepProgress.Installing;
-                        await item.PerformInstallStepCommand.ExecuteAsync(cancellationToken).ConfigureAwait(false);
-                        item.StepProgress = StepProgress.Succeed;
+                        await Task.Delay(TimeSpan.FromSeconds(0.5d), cancellationToken).ConfigureAwait(false);
+                        continue;
                     }
-                    catch (Exception ex)
+
+                    using (item)
                     {
-                        item.StepError = ex.Message;
-                        item.StepProgress = StepProgress.Failed;
-                        _messenger.Send<CancelNotification>(new(true, ex));
+                        await item.Event.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+                        if (item.ItemType == ItemType.EndOfSuite)
+                        {
+                            metEndOfSuite = true;
+                            continue;
+                        }
+                        else
+                        {
+                            try
+                            {
+                                item.StepProgress = StepProgress.Installing;
+                                await item.PerformInstallStepCommand.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+                                item.StepProgress = StepProgress.Succeed;
+                            }
+                            catch (Exception ex)
+                            {
+                                item.StepError = ex.Message;
+                                item.StepProgress = StepProgress.Failed;
+                                _messenger.Send<CancelNotification>(new(true, ex));
+                            }
+                        }
                     }
                 }
             }, cancellationToken);
@@ -130,8 +149,14 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
     }
 }
 
-public sealed partial class InstallerStepItemViewModel : BaseViewModel
+public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposable, IAsyncDisposable
 {
+    [ObservableProperty]
+    private ItemType _itemType = ItemType.None;
+
+    [ObservableProperty]
+    private bool _isVisible = true;
+
     [ObservableProperty]
     private string _packageName = string.Empty;
 
@@ -147,6 +172,11 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel
     [ObservableProperty]
     private StepProgress _stepProgress = StepProgress.None;
 
+    internal AsyncManualResetEvent Event => _mre;
+
+    private AsyncManualResetEvent _mre = new AsyncManualResetEvent(false);
+    private bool _disposedValue;
+
     partial void OnStepErrorChanged(string value)
         => OnPropertyChanged(nameof(HasError));
 
@@ -156,7 +186,7 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel
     [RelayCommand]
     private async Task LoadInstallStep(CancellationToken cancellationToken = default)
     {
-        await Task.Delay(TimeSpan.FromSeconds(1d), cancellationToken).ConfigureAwait(false);
+        await Task.Delay(TimeSpan.FromSeconds(3d), cancellationToken).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -177,6 +207,38 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel
     };
 
     public bool HasError => !string.IsNullOrWhiteSpace(StepError);
+
+    private void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                _mre.Dispose();
+            }
+
+            _mre = null!;
+            _disposedValue = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_mre != null)
+        {
+            await _mre.DisposeAsync().ConfigureAwait(false);
+            _mre = null!;
+        }
+
+        Dispose(false);
+        GC.SuppressFinalize(this);
+    }
 }
 
 public enum StepProgress
@@ -188,4 +250,12 @@ public enum StepProgress
     Succeed,
     Failed,
     Unknown,
+}
+
+public enum ItemType
+{
+    None,
+    EndOfSuite,
+    InstallerBinary,
+    PowerShellScript,
 }

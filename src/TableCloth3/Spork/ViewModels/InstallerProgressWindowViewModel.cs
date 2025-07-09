@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using DotNext.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
 using System.Collections.ObjectModel;
@@ -63,14 +64,63 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
 
     private async Task RunInstallerStepsAsync(CancellationToken cancellationToken = default)
     {
+        var loadQueue = new Queue<InstallerStepItemViewModel>();
+        var installQueue = new Queue<InstallerStepItemViewModel>();
+        using var s = new AsyncManualResetEvent(false);
+
         try
         {
             foreach (var eachStep in Steps)
-                await eachStep.LoadInstallStepCommand.ExecuteAsync(cancellationToken);
+                loadQueue.Enqueue(eachStep);
 
-            foreach (var eachStep in Steps)
-                await eachStep.PerformInstallStepCommand.ExecuteAsync(cancellationToken);
+            var loadTask = Task.Run(async () =>
+            {
+                while (loadQueue.Count > 0)
+                {
+                    if (cancellationToken.IsCancellationRequested) break;
+                    var item = loadQueue.Dequeue();
+                    try
+                    {
+                        item.StepProgress = StepProgress.Loading;
+                        await item.LoadInstallStepCommand.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+                        installQueue.Enqueue(item);
+                        if (!s.IsSet) s.Set();
+                        item.StepProgress = StepProgress.Ready;
+                    }
+                    catch (Exception ex)
+                    {
+                        item.StepError = ex.Message;
+                        item.StepProgress = StepProgress.Failed;
+                        _messenger.Send<CancelNotification>(new(true, ex));
+                    }
+                }
+            }, cancellationToken);
 
+            var installTask = Task.Run(async () =>
+            {
+                await s.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+                while (installQueue.Count > 0)
+                {
+                    if (cancellationToken.IsCancellationRequested) break;
+                    var item = installQueue.Dequeue();
+
+                    try
+                    {
+                        item.StepProgress = StepProgress.Installing;
+                        await item.PerformInstallStepCommand.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+                        item.StepProgress = StepProgress.Succeed;
+                    }
+                    catch (Exception ex)
+                    {
+                        item.StepError = ex.Message;
+                        item.StepProgress = StepProgress.Failed;
+                        _messenger.Send<CancelNotification>(new(true, ex));
+                    }
+                }
+            }, cancellationToken);
+
+            await Task.WhenAll(loadTask, installTask).ConfigureAwait(false);
             _messenger.Send<FinishNotification>();
         }
         catch (Exception ex)
@@ -106,37 +156,13 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel
     [RelayCommand]
     private async Task LoadInstallStep(CancellationToken cancellationToken = default)
     {
-        try
-        {
-            StepProgress = StepProgress.None;
-            
-            await Task.Delay(TimeSpan.FromSeconds(2d), cancellationToken).ConfigureAwait(false);
-
-            StepProgress = StepProgress.Ready;
-        }
-        catch (Exception ex)
-        {
-            StepError = ex.Message;
-            StepProgress = StepProgress.Failed;
-        }
+        await Task.Delay(TimeSpan.FromSeconds(1d), cancellationToken).ConfigureAwait(false);
     }
 
     [RelayCommand]
     private async Task PerformInstallStep(CancellationToken cancellationToken = default)
     {
-        try
-        {
-            StepProgress = StepProgress.Installing;
-
-            await Task.Delay(TimeSpan.FromSeconds(1d), cancellationToken).ConfigureAwait(false);
-
-            StepProgress = StepProgress.Succeed;
-        }
-        catch (Exception ex)
-        {
-            StepError = ex.Message;
-            StepProgress = StepProgress.Failed;
-        }
+        await Task.Delay(TimeSpan.FromSeconds(2d), cancellationToken).ConfigureAwait(false);
     }
 
     public string StatusText => StepProgress switch

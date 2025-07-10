@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Runtime.Versioning;
+using TableCloth3.Help;
 using TableCloth3.Launcher;
 using TableCloth3.Shared;
 using TableCloth3.Shared.Models;
@@ -38,6 +39,7 @@ public static class Program
                 break;
 
             case Scenario.Help:
+                builder.UseTableCloth3HelpComponents();
                 break;
         }
 

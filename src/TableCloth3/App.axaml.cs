@@ -5,6 +5,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using TableCloth3.Launcher.Windows;
+using TableCloth3.Shared.Contracts;
 using TableCloth3.Shared.Services;
 
 namespace TableCloth3;
@@ -12,10 +13,13 @@ namespace TableCloth3;
 internal partial class App : Application
 {
     [ActivatorUtilitiesConstructor]
-    public App(AvaloniaWindowManager windowManager)
+    public App(
+        AvaloniaWindowManager windowManager,
+        IInitializationService initializationService)
         : this()
     {
         _windowManager = windowManager;
+        _initializationService = initializationService;
     }
 
     public App()
@@ -24,6 +28,7 @@ internal partial class App : Application
     }
 
     private readonly AvaloniaWindowManager _windowManager = default!;
+    private readonly IInitializationService _initializationService = default!;
 
     public override void Initialize()
         => AvaloniaXamlLoader.Load(this);
@@ -37,7 +42,10 @@ internal partial class App : Application
             var splashWindow = _windowManager.GetAvaloniaWindow<LoadingSplashWindow>();
             splashWindow.Show();
 
-            await Task.Delay(TimeSpan.FromSeconds(1d));
+            await _initializationService.InitializeAsync(
+                Environment.GetCommandLineArgs().Skip(1).ToArray(),
+                default);
+
             splashWindow.Hide();
 
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)

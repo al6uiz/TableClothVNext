@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TableCloth3.Shared.Contracts;
 using TableCloth3.Shared.Services;
 using TableCloth3.Spork.Contracts;
 using TableCloth3.Spork.Services;
@@ -13,6 +14,7 @@ internal static class SporkHostExtensions
 {
     public static IHostApplicationBuilder UseTableCloth3SporkComponents(this IHostApplicationBuilder builder)
     {
+        builder.Services.AddSingleton<IInitializationService, SporkInitializationService>();
         builder.Services.AddSingleton<SporkLocationService>();
         builder.Services.AddTransient<TableClothCatalogService>();
 

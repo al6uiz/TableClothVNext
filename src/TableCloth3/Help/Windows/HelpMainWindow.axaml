@@ -1,0 +1,35 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
+		Width="500" Height="300"
+        x:Class="TableCloth3.HelpMainWindow"
+        Title="TableCloth3 Command Line Help" Padding="10">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="80*" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+		<ScrollViewer Grid.Row="0" Margin="5">
+			<TextBlock TextWrapping="WrapWithOverflow">
+				TableCloth3 Command Line Help<LineBreak/>
+				<LineBreak/>
+				To run TableCloth3 with command line arguments, use the following syntax:<LineBreak/>
+				<LineBreak/>
+				`TableCloth3.exe [options]`<LineBreak/>
+				<LineBreak/>
+				Where `[options]` can include:<LineBreak/>
+				<LineBreak/>
+				`--help` or `-h`: Displays this help message.<LineBreak/>
+				`--version` or `-v`: Displays the version of TableCloth3.<LineBreak/>
+				`--install &lt;package&gt;`: Installs the specified package.<LineBreak/>
+				`--uninstall &lt;package&gt;`: Uninstalls the specified package.<LineBreak/>
+				`--list`: Lists all installed packages.<LineBreak/>
+			</TextBlock>
+		</ScrollViewer>
+		<StackPanel Grid.Row="1">
+			<Button HorizontalAlignment="Right" Content="_Close" />
+		</StackPanel>
+	</Grid>
+</Window>

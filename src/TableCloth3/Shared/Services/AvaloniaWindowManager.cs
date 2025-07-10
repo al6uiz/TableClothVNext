@@ -26,6 +26,7 @@ public sealed class AvaloniaWindowManager
     public Window GetMainAvaloniaWindow()
         => _scenarioRouter.GetScenario() switch
         {
+            Scenario.Help => GetAvaloniaWindow<HelpMainWindow>(),
             Scenario.Spork => GetAvaloniaWindow<SporkMainWindow>(),
             _ => GetAvaloniaWindow<LauncherMainWindow>(),
         };

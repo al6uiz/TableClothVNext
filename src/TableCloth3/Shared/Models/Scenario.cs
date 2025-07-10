@@ -5,4 +5,5 @@ public enum Scenario
     None = 0,
     Launcher,
     Spork,
+    Help,
 }

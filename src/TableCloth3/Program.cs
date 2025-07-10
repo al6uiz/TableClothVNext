@@ -36,6 +36,9 @@ public static class Program
             case Scenario.Spork:
                 builder.UseTableCloth3SporkComponents();
                 break;
+
+            case Scenario.Help:
+                break;
         }
 
         builder.Services.AddAvaloniauiDesktopApplication<App>(BuildAvaloniaApp);

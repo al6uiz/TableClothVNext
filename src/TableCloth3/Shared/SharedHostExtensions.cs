@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
 using TableCloth3.Shared.Windows;
-using TableCloth3.Spork.Services;
 
 namespace TableCloth3.Shared;
 
@@ -58,7 +57,6 @@ internal static class SharedHostExtensions
         });
 
         builder.Services.AddSingleton<ArchiveExpander>();
-        builder.Services.AddTransient<TableClothCatalogService>();
 
         builder.Services.AddTransient<AboutWindowViewModel>();
         builder.Services.AddTransient<AboutWindow>();

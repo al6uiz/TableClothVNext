@@ -9,11 +9,14 @@ public sealed class SporkLocationService
         => Directory.CreateDirectory(AppDataDirectory);
 
     public string ImagesDirectory
-        => Path.Combine(AppDataDirectory);
+        => Path.Combine(AppDataDirectory, "Images");
 
     public DirectoryInfo EnsureImagesDirectoryCreated()
         => Directory.CreateDirectory(ImagesDirectory);
 
-    public string TemporaryDirectory
-        => Path.GetTempPath();
+    public string DownloadsDirectory
+        => Path.Combine(AppDataDirectory, "Downloads");
+
+    public DirectoryInfo EnsureDownloadsDirectoryCreated()
+        => Directory.CreateDirectory(DownloadsDirectory);
 }

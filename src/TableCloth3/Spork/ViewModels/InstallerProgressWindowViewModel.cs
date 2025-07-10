@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using DotNext.Threading;
@@ -8,7 +9,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Threading.Channels;
 using System.Windows.Input;
+using TableCloth3.Shared;
 using TableCloth3.Shared.ViewModels;
+using TableCloth3.Spork.Services;
 
 namespace TableCloth3.Spork.ViewModels;
 
@@ -56,7 +59,12 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
 
     [RelayCommand]
     private async Task Loaded(CancellationToken cancellationToken = default)
-        => await RunInstallerStepsAsync(cancellationToken).ConfigureAwait(false);
+    {
+        if (Design.IsDesignMode)
+            return;
+
+        await RunInstallerStepsAsync(cancellationToken).ConfigureAwait(false);
+    }
 
     [RelayCommand]
     private void CancelButton()
@@ -151,11 +159,32 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
 
 public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposable, IAsyncDisposable
 {
+    [ActivatorUtilitiesConstructor]
+    public InstallerStepItemViewModel(
+        SporkLocationService sporkLocationService,
+        IHttpClientFactory httpClientFactory)
+        : this()
+    {
+        _sporkLocationService = sporkLocationService;
+        _httpClientFactory = httpClientFactory;
+    }
+
+    public InstallerStepItemViewModel()
+        : base()
+    {
+    }
+
+    private readonly SporkLocationService _sporkLocationService = default!;
+    private readonly IHttpClientFactory _httpClientFactory = default!;
+
     [ObservableProperty]
     private ItemType _itemType = ItemType.None;
 
     [ObservableProperty]
     private bool _isVisible = true;
+
+    [ObservableProperty]
+    private string _serviceId = string.Empty;
 
     [ObservableProperty]
     private string _packageName = string.Empty;
@@ -186,7 +215,41 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposa
     [RelayCommand]
     private async Task LoadInstallStep(CancellationToken cancellationToken = default)
     {
-        await Task.Delay(TimeSpan.FromSeconds(3d), cancellationToken).ConfigureAwait(false);
+        var tempFileName = $"{ServiceId}_{PackageName.Replace(" ", "_")}";
+        var extension = string.Empty;
+
+        if (Uri.TryCreate(PackageUrl, UriKind.Absolute, out var parsedUri) &&
+            parsedUri != null)
+            extension = Path.GetExtension(parsedUri.LocalPath).TrimStart('.');
+        else
+        {
+            switch (ItemType)
+            {
+                case ItemType.InstallerBinary:
+                    extension = "exe";
+                    break;
+                case ItemType.PowerShellScript:
+                    extension = "ps1";
+                    break;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                extension = "exe";
+            else
+                extension = "bin";
+        }
+
+        var filePath = Path.Combine(
+            _sporkLocationService.EnsureDownloadsDirectoryCreated().FullName,
+            $"{tempFileName}.{extension}");
+
+        var client = _httpClientFactory.CreateChromeHttpClient();
+        using var remoteStream = await client.GetStreamAsync(PackageUrl, cancellationToken).ConfigureAwait(false);
+        using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
+        await remoteStream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
     }
 
     [RelayCommand]

@@ -1,12 +1,16 @@
 {
-  "profiles": {
-    "Launcher": {
-      "commandName": "Project",
-      "commandLineArgs": "--mode launcher"
-    },
-    "Spork": {
-      "commandName": "Project",
-      "commandLineArgs": "--mode spork"
+    "profiles": {
+        "Launcher": {
+            "commandName": "Project",
+            "commandLineArgs": "--mode launcher"
+        },
+        "Spork": {
+            "commandName": "Project",
+            "commandLineArgs": "--mode spork"
+        },
+        "Help": {
+            "commandName": "Project",
+            "commandLineArgs": "--mode Help"
+        }
     }
-  }
 }

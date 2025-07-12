@@ -11,9 +11,6 @@ internal static class SporkHostExtensions
 {
     public static IHostApplicationBuilder UseTableCloth3SporkComponents(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<SporkLocationService>();
-        builder.Services.AddTransient<TableClothCatalogService>();
-
         if (OperatingSystem.IsWindows())
             builder.Services.AddSingleton<IElevationService, WindowsElevationService>();
         else

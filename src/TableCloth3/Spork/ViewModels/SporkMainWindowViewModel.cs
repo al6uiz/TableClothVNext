@@ -11,7 +11,6 @@ using System.Xml.XPath;
 using TableCloth3.Shared.Languages;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
-using TableCloth3.Spork.Services;
 
 namespace TableCloth3.Spork.ViewModels;
 
@@ -22,7 +21,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         IMessenger messenger,
         TableClothCatalogService catalogService,
         AvaloniaViewModelManager avaloniaViewModelManager,
-        SporkLocationService sporkLocationService)
+        LocationService sporkLocationService)
         : this()
     {
         _messenger = messenger;
@@ -63,7 +62,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     private readonly IMessenger _messenger = default!;
     private readonly TableClothCatalogService _catalogService = default!;
     private readonly AvaloniaViewModelManager _avaloniaViewModelManager = default!;
-    private readonly SporkLocationService _sporkLocationService = default!;
+    private readonly LocationService _sporkLocationService = default!;
 
     protected override void PrepareDesignTimePreview()
     {
@@ -154,9 +153,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
             IsLoading = true;
             Items.Clear();
 
-            // TODO: ZIP 파일 해시 값 비교 동작 추가
-            var imagesDirectory = _sporkLocationService.EnsureImagesDirectoryCreated();
-            await _catalogService.LoadImagesAsync(imagesDirectory.FullName, cancellationToken).ConfigureAwait(false);
+            await _catalogService.LoadImagesAsync(cancellationToken).ConfigureAwait(false);
 
             var doc = await _catalogService.LoadCatalogAsync(cancellationToken).ConfigureAwait(false);
             var services = doc.XPathSelectElements("/TableClothCatalog/InternetServices/Service");
@@ -238,7 +235,7 @@ public sealed partial class TableClothCatalogItemViewModel : BaseViewModel
 {
     public TableClothCatalogItemViewModel(
         IMessenger messenger,
-        SporkLocationService sporkLocationService,
+        LocationService sporkLocationService,
         TableClothCatalogService catalogService)
         : base()
     {
@@ -252,7 +249,7 @@ public sealed partial class TableClothCatalogItemViewModel : BaseViewModel
     public interface ILaunchSiteRequestRecipient : IRecipient<LaunchSiteRequest>;
 
     private readonly IMessenger _messenger = default!;
-    private readonly SporkLocationService _sporkLocationService = default!;
+    private readonly LocationService _sporkLocationService = default!;
     private readonly TableClothCatalogService _catalogService = default!;
 
     partial void OnServiceIdChanged(string value)
@@ -260,8 +257,7 @@ public sealed partial class TableClothCatalogItemViewModel : BaseViewModel
         if (Design.IsDesignMode)
             return;
 
-        var imagePath = _sporkLocationService.EnsureImagesDirectoryCreated().FullName;
-        var targetPath = _catalogService.GetLocalImagePath(imagePath, value);
+        var targetPath = _catalogService.GetLocalImagePath(value);
 
         if (File.Exists(targetPath))
             ServiceIcon = new Bitmap(targetPath);

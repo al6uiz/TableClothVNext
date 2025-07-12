@@ -1,26 +1,24 @@
-﻿using Avalonia.Xaml.Interactions.Custom;
-using System.IO.Compression;
-using System.Xml.Linq;
-using TableCloth3.Shared;
+﻿using System.Xml.Linq;
 using TableCloth3.Shared.Languages;
-using TableCloth3.Shared.Services;
-using TableCloth3.Spork.Languages;
 
-namespace TableCloth3.Spork.Services;
+namespace TableCloth3.Shared.Services;
 
 public sealed class TableClothCatalogService
 {
     public TableClothCatalogService(
         IHttpClientFactory httpClientFactory,
-        ArchiveExpander archiveExpander)
+        ArchiveExpander archiveExpander,
+        LocationService locationService)
         : base()
     {
         _httpClientFactory = httpClientFactory;
         _archiveExpander = archiveExpander;
+        _locationService = locationService;
     }
 
     private readonly IHttpClientFactory _httpClientFactory = default!;
     private readonly ArchiveExpander _archiveExpander = default!;
+    private readonly LocationService _locationService = default!;
 
     public async Task<XDocument> LoadCatalogAsync(
         CancellationToken cancellationToken = default)
@@ -44,11 +42,13 @@ public sealed class TableClothCatalogService
         };
 
     public async Task LoadImagesAsync(
-        string targetDirectoryToExtract,
         CancellationToken cancellationToken = default)
     {
+        // TODO: ZIP 파일 해시 값 비교 동작 추가
         var httpClient = _httpClientFactory.CreateCatalogHttpClient();
         using var contentStream = await httpClient.GetStreamAsync($"/TableClothCatalog/Images.zip?ts={Uri.EscapeDataString(DateTime.UtcNow.Ticks.ToString())}", cancellationToken).ConfigureAwait(false);
+
+        var targetDirectoryToExtract = _locationService.EnsureImagesDirectoryCreated().FullName;
         var downloadPath = Path.Combine(targetDirectoryToExtract, "Images.zip");
         using var localStream = File.Open(downloadPath, FileMode.Create, FileAccess.ReadWrite);
         await contentStream.CopyToAsync(localStream, cancellationToken).ConfigureAwait(false);
@@ -58,9 +58,9 @@ public sealed class TableClothCatalogService
         await _archiveExpander.ExpandArchiveAsync(localStream, targetDirectoryToExtract, cancellationToken).ConfigureAwait(false);
     }
 
-    public string GetLocalImagePath(string imageDirectory, string serviceId)
-        => Path.GetFullPath(Path.Combine(imageDirectory, serviceId + ".png"));
+    public string GetLocalImagePath(string serviceId)
+        => Path.GetFullPath(Path.Combine(_locationService.EnsureImagesDirectoryCreated().FullName, serviceId + ".png"));
 
-    public string GetLocalIconPath(string imageDirectory, string serviceId)
-        => Path.GetFullPath(Path.Combine(imageDirectory, serviceId + ".ico"));
+    public string GetLocalIconPath(string serviceId)
+        => Path.GetFullPath(Path.Combine(_locationService.EnsureImagesDirectoryCreated().FullName, serviceId + ".ico"));
 }

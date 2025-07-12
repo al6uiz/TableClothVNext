@@ -47,6 +47,9 @@ internal static class SharedHostExtensions
 
     public static IHostApplicationBuilder UseTableCloth3SharedComponents(this IHostApplicationBuilder builder)
     {
+        builder.Services.AddSingleton<LocationService>();
+        builder.Services.AddSingleton<TableClothCatalogService>();
+
         builder.Services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         builder.Services.AddSingleton<AvaloniaViewModelManager>();
         builder.Services.AddSingleton<AvaloniaWindowManager>();

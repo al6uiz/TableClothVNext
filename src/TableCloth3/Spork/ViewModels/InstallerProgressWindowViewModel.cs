@@ -10,8 +10,8 @@ using System.ComponentModel;
 using System.Threading.Channels;
 using System.Windows.Input;
 using TableCloth3.Shared;
+using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
-using TableCloth3.Spork.Services;
 
 namespace TableCloth3.Spork.ViewModels;
 
@@ -161,7 +161,7 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposa
 {
     [ActivatorUtilitiesConstructor]
     public InstallerStepItemViewModel(
-        SporkLocationService sporkLocationService,
+        LocationService sporkLocationService,
         IHttpClientFactory httpClientFactory)
         : this()
     {
@@ -174,7 +174,7 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposa
     {
     }
 
-    private readonly SporkLocationService _sporkLocationService = default!;
+    private readonly LocationService _sporkLocationService = default!;
     private readonly IHttpClientFactory _httpClientFactory = default!;
 
     [ObservableProperty]

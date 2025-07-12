@@ -1,9 +1,18 @@
-﻿namespace TableCloth3.Spork.Services;
+﻿namespace TableCloth3.Shared.Services;
 
-public sealed class SporkLocationService
+public sealed class LocationService
 {
+    public LocationService(
+        ScenarioRouter scenarioRouter)
+        : base()
+    {
+        _scenarioRouter = scenarioRouter;
+    }
+
+    private readonly ScenarioRouter _scenarioRouter;
+
     public string AppDataDirectory
-        => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Spork");
+        => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), _scenarioRouter.GetScenario().ToString());
 
     public DirectoryInfo EnsureAppDataDirectoryCreated()
         => Directory.CreateDirectory(AppDataDirectory);

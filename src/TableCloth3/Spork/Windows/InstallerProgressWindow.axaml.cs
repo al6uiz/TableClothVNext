@@ -1,6 +1,4 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +37,8 @@ public partial class InstallerProgressWindow :
     private readonly InstallerProgressWindowViewModel _viewModel = default!;
     private readonly IMessenger _messenger = default!;
 
+    public InstallerProgressWindowViewModel ViewModel => _viewModel;
+
     protected override void OnClosed(EventArgs e)
     {
         _messenger.UnregisterAll(this);
@@ -63,6 +63,4 @@ public partial class InstallerProgressWindow :
             Close();
         });
     }
-
-    public InstallerProgressWindowViewModel ViewModel => _viewModel;
 }

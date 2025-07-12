@@ -1,5 +1,4 @@
-﻿using AsyncAwaitBestPractices;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -7,7 +6,6 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
-using System.Net.Http.Headers;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using TableCloth3.Shared.Languages;
@@ -125,13 +123,12 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         => ApplyFilter();
 
     [RelayCommand]
-    private void Loaded()
+    private async Task Loaded(CancellationToken cancellationToken = default)
     {
         if (Design.IsDesignMode)
             return;
 
-        RefreshIcons().SafeFireAndForget();
-        RefreshCatalog().SafeFireAndForget();
+        await RefreshCatalog(cancellationToken).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -156,6 +153,10 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         {
             IsLoading = true;
             Items.Clear();
+
+            // TODO: ZIP 파일 해시 값 비교 동작 추가
+            var imagesDirectory = _sporkLocationService.EnsureImagesDirectoryCreated();
+            await _catalogService.LoadImagesAsync(imagesDirectory.FullName, cancellationToken).ConfigureAwait(false);
 
             var doc = await _catalogService.LoadCatalogAsync(cancellationToken).ConfigureAwait(false);
             var services = doc.XPathSelectElements("/TableClothCatalog/InternetServices/Service");
@@ -226,19 +227,6 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         }
 
         ApplyFilter();
-    }
-
-    private async Task RefreshIcons(CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var imagesDirectory = _sporkLocationService.EnsureImagesDirectoryCreated();
-            await _catalogService.LoadImagesAsync(imagesDirectory.FullName, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            _messenger?.Send<LoadingFailureNotification>(new(ex));
-        }
     }
 
     [RelayCommand]

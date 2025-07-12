@@ -61,9 +61,6 @@ internal static class SharedHostExtensions
         builder.Services.AddTransient<AboutWindowViewModel>();
         builder.Services.AddTransient<AboutWindow>();
 
-        builder.Services.AddTransient<LoadingSplashWindowViewModel>();
-        builder.Services.AddTransient<LoadingSplashWindow>();
-
         return builder;
     }
 }

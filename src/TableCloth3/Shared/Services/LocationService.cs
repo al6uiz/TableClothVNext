@@ -28,4 +28,7 @@ public sealed class LocationService
 
     public DirectoryInfo EnsureDownloadsDirectoryCreated()
         => Directory.CreateDirectory(DownloadsDirectory);
+
+    public string WindowsSandboxProfilePath
+        => Path.Combine(AppDataDirectory, "Sandbox.wsb");
 }

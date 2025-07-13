@@ -42,9 +42,7 @@
 				<Button Content="{x:Static lang:LauncherStrings.AboutApp}" Command="{Binding AboutButtonCommand}" />
 			</StackPanel>
 			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-				<Button Content="{x:Static lang:LauncherStrings.LaunchSandbox}" />
-				<!-- To Do: Sandbox 미지원 환경 또는 비 Windows 환경을 위한 Export 기능 추가 -->
-				<Button Content="E_xport" IsVisible="False" />
+				<Button Content="{x:Static lang:LauncherStrings.LaunchSandbox}" Command="{Binding LaunchButtonCommand}" />
 				<TextBlock Margin="5" />
  				<Button Content="{x:Static lang:LauncherStrings.CloseApp}" Command="{Binding CloseButtonCommand}" />
 			</StackPanel>

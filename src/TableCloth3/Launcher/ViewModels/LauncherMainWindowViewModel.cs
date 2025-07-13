@@ -2,6 +2,8 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
+using TableCloth3.Launcher.Services;
 
 namespace TableCloth3.Launcher.ViewModels;
 
@@ -9,14 +11,17 @@ public sealed partial class LauncherMainWindowViewModel : ObservableObject
 {
     [ActivatorUtilitiesConstructor]
     public LauncherMainWindowViewModel(
-        IMessenger messenger)
+        IMessenger messenger,
+        WindowsSandboxComposer windowsSandboxComposer)
     {
         _messenger = messenger;
+        _windowsSandboxComposer = windowsSandboxComposer;
     }
 
     public LauncherMainWindowViewModel() { }
 
     private readonly IMessenger _messenger = default!;
+    private readonly WindowsSandboxComposer _windowsSandboxComposer = default!;
 
     public sealed record class AboutButtonMessage;
 
@@ -29,6 +34,10 @@ public sealed partial class LauncherMainWindowViewModel : ObservableObject
     public sealed record class ManageFolderButtonMessage;
 
     public interface IManageFolderButtonMessageRecipient : IRecipient<ManageFolderButtonMessage>;
+
+    public sealed record class NotifyErrorMessage(Exception foundException);
+
+    public interface INotifyErrorMessageRecipient : IRecipient<NotifyErrorMessage>;
 
     [ObservableProperty]
     private bool _useMicrophone = false;
@@ -48,6 +57,37 @@ public sealed partial class LauncherMainWindowViewModel : ObservableObject
     [RelayCommand]
     private void AboutButton()
         => _messenger.Send<AboutButtonMessage>();
+
+    [RelayCommand(AllowConcurrentExecutions = false)]
+    private async Task LaunchButton(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // TODO: Check WindowsSandbox process
+            var wsbPath = await _windowsSandboxComposer.GenerateWindowsSandboxProfileAsync(
+                this, cancellationToken).ConfigureAwait(false);
+
+            using var process = Process.Start(new ProcessStartInfo(wsbPath)
+            {
+                UseShellExecute = true,
+                WindowStyle = ProcessWindowStyle.Normal,
+            });
+
+            if (process == null)
+            {
+                _messenger.Send<NotifyErrorMessage>(new NotifyErrorMessage(
+                    new Exception("Cannot start the Windows Sandbox process.")));
+                return;
+            }
+
+            process.EnableRaisingEvents = true;
+            await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _messenger.Send<NotifyErrorMessage>(new NotifyErrorMessage(ex));
+        }
+    }
 
     [RelayCommand]
     private void CloseButton()

@@ -7,6 +7,7 @@
 		xmlns:ui="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
         mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="480"
 		Width="640" Height="480" CanResize="True"
+		MinWidth="640" MinHeight="480"
         x:Class="TableCloth3.Spork.Windows.SporkMainWindow"
 		x:DataType="vm:SporkMainWindowViewModel"
         Title="{x:Static lang:SporkStrings.SporkMainWindowTitle}" Padding="20"

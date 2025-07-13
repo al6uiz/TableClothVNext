@@ -5,6 +5,7 @@
         xmlns:vm="clr-namespace:TableCloth3.Help.ViewModels"
 		mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
 		Width="500" Height="300"
+		MinWidth="500" MinHeight="300" CanResize="False"
         x:Class="TableCloth3.HelpMainWindow"
 		x:DataType="vm:HelpMainWindowViewModel"
         Title="TableCloth3 Command Line Help" Padding="10">

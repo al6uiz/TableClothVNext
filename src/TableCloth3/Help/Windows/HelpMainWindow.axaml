@@ -2,10 +2,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
+        xmlns:vm="clr-namespace:TableCloth3.Help.ViewModels"
+		mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
 		Width="500" Height="300"
         x:Class="TableCloth3.HelpMainWindow"
+		x:DataType="vm:HelpMainWindowViewModel"
         Title="TableCloth3 Command Line Help" Padding="10">
+	<Design.DataContext>
+		<vm:HelpMainWindowViewModel />
+	</Design.DataContext>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="80*" />
@@ -28,8 +33,6 @@
 				`--list`: Lists all installed packages.<LineBreak/>
 			</TextBlock>
 		</ScrollViewer>
-		<StackPanel Grid.Row="1">
-			<Button HorizontalAlignment="Right" Content="_Close" />
-		</StackPanel>
+		<Button HorizontalAlignment="Center" Content="Close" Grid.Row="1" Command="{Binding CloseButtonCommand, Priority=1}" />
 	</Grid>
 </Window>

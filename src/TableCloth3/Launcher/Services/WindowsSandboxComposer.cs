@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System.Text.Json.Serialization;
+using System.Xml;
 using System.Xml.Linq;
 using TableCloth3.Launcher.ViewModels;
 using TableCloth3.Shared.Services;

@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using TableCloth3.Shared.Services;
@@ -48,6 +47,7 @@ internal static class SharedHostExtensions
     public static IHostApplicationBuilder UseTableCloth3SharedComponents(this IHostApplicationBuilder builder)
     {
         builder.Services.AddSingleton<LocationService>();
+        builder.Services.AddSingleton<AppSettingsManager>();
         builder.Services.AddSingleton<TableClothCatalogService>();
 
         builder.Services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);

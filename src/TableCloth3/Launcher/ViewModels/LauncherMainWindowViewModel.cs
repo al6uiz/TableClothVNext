@@ -1,27 +1,34 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AsyncAwaitBestPractices;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel;
 using System.Diagnostics;
 using TableCloth3.Launcher.Services;
+using TableCloth3.Shared.Services;
+using TableCloth3.Shared.ViewModels;
 
 namespace TableCloth3.Launcher.ViewModels;
 
-public sealed partial class LauncherMainWindowViewModel : ObservableObject
+public sealed partial class LauncherMainWindowViewModel : BaseViewModel
 {
     [ActivatorUtilitiesConstructor]
     public LauncherMainWindowViewModel(
         IMessenger messenger,
-        WindowsSandboxComposer windowsSandboxComposer)
+        WindowsSandboxComposer windowsSandboxComposer,
+        AppSettingsManager appSettingsManager)
     {
         _messenger = messenger;
         _windowsSandboxComposer = windowsSandboxComposer;
+        _appSettingsManager = appSettingsManager;
     }
 
     public LauncherMainWindowViewModel() { }
 
     private readonly IMessenger _messenger = default!;
     private readonly WindowsSandboxComposer _windowsSandboxComposer = default!;
+    private readonly AppSettingsManager _appSettingsManager = default!;
 
     public sealed record class AboutButtonMessage;
 
@@ -53,6 +60,14 @@ public sealed partial class LauncherMainWindowViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _mountSpecificFolders = false;
+
+    [RelayCommand]
+    private async Task LoadConfiguration(CancellationToken cancellationToken = default)
+        => await _appSettingsManager.LoadAsync(this, cancellationToken).ConfigureAwait(false);
+
+    [RelayCommand]
+    private async Task SaveConfiguration(CancellationToken cancellationToken = default)
+        => await _appSettingsManager.SaveAsync(this, cancellationToken).ConfigureAwait(false);
 
     [RelayCommand]
     private void AboutButton()
@@ -96,4 +111,24 @@ public sealed partial class LauncherMainWindowViewModel : ObservableObject
     [RelayCommand]
     private void ManageFolderButton()
         => _messenger.Send<ManageFolderButtonMessage>();
+
+    public override void PopulateForSerialization(IDictionary<string, object?> propertyBag)
+    {
+        propertyBag[nameof(UseMicrophone)] = UseMicrophone;
+        propertyBag[nameof(UseWebCamera)] = UseWebCamera;
+        propertyBag[nameof(SharePrinters)] = SharePrinters;
+        propertyBag[nameof(MountNpkiFolders)] = MountNpkiFolders;
+        propertyBag[nameof(MountSpecificFolders)] = MountSpecificFolders;
+        base.PopulateForSerialization(propertyBag);
+    }
+
+    public override void PopulateForDeserialization(IReadOnlyDictionary<string, object?> propertyBag)
+    {
+        UseMicrophone = Convert.ToBoolean(propertyBag[nameof(UseMicrophone)]);
+        UseWebCamera = Convert.ToBoolean(propertyBag[nameof(UseWebCamera)]);
+        SharePrinters = Convert.ToBoolean(propertyBag[nameof(SharePrinters)]);
+        MountNpkiFolders = Convert.ToBoolean(propertyBag[nameof(MountNpkiFolders)]);
+        MountSpecificFolders = Convert.ToBoolean(propertyBag[nameof(MountSpecificFolders)]);
+        base.PopulateForDeserialization(propertyBag);
+    }
 }

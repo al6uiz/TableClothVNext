@@ -44,7 +44,7 @@ public sealed class AppSettingsManager
         where TBaseViewModel : BaseViewModel
     {
         var directoryPath = _locationService.EnsureAppDataDirectoryCreated().FullName;
-        var filePath = Path.Combine(directoryPath, "launcherConfig.json");
+        var filePath = Path.Combine(directoryPath, "config.json");
         using var fileStream = File.Open(filePath, FileMode.Create, FileAccess.Write);
 
         var items = new Dictionary<string, object?>();

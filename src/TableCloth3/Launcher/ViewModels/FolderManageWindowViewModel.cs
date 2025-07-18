@@ -14,17 +14,14 @@ public sealed partial class FolderManageWindowViewModel : BaseViewModel
 {
     [ActivatorUtilitiesConstructor]
     public FolderManageWindowViewModel(
-        IMessenger messenger,
-        AppSettingsManager appSettingsManager)
+        IMessenger messenger)
     {
         _messenger = messenger;
-        _appSettingsManager = appSettingsManager;
     }
 
     public FolderManageWindowViewModel() { }
 
     private readonly IMessenger _messenger = default!;
-    private readonly AppSettingsManager _appSettingsManager = default!;
 
     public sealed record class DoubleTappedMessage;
 
@@ -48,14 +45,6 @@ public sealed partial class FolderManageWindowViewModel : BaseViewModel
 
     [ObservableProperty]
     private ObservableCollection<string> _folders = new ObservableCollection<string>();
-
-    [RelayCommand]
-    private async Task LoadConfiguration(CancellationToken cancellationToken = default)
-        => await _appSettingsManager.LoadAsync(this, cancellationToken).ConfigureAwait(false);
-
-    [RelayCommand]
-    private async Task SaveConfiguration(CancellationToken cancellationToken = default)
-        => await _appSettingsManager.SaveAsync(this, cancellationToken).ConfigureAwait(false);
 
     [RelayCommand]
     private void DoubleTapped()

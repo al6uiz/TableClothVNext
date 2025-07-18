@@ -1,10 +1,12 @@
 using AsyncAwaitBestPractices;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using TableCloth3.Launcher.ViewModels;
+using TableCloth3.Shared.Services;
 using static TableCloth3.Launcher.ViewModels.FolderManageWindowViewModel;
 
 namespace TableCloth3;
@@ -20,11 +22,13 @@ public partial class FolderManageWindow :
     [ActivatorUtilitiesConstructor]
     public FolderManageWindow(
         FolderManageWindowViewModel viewModel,
-        IMessenger messenger)
+        IMessenger messenger,
+        AppSettingsManager appSettingsManager)
         : this()
     {
         _viewModel = viewModel;
         _messenger = messenger;
+        _appSettingsManager = appSettingsManager;
 
         DataContext = _viewModel;
 
@@ -43,10 +47,18 @@ public partial class FolderManageWindow :
 
     private readonly FolderManageWindowViewModel _viewModel = default!;
     private readonly IMessenger _messenger = default!;
+    private readonly AppSettingsManager _appSettingsManager = default!;
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        _appSettingsManager.LoadAsync(_viewModel).SafeFireAndForget();
+        base.OnLoaded(e);
+    }
 
     protected override void OnClosed(EventArgs e)
     {
         _messenger?.UnregisterAll(this);
+        _appSettingsManager.SaveAsync(_viewModel).SafeFireAndForget();
         base.OnClosed(e);
     }
 

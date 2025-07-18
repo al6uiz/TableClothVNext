@@ -4,7 +4,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:lang="clr-namespace:TableCloth3.Launcher.Languages"
 		xmlns:vm="clr-namespace:TableCloth3.Launcher.ViewModels"
-        xmlns:ui="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
 		mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="320"
 		Width="480" Height="320"
 		CanResize="False"
@@ -16,11 +15,6 @@
 	<Design.DataContext>
 		<vm:LauncherMainWindowViewModel />
 	</Design.DataContext>
-	<Interaction.Behaviors>
-		<RoutedEventTriggerBehavior RoutedEvent="{x:Static ui:Control.LoadedEvent}">
-			<InvokeCommandAction Command="{Binding LoadConfigurationCommand}" />
-		</RoutedEventTriggerBehavior>
-	</Interaction.Behaviors>
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="*" />

@@ -16,19 +16,16 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
     [ActivatorUtilitiesConstructor]
     public LauncherMainWindowViewModel(
         IMessenger messenger,
-        WindowsSandboxComposer windowsSandboxComposer,
-        AppSettingsManager appSettingsManager)
+        WindowsSandboxComposer windowsSandboxComposer)
     {
         _messenger = messenger;
         _windowsSandboxComposer = windowsSandboxComposer;
-        _appSettingsManager = appSettingsManager;
     }
 
     public LauncherMainWindowViewModel() { }
 
     private readonly IMessenger _messenger = default!;
     private readonly WindowsSandboxComposer _windowsSandboxComposer = default!;
-    private readonly AppSettingsManager _appSettingsManager = default!;
 
     public sealed record class AboutButtonMessage;
 
@@ -60,14 +57,6 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
 
     [ObservableProperty]
     private bool _mountSpecificFolders = false;
-
-    [RelayCommand]
-    private async Task LoadConfiguration(CancellationToken cancellationToken = default)
-        => await _appSettingsManager.LoadAsync(this, cancellationToken).ConfigureAwait(false);
-
-    [RelayCommand]
-    private async Task SaveConfiguration(CancellationToken cancellationToken = default)
-        => await _appSettingsManager.SaveAsync(this, cancellationToken).ConfigureAwait(false);
 
     [RelayCommand]
     private void AboutButton()

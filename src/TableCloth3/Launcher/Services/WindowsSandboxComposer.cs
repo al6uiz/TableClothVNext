@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Diagnostics;
+using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Linq;
 using TableCloth3.Launcher.ViewModels;
@@ -33,14 +34,30 @@ public sealed class WindowsSandboxComposer
         root.Add(new XElement("ClipboardRedirection", "Enable"));
         root.Add(new XElement("MemoryInMB", 2048));
 
-        var logonCommandElem = new XElement("LogonCommand");
-        var commandElem = new XElement("Command");
-        commandElem.Value = "C:\\Windows\\System32\\cmd.exe /c start https://www.microsoft.com/";
-        logonCommandElem.Add(commandElem);
-        root.Add(logonCommandElem);
-
         var mappedFoldersElem = new XElement("MappedFolders");
         var aliasList = new List<string>();
+
+        var processFilePath = Process.GetCurrentProcess().MainModule?.FileName;
+        if (string.IsNullOrWhiteSpace(processFilePath))
+            throw new Exception("Cannot determine application executable file path.");
+        var thisDirectory = Path.GetDirectoryName(processFilePath);
+        if (string.IsNullOrWhiteSpace(thisDirectory))
+            throw new Exception("Cannot determine application directory path.");
+        var thisAlias = Path.GetFileName(thisDirectory.Trim(Path.DirectorySeparatorChar));
+        if (aliasList.Contains(thisAlias))
+            throw new Exception($"Cannot mount current application directory: {thisDirectory}");
+
+        var thisMappedFolderElem = new XElement("MappedFolder");
+        var thisFolderElem = new XElement("HostFolder", thisDirectory);
+        thisMappedFolderElem.Add(thisFolderElem);
+        mappedFoldersElem.Add(thisMappedFolderElem);
+        aliasList.Add(thisAlias);
+
+        var logonCommandElem = new XElement("LogonCommand");
+        var commandElem = new XElement("Command");
+        commandElem.Value = $"C:\\Users\\WDAGUtilityAccount\\Desktop\\{thisAlias}\\{Path.GetFileName(processFilePath)} --mode=Spork";
+        logonCommandElem.Add(commandElem);
+        root.Add(logonCommandElem);
 
         if (launcherViewModel.MountNpkiFolders)
         {

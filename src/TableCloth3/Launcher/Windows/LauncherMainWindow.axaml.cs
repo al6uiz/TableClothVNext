@@ -45,14 +45,14 @@ public partial class LauncherMainWindow :
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
-        _appSettingsManager.LoadAsync(_viewModel, "folderListConfig.json").SafeFireAndForget();
+        _appSettingsManager.LoadAsync(_viewModel, "launcherConfig.json").SafeFireAndForget();
         base.OnLoaded(e);
     }
 
     protected override void OnClosed(EventArgs e)
     {
         _messenger?.UnregisterAll(this);
-        _appSettingsManager.SaveAsync(_viewModel, "folderListConfig.json").SafeFireAndForget();
+        _appSettingsManager.SaveAsync(_viewModel, "launcherConfig.json").SafeFireAndForget();
         base.OnClosed(e);
     }
 

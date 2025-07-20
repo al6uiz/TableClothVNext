@@ -16,15 +16,21 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
     [ActivatorUtilitiesConstructor]
     public LauncherMainWindowViewModel(
         IMessenger messenger,
+        AvaloniaViewModelManager viewModelManager,
+        AppSettingsManager appSettingsManager,
         WindowsSandboxComposer windowsSandboxComposer)
     {
         _messenger = messenger;
+        _viewModelManager = viewModelManager;
+        _appSettingsManager = appSettingsManager;
         _windowsSandboxComposer = windowsSandboxComposer;
     }
 
     public LauncherMainWindowViewModel() { }
 
     private readonly IMessenger _messenger = default!;
+    private readonly AvaloniaViewModelManager _viewModelManager = default!;
+    private readonly AppSettingsManager _appSettingsManager = default!;
     private readonly WindowsSandboxComposer _windowsSandboxComposer = default!;
 
     public sealed record class AboutButtonMessage;
@@ -68,8 +74,17 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
         try
         {
             // TODO: Check WindowsSandbox process
+
+            var warnings = new List<string>();
+            var folderViewModel = _viewModelManager.GetAvaloniaViewModel<FolderManageWindowViewModel>();
+            await _appSettingsManager.LoadAsync(folderViewModel, "folderListConfig.json", cancellationToken).ConfigureAwait(false);
             var wsbPath = await _windowsSandboxComposer.GenerateWindowsSandboxProfileAsync(
-                this, cancellationToken).ConfigureAwait(false);
+                this, folderViewModel, warnings, cancellationToken).ConfigureAwait(false);
+
+            if (warnings.Any())
+            {
+                // TODO: Show Warnings
+            }
 
             using var process = Process.Start(new ProcessStartInfo(wsbPath)
             {

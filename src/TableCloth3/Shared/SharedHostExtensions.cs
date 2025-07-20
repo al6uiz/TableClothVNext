@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using TableCloth3.Shared.Converters;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
 using TableCloth3.Shared.Windows;
@@ -49,6 +50,8 @@ internal static class SharedHostExtensions
         builder.Services.AddSingleton<LocationService>();
         builder.Services.AddSingleton<AppSettingsManager>();
         builder.Services.AddSingleton<TableClothCatalogService>();
+
+        builder.Services.AddSingleton<ObjectToInferredTypeConverter>();
 
         builder.Services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         builder.Services.AddSingleton<AvaloniaViewModelManager>();

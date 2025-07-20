@@ -85,10 +85,15 @@ public sealed partial class FolderManageWindowViewModel : BaseViewModel
     public override void PopulateForDeserialization(IReadOnlyDictionary<string, object?> propertyBag)
     {
         Folders.Clear();
-        var items = (propertyBag[nameof(Folders)] as IEnumerable<string> ?? Enumerable.Empty<string>());
+        var items = (propertyBag[nameof(Folders)] as IEnumerable<object> ?? Enumerable.Empty<object>());
 
         foreach (var item in items)
-            Folders.Add(item);
+        {
+            var folderPath = Convert.ToString(item);
+            if (string.IsNullOrWhiteSpace(folderPath))
+                continue;
+            Folders.Add(folderPath);
+        }
 
         base.PopulateForDeserialization(propertyBag);
     }

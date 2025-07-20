@@ -113,11 +113,11 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
 
     public override void PopulateForDeserialization(IReadOnlyDictionary<string, object?> propertyBag)
     {
-        UseMicrophone = Convert.ToBoolean(propertyBag[nameof(UseMicrophone)]);
-        UseWebCamera = Convert.ToBoolean(propertyBag[nameof(UseWebCamera)]);
-        SharePrinters = Convert.ToBoolean(propertyBag[nameof(SharePrinters)]);
-        MountNpkiFolders = Convert.ToBoolean(propertyBag[nameof(MountNpkiFolders)]);
-        MountSpecificFolders = Convert.ToBoolean(propertyBag[nameof(MountSpecificFolders)]);
+        UseMicrophone = Convert.ToBoolean(propertyBag[nameof(UseMicrophone)]?.ToString());
+        UseWebCamera = Convert.ToBoolean(propertyBag[nameof(UseWebCamera)]?.ToString());
+        SharePrinters = Convert.ToBoolean(propertyBag[nameof(SharePrinters)]?.ToString());
+        MountNpkiFolders = Convert.ToBoolean(propertyBag[nameof(MountNpkiFolders)]?.ToString());
+        MountSpecificFolders = Convert.ToBoolean(propertyBag[nameof(MountSpecificFolders)]?.ToString());
         base.PopulateForDeserialization(propertyBag);
     }
 }

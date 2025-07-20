@@ -10,7 +10,7 @@
 		x:DataType="vm:AboutWindowViewModel"
 		WindowStartupLocation="CenterOwner"
         Title="{x:Static lang:SharedStrings.AboutWindowTitle}"
-		Padding="20" Icon="avares:/Assets/Images/TableCloth.png">
+		Icon="avares:/Assets/Images/TableCloth.png">
 	<Design.DataContext>
 		<vm:AboutWindowViewModel />
 	</Design.DataContext>
@@ -20,7 +20,7 @@
 			<RowDefinition Height="20*" />
 		</Grid.RowDefinitions>
 		<Image Source="avares:/Assets/Images/TableCloth.png" Opacity="0.16" />
-		<Rectangle Fill="#66FFFFFF" />
+		<Rectangle Fill="#66FFFFFF" Grid.RowSpan="2" />
 
 		<Label Grid.Row="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
 			<TextBlock TextAlignment="Center">

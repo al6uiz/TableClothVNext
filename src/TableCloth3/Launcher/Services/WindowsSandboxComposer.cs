@@ -33,6 +33,12 @@ public sealed class WindowsSandboxComposer
         root.Add(new XElement("ClipboardRedirection", "Enable"));
         root.Add(new XElement("MemoryInMB", 2048));
 
+        var logonCommandElem = new XElement("LogonCommand");
+        var commandElem = new XElement("Command");
+        commandElem.Value = "C:\\Windows\\System32\\cmd.exe /c start https://www.microsoft.com/";
+        logonCommandElem.Add(commandElem);
+        root.Add(logonCommandElem);
+
         var mappedFoldersElem = new XElement("MappedFolders");
         var aliasList = new List<string>();
 
@@ -44,7 +50,7 @@ public sealed class WindowsSandboxComposer
 
             if (Directory.Exists(targetPath))
             {
-                var alias = Path.GetFileName(targetPath);
+                var alias = Path.GetFileName(targetPath.Trim(Path.DirectorySeparatorChar));
                 if (!aliasList.Contains(alias))
                 {
                     var eachMappedFolderElem = new XElement("MappedFolder");
@@ -68,8 +74,7 @@ public sealed class WindowsSandboxComposer
             {
                 // TODO: 마운트하지 못한 폴더 (존재하지 않거나 이름이 겹치는 폴더)에 대한 경고 메시지 표시 추가
                 var targetPath = Path.GetFullPath(
-                    Environment.ExpandEnvironmentVariables(
-                        eachFolder));
+                    Environment.ExpandEnvironmentVariables(eachFolder));
 
                 if (!Directory.Exists(targetPath))
                 {
@@ -77,7 +82,7 @@ public sealed class WindowsSandboxComposer
                     continue;
                 }
 
-                var alias = Path.GetFileName(targetPath);
+                var alias = Path.GetFileName(targetPath.Trim(Path.DirectorySeparatorChar));
                 if (aliasList.Contains(alias))
                 {
                     warnings.Add($"Selected directory '{targetPath}' cannot be mounted due to duplicated name.");

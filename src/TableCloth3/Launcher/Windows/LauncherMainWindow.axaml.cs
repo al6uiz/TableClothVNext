@@ -1,6 +1,7 @@
 using AsyncAwaitBestPractices;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
@@ -86,39 +87,45 @@ public partial class LauncherMainWindow :
 
     void IRecipient<NotifyErrorMessage>.Receive(NotifyErrorMessage message)
     {
-        var messageBoxParam = new MessageBoxStandardParams()
+        Dispatcher.UIThread.Invoke(() =>
         {
-            WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            ContentTitle = "Error",
-            ContentMessage = message.FoundException.Message,
-            Icon = MsBox.Avalonia.Enums.Icon.Error,
-            ButtonDefinitions = MsBox.Avalonia.Enums.ButtonEnum.Ok,
-            EnterDefaultButton = MsBox.Avalonia.Enums.ClickEnum.Ok,
-            EscDefaultButton = MsBox.Avalonia.Enums.ClickEnum.Cancel,
-        };
+            var messageBoxParam = new MessageBoxStandardParams()
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                ContentTitle = "Error",
+                ContentMessage = message.FoundException.Message,
+                Icon = MsBox.Avalonia.Enums.Icon.Error,
+                ButtonDefinitions = MsBox.Avalonia.Enums.ButtonEnum.Ok,
+                EnterDefaultButton = MsBox.Avalonia.Enums.ClickEnum.Ok,
+                EscDefaultButton = MsBox.Avalonia.Enums.ClickEnum.Cancel,
+            };
 
-        MessageBoxManager
-            .GetMessageBoxStandard(messageBoxParam)
-            .ShowWindowDialogAsync(this)
-            .SafeFireAndForget();
+            MessageBoxManager
+                .GetMessageBoxStandard(messageBoxParam)
+                .ShowWindowDialogAsync(this)
+                .SafeFireAndForget();
+        });
     }
 
     void IRecipient<NotifyWarningsMessage>.Receive(NotifyWarningsMessage message)
     {
-        var messageBoxParam = new MessageBoxStandardParams()
+        Dispatcher.UIThread.Invoke(() =>
         {
-            WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            ContentTitle = "Warning",
-            ContentMessage = string.Join(Environment.NewLine, message.FoundWarnings),
-            Icon = MsBox.Avalonia.Enums.Icon.Warning,
-            ButtonDefinitions = MsBox.Avalonia.Enums.ButtonEnum.Ok,
-            EnterDefaultButton = MsBox.Avalonia.Enums.ClickEnum.Ok,
-            EscDefaultButton = MsBox.Avalonia.Enums.ClickEnum.Cancel,
-        };
+            var messageBoxParam = new MessageBoxStandardParams()
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                ContentTitle = "Warning",
+                ContentMessage = string.Join(Environment.NewLine, message.FoundWarnings),
+                Icon = MsBox.Avalonia.Enums.Icon.Warning,
+                ButtonDefinitions = MsBox.Avalonia.Enums.ButtonEnum.Ok,
+                EnterDefaultButton = MsBox.Avalonia.Enums.ClickEnum.Ok,
+                EscDefaultButton = MsBox.Avalonia.Enums.ClickEnum.Cancel,
+            };
 
-        MessageBoxManager
-            .GetMessageBoxStandard(messageBoxParam)
-            .ShowWindowDialogAsync(this)
-            .SafeFireAndForget();
+            MessageBoxManager
+                .GetMessageBoxStandard(messageBoxParam)
+                .ShowWindowDialogAsync(this)
+                .SafeFireAndForget();
+        });
     }
 }

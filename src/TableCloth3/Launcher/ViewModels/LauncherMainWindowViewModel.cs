@@ -45,9 +45,13 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
 
     public interface IManageFolderButtonMessageRecipient : IRecipient<ManageFolderButtonMessage>;
 
-    public sealed record class NotifyErrorMessage(Exception foundException);
+    public sealed record class NotifyErrorMessage(Exception FoundException);
 
     public interface INotifyErrorMessageRecipient : IRecipient<NotifyErrorMessage>;
+
+    public sealed record class NotifyWarningsMessage(IEnumerable<string> FoundWarnings);
+
+    public interface INotifyWarningsMessageRecipient : IRecipient<NotifyWarningsMessage>;
 
     [ObservableProperty]
     private bool _useMicrophone = false;
@@ -73,7 +77,11 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
     {
         try
         {
-            // TODO: Check WindowsSandbox process
+            var processList = Process.GetProcesses().Select(x => x.ProcessName);
+            var lookupList = new List<string> { "WindowsSandbox", "WindowsSandboxRemoteSession", "WindowsSandboxServer", };
+            foreach (var eachProcessName in processList)
+                if (lookupList.Contains(eachProcessName, StringComparer.OrdinalIgnoreCase))
+                    throw new Exception("Only one Windows Sandbox session allowed.");
 
             var warnings = new List<string>();
             var folderViewModel = _viewModelManager.GetAvaloniaViewModel<FolderManageWindowViewModel>();
@@ -82,9 +90,7 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
                 this, folderViewModel, warnings, cancellationToken).ConfigureAwait(false);
 
             if (warnings.Any())
-            {
-                // TODO: Show Warnings
-            }
+                _messenger.Send<NotifyWarningsMessage>(new NotifyWarningsMessage(warnings));
 
             using var process = Process.Start(new ProcessStartInfo(wsbPath)
             {

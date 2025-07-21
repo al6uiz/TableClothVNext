@@ -1,10 +1,9 @@
-﻿using AsyncAwaitBestPractices;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
-using System.ComponentModel;
 using System.Diagnostics;
+using TableCloth3.Launcher.Models;
 using TableCloth3.Launcher.Services;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
@@ -85,7 +84,8 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
 
             var warnings = new List<string>();
             var folderViewModel = _viewModelManager.GetAvaloniaViewModel<FolderManageWindowViewModel>();
-            await _appSettingsManager.LoadAsync(folderViewModel, "folderListConfig.json", cancellationToken).ConfigureAwait(false);
+            var model = await _appSettingsManager.LoadAsync<LauncherSerializerContext, LauncherSettingsModel>(LauncherSerializerContext.Default, "launcherConfig.json", cancellationToken).ConfigureAwait(false);
+            folderViewModel.ImportFromModel(model);
             var wsbPath = await _windowsSandboxComposer.GenerateWindowsSandboxProfileAsync(
                 this, folderViewModel, warnings, cancellationToken).ConfigureAwait(false);
 
@@ -122,23 +122,29 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
     private void ManageFolderButton()
         => _messenger.Send<ManageFolderButtonMessage>();
 
-    public override void PopulateForSerialization(IDictionary<string, object?> propertyBag)
+    public override void ImportFromModel(object? model)
     {
-        propertyBag[nameof(UseMicrophone)] = UseMicrophone;
-        propertyBag[nameof(UseWebCamera)] = UseWebCamera;
-        propertyBag[nameof(SharePrinters)] = SharePrinters;
-        propertyBag[nameof(MountNpkiFolders)] = MountNpkiFolders;
-        propertyBag[nameof(MountSpecificFolders)] = MountSpecificFolders;
-        base.PopulateForSerialization(propertyBag);
+        if (model is LauncherSettingsModel e)
+        {
+            UseWebCamera = e.UseWebCamera;
+            UseMicrophone = e.UseMicrophone;
+            SharePrinters = e.SharePrinters;
+            MountNpkiFolders = e.MountNpkiFolders;
+            MountSpecificFolders = e.MountSpecificFolders;
+        }
+        base.ImportFromModel(model);
     }
 
-    public override void PopulateForDeserialization(IReadOnlyDictionary<string, object?> propertyBag)
+    public override void ExportToModel(object? model)
     {
-        UseMicrophone = Convert.ToBoolean(propertyBag[nameof(UseMicrophone)]?.ToString());
-        UseWebCamera = Convert.ToBoolean(propertyBag[nameof(UseWebCamera)]?.ToString());
-        SharePrinters = Convert.ToBoolean(propertyBag[nameof(SharePrinters)]?.ToString());
-        MountNpkiFolders = Convert.ToBoolean(propertyBag[nameof(MountNpkiFolders)]?.ToString());
-        MountSpecificFolders = Convert.ToBoolean(propertyBag[nameof(MountSpecificFolders)]?.ToString());
-        base.PopulateForDeserialization(propertyBag);
+        if (model is LauncherSettingsModel e)
+        {
+            e.UseWebCamera = UseWebCamera;
+            e.UseMicrophone = UseMicrophone;
+            e.SharePrinters = SharePrinters;
+            e.MountNpkiFolders = MountNpkiFolders;
+            e.MountSpecificFolders = MountSpecificFolders;
+        }
+        base.ExportToModel(model);
     }
 }

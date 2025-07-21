@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
+using TableCloth3.Launcher.Models;
 using TableCloth3.Launcher.ViewModels;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.Windows;
@@ -52,14 +53,25 @@ public partial class LauncherMainWindow :
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
-        _appSettingsManager.LoadAsync(_viewModel, "launcherConfig.json").SafeFireAndForget();
+        _appSettingsManager.LoadAsync<LauncherSerializerContext, LauncherSettingsModel>(LauncherSerializerContext.Default, "launcherConfig.json")
+            .ContinueWith(x =>
+            {
+                _config = x.Result ?? new LauncherSettingsModel();
+                _viewModel.ImportFromModel(_config);
+            })
+            .SafeFireAndForget();
         base.OnLoaded(e);
     }
 
     protected override void OnClosed(EventArgs e)
     {
         _messenger?.UnregisterAll(this);
-        _appSettingsManager.SaveAsync(_viewModel, "launcherConfig.json").SafeFireAndForget();
+
+        _viewModel.ExportToModel(_config);
+        _appSettingsManager.SaveAsync(
+            LauncherSerializerContext.Default, _config,
+            "launcherConfig.json").SafeFireAndForget();
+
         base.OnClosed(e);
     }
 
@@ -67,6 +79,8 @@ public partial class LauncherMainWindow :
     private readonly IMessenger _messenger = default!;
     private readonly AvaloniaWindowManager _windowManager = default!;
     private readonly AppSettingsManager _appSettingsManager = default!;
+
+    private LauncherSettingsModel _config = default!;
 
     void IRecipient<AboutButtonMessage>.Receive(AboutButtonMessage message)
     {

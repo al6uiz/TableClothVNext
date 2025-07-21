@@ -1,11 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using DotNext.Collections.Generic;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
-using TableCloth3.Shared.Services;
+using TableCloth3.Launcher.Models;
 using TableCloth3.Shared.ViewModels;
 
 namespace TableCloth3.Launcher.ViewModels;
@@ -76,25 +74,23 @@ public sealed partial class FolderManageWindowViewModel : BaseViewModel
         _messenger.Send<CloseButtonMessage>();
     }
 
-    public override void PopulateForSerialization(IDictionary<string, object?> propertyBag)
+    public override void ImportFromModel(object? model)
     {
-        propertyBag[nameof(Folders)] = Folders.ToArray();
-        base.PopulateForSerialization(propertyBag);
+        if (model is FolderSettingsModel e)
+        {
+            Folders.Clear();
+            foreach (var eachFolder in e.Folders)
+                Folders.Add(eachFolder);
+        }
+        base.ImportFromModel(model);
     }
 
-    public override void PopulateForDeserialization(IReadOnlyDictionary<string, object?> propertyBag)
+    public override void ExportToModel(object? model)
     {
-        Folders.Clear();
-        var items = (propertyBag[nameof(Folders)] as IEnumerable<object> ?? Enumerable.Empty<object>());
-
-        foreach (var item in items)
+        if (model is FolderSettingsModel e)
         {
-            var folderPath = Convert.ToString(item);
-            if (string.IsNullOrWhiteSpace(folderPath))
-                continue;
-            Folders.Add(folderPath);
+            e.Folders = Folders.ToArray();
         }
-
-        base.PopulateForDeserialization(propertyBag);
+        base.ExportToModel(model);
     }
 }

@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Text;
 using System.Text.Json;
-using TableCloth3.Shared.Converters;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
+using TableCloth3.Launcher;
 using TableCloth3.Shared.ViewModels;
 
 namespace TableCloth3.Shared.Services;
@@ -9,87 +12,64 @@ public sealed class AppSettingsManager
 {
     public AppSettingsManager(
         ILogger<AppSettingsManager> logger,
-        LocationService locationService,
-        ObjectToInferredTypeConverter objectToInferredTypeConverter)
+        LocationService locationService)
         : base()
     {
         _logger = logger;
         _locationService = locationService;
-        _objectToInferredTypeConverter = objectToInferredTypeConverter;
     }
 
     private readonly ILogger<AppSettingsManager> _logger = default!;
     private readonly LocationService _locationService = default!;
-    private readonly ObjectToInferredTypeConverter _objectToInferredTypeConverter = default!;
 
-    public async Task LoadAsync<TBaseViewModel>(
-        TBaseViewModel viewModel,
+    public async Task<TModel?> LoadAsync<TJsonSerializerContext, TModel>(
+        TJsonSerializerContext context,
         string fileName,
         CancellationToken cancellationToken = default)
-        where TBaseViewModel : BaseViewModel
+        where TJsonSerializerContext : JsonSerializerContext
+        where TModel : class
     {
         if (string.IsNullOrWhiteSpace(fileName))
-            fileName = viewModel.GetType().Name;
+            ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        var typeInfo = context.GetTypeInfo(typeof(TModel));
+        if (typeInfo == null)
+            throw new NotSupportedException($"Selected type '{typeof(TModel)}' is not supported.");
         if (!fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             fileName = string.Concat(fileName, ".json");
 
+        var targetEncoding = new UTF8Encoding(false);
         var directoryPath = _locationService.EnsureAppDataDirectoryCreated().FullName;
         var filePath = Path.Combine(directoryPath, fileName);
 
         try
         {
-            using var fileStream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Read);
-            var options = new JsonSerializerOptions
-            {
-                Converters = { _objectToInferredTypeConverter, },
-            };
-            var items = await JsonSerializer.DeserializeAsync<Dictionary<string, object?>>(
-                fileStream, options, cancellationToken)
-                .ConfigureAwait(false);
-            viewModel.PopulateForDeserialization(items ?? new Dictionary<string, object?>());
+            var content = await File.ReadAllTextAsync(filePath, targetEncoding, cancellationToken).ConfigureAwait(false);
+            var items = JsonSerializer.Deserialize(content, typeInfo) as TModel;
+            return items;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Cannot load settings from file '{filepath}' due to error.", filePath);
+            return default;
         }
     }
 
-    public async Task SaveAsync<TBaseViewModel>(
-        TBaseViewModel viewModel,
+    public async Task SaveAsync<TJsonSerializerContext, TModel>(
+        TJsonSerializerContext context,
+        TModel model,
         string fileName,
         CancellationToken cancellationToken = default)
-        where TBaseViewModel : BaseViewModel
+        where TJsonSerializerContext : JsonSerializerContext
+        where TModel : class
     {
         if (string.IsNullOrWhiteSpace(fileName))
-            fileName = viewModel.GetType().Name;
+            ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         if (!fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             fileName = string.Concat(fileName, ".json");
 
         var directoryPath = _locationService.EnsureAppDataDirectoryCreated().FullName;
         var filePath = Path.Combine(directoryPath, fileName);
-        using var fileStream = File.Open(filePath, FileMode.Create, FileAccess.ReadWrite);
-
-        var options = new JsonSerializerOptions
-        {
-            Converters = { _objectToInferredTypeConverter, },
-        };
-
-        var items = default(Dictionary<string, object?>);
-
-        try
-        {
-            items = await JsonSerializer.DeserializeAsync<Dictionary<string, object?>>(
-                fileStream, options, cancellationToken)
-                .ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Cannot load settings from file '{filepath}' due to error.", filePath);
-        }
-
-        items ??= new Dictionary<string, object?>();
-        viewModel.PopulateForSerialization(items);
-
-        await JsonSerializer.SerializeAsync(fileStream, items, cancellationToken: cancellationToken).ConfigureAwait(false);
+        using var fileStream = File.Open(filePath, FileMode.Create, FileAccess.Write);
+        await JsonSerializer.SerializeAsync(fileStream, model, typeof(TModel), context, cancellationToken).ConfigureAwait(false);
     }
 }

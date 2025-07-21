@@ -14,7 +14,7 @@ public abstract partial class BaseViewModel : ObservableObject
 
     protected virtual void PrepareDesignTimePreview() { }
 
-    public virtual void PopulateForSerialization(IDictionary<string, object?> propertyBag) { }
+    public virtual void ImportFromModel(object? model) { }
 
-    public virtual void PopulateForDeserialization(IReadOnlyDictionary<string, object?> propertyBag) { }
+    public virtual void ExportToModel(object? model) { }
 }

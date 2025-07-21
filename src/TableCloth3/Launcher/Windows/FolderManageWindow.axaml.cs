@@ -5,6 +5,8 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
+using TableCloth3.Launcher;
+using TableCloth3.Launcher.Models;
 using TableCloth3.Launcher.ViewModels;
 using TableCloth3.Shared.Services;
 using static TableCloth3.Launcher.ViewModels.FolderManageWindowViewModel;
@@ -49,16 +51,29 @@ public partial class FolderManageWindow :
     private readonly IMessenger _messenger = default!;
     private readonly AppSettingsManager _appSettingsManager = default!;
 
+    private FolderSettingsModel _config = default!;
+
     protected override void OnLoaded(RoutedEventArgs e)
     {
-        _appSettingsManager.LoadAsync(_viewModel, "folderListConfig.json").SafeFireAndForget();
+        _appSettingsManager.LoadAsync<LauncherSerializerContext, FolderSettingsModel>(LauncherSerializerContext.Default, "folderConfig.json")
+            .ContinueWith(x =>
+            {
+                _config = x.Result ?? new FolderSettingsModel();
+                _viewModel.ImportFromModel(_config);
+            })
+            .SafeFireAndForget();
         base.OnLoaded(e);
     }
 
     protected override void OnClosed(EventArgs e)
     {
         _messenger?.UnregisterAll(this);
-        _appSettingsManager.SaveAsync(_viewModel, "folderListConfig.json").SafeFireAndForget();
+
+        _viewModel.ExportToModel(_config);
+        _appSettingsManager.SaveAsync(
+            LauncherSerializerContext.Default,
+            _config, "folderConfig.json").SafeFireAndForget();
+
         base.OnClosed(e);
     }
 

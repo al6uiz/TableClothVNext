@@ -53,7 +53,7 @@ public partial class LauncherMainWindow :
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
-        _appSettingsManager.LoadAsync<LauncherSerializerContext, LauncherSettingsModel>(LauncherSerializerContext.Default, "launcherConfig.json")
+        _appSettingsManager?.LoadAsync<LauncherSerializerContext, LauncherSettingsModel>(LauncherSerializerContext.Default, "launcherConfig.json")
             .ContinueWith(x =>
             {
                 _config = x.Result ?? new LauncherSettingsModel();

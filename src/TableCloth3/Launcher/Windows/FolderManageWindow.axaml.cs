@@ -4,6 +4,7 @@ using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel;
 using System.Diagnostics;
 using TableCloth3.Launcher;
 using TableCloth3.Launcher.Models;
@@ -55,7 +56,7 @@ public partial class FolderManageWindow :
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
-        _appSettingsManager.LoadAsync<LauncherSerializerContext, FolderSettingsModel>(LauncherSerializerContext.Default, "folderConfig.json")
+        _appSettingsManager?.LoadAsync<LauncherSerializerContext, FolderSettingsModel>(LauncherSerializerContext.Default, "folderConfig.json")
             .ContinueWith(x =>
             {
                 _config = x.Result ?? new FolderSettingsModel();

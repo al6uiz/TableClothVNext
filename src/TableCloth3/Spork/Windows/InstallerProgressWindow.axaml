@@ -34,15 +34,20 @@
 			<ItemsControl ItemsSource="{Binding Steps}">
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
-						<Grid Margin="0 5 0 0" IsVisible="{Binding IsVisible}">
+						<Grid Margin="0 5 15 0" IsVisible="{Binding IsVisible}">
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="Auto" />
 								<ColumnDefinition Width="90*" />
 								<ColumnDefinition Width="Auto" />
 							</Grid.ColumnDefinitions>
-							<Label Grid.Column="0" Content="{Binding StatusText}" />
-							<Label Grid.Column="1" Content="{Binding PackageName}" />
-							<HyperlinkButton Grid.Column="2" Content="Reason" IsVisible="{Binding HasError}" Tag="{Binding StepError}" />
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto" />
+								<RowDefinition Height="Auto" />
+							</Grid.RowDefinitions>
+							<Label Grid.Row="0" Grid.Column="0" Content="{Binding StatusText}" />
+							<Label Grid.Row="0" Grid.Column="1" Content="{Binding PackageName}" />
+							<HyperlinkButton Grid.Row="0" Grid.Column="2" Content="Reason" IsVisible="{Binding HasError}" Tag="{Binding StepError}" />
+							<ProgressBar Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsVisible="{Binding ShowPercentage}" Value="{Binding Percentage}" />
 						</Grid>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>

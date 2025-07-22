@@ -37,12 +37,15 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
     {
         for (var i = 0; i < 100; i++)
         {
+            var progress = (StepProgress)(i % Enum.GetValues<StepProgress>().Count());
             Steps.Add(new()
             {
-                StepProgress = (StepProgress)(i % Enum.GetValues<StepProgress>().Count()),
+                StepProgress = progress,
                 PackageName = $"Item {i+1}",
                 PackageUrl = "https://yourtablecloth.app/",
                 PackageArguments = "/S",
+                StepError = progress == StepProgress.Failed ? "An error occurred while processing this step." : string.Empty,
+                Percentage = Random.Shared.Next(0, 100),
             });
         }
     }

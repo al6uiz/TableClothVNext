@@ -46,7 +46,7 @@ public sealed class TableClothCatalogService
             _ => SharedStrings.OtherCategoryDisplayName,
         };
 
-    public async Task LoadImagesAsync(
+    public async Task DownloadImagesAsync(
         CancellationToken cancellationToken = default)
     {
         var httpClient = _httpClientFactory.CreateCatalogHttpClient();

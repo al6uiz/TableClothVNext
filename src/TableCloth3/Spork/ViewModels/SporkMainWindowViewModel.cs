@@ -153,7 +153,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
             IsLoading = true;
             Items.Clear();
 
-            await _catalogService.LoadImagesAsync(cancellationToken).ConfigureAwait(false);
+            await _catalogService.DownloadImagesAsync(cancellationToken).ConfigureAwait(false);
 
             var doc = await _catalogService.LoadCatalogAsync(cancellationToken).ConfigureAwait(false);
             var services = doc.XPathSelectElements("/TableClothCatalog/InternetServices/Service");

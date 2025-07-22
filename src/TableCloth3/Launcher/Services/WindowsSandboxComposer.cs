@@ -18,6 +18,36 @@ public sealed class WindowsSandboxComposer
 
     private readonly LocationService _locationService = default!;
 
+    private KeyValuePair<string, XElement>? CreateHostFolderMappingElement(string hostFolderPath, string? sandboxFolder = default, bool? readOnly = default)
+    {
+        if (!Directory.Exists(hostFolderPath))
+            return null;
+
+        var mappedFolderElem = new XElement("MappedFolder");
+        var hostFolderElem = new XElement("HostFolder", hostFolderPath);
+        mappedFolderElem.Add(hostFolderElem);
+
+        if (!string.IsNullOrWhiteSpace(sandboxFolder))
+        {
+            var sandboxFolderElem = new XElement("SandboxFolder", sandboxFolder);
+            mappedFolderElem.Add(sandboxFolderElem);
+        }
+
+        if (readOnly.HasValue)
+        {
+            var readOnlyElem = new XElement("ReadOnly", readOnly.Value ? "true" : "false");
+            mappedFolderElem.Add(readOnlyElem);
+        }
+
+        if (string.IsNullOrWhiteSpace(sandboxFolder))
+        {
+            var alias = Path.GetFileName(hostFolderPath.Trim(Path.DirectorySeparatorChar));
+            sandboxFolder = $"C:\\Users\\WDAGUtilityAccount\\Desktop\\{alias}";
+        }
+
+        return new(sandboxFolder, mappedFolderElem);
+    }
+
     public async Task<string> GenerateWindowsSandboxProfileAsync(
         LauncherMainWindowViewModel launcherViewModel,
         FolderManageWindowViewModel folderViewModel,
@@ -35,7 +65,7 @@ public sealed class WindowsSandboxComposer
         root.Add(new XElement("MemoryInMB", 2048));
 
         var mappedFoldersElem = new XElement("MappedFolders");
-        var aliasList = new List<string>();
+        var foldersToMount = new Dictionary<string, XElement>();
 
         var processFilePath = Process.GetCurrentProcess().MainModule?.FileName;
         if (string.IsNullOrWhiteSpace(processFilePath))
@@ -43,81 +73,62 @@ public sealed class WindowsSandboxComposer
         var thisDirectory = Path.GetDirectoryName(processFilePath);
         if (string.IsNullOrWhiteSpace(thisDirectory))
             throw new Exception("Cannot determine application directory path.");
-        var thisAlias = Path.GetFileName(thisDirectory.Trim(Path.DirectorySeparatorChar));
-        if (aliasList.Contains(thisAlias))
-            throw new Exception($"Cannot mount current application directory: {thisDirectory}");
+        var thisFolder = CreateHostFolderMappingElement(thisDirectory);
+        if (thisFolder == null)
+            throw new Exception($"Cannot create host folder mapping element for '{thisDirectory}'.");
 
-        var thisMappedFolderElem = new XElement("MappedFolder");
-        var thisFolderElem = new XElement("HostFolder", thisDirectory);
-        thisMappedFolderElem.Add(thisFolderElem);
-        mappedFoldersElem.Add(thisMappedFolderElem);
-        aliasList.Add(thisAlias);
+        var launcherAppDataFolder = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Launcher");
+        var launcherAppDataFolderElem = CreateHostFolderMappingElement(launcherAppDataFolder);
+        if (launcherAppDataFolderElem.HasValue)
+            foldersToMount.Add(launcherAppDataFolderElem.Value.Key, launcherAppDataFolderElem.Value.Value);
+        else
+            warnings.Add($"Selected directory '{launcherAppDataFolder}' does not exists.");
+
+        foldersToMount.Add(thisFolder.Value.Key, thisFolder.Value.Value);
 
         var logonCommandElem = new XElement("LogonCommand");
         var commandElem = new XElement("Command");
-        commandElem.Value = $"C:\\Users\\WDAGUtilityAccount\\Desktop\\{thisAlias}\\{Path.GetFileName(processFilePath)} --mode=Spork";
+        commandElem.Value = $"{thisFolder.Value.Key}\\{Path.GetFileName(processFilePath)} --mode=Spork --sporkMode=embedded";
         logonCommandElem.Add(commandElem);
         root.Add(logonCommandElem);
 
         if (launcherViewModel.MountNpkiFolders)
         {
-            var targetPath = Path.Combine(
+            var npkiPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
                 "AppData", "LocalLow", "NPKI");
+            var npkiFolder = CreateHostFolderMappingElement(npkiPath);
 
-            if (Directory.Exists(targetPath))
-            {
-                var alias = Path.GetFileName(targetPath.Trim(Path.DirectorySeparatorChar));
-                if (!aliasList.Contains(alias))
-                {
-                    var eachMappedFolderElem = new XElement("MappedFolder");
-
-                    var hostFolderElem = new XElement("HostFolder", targetPath);
-                    eachMappedFolderElem.Add(hostFolderElem);
-
-                    mappedFoldersElem.Add(eachMappedFolderElem);
-                    aliasList.Add(alias);
-                }
-                else
-                    warnings.Add($"Selected directory '{targetPath}' cannot be mounted due to duplicated name.");
-            }
+            if (npkiFolder.HasValue)
+                foldersToMount.Add(npkiFolder.Value.Key, npkiFolder.Value.Value);
             else
-                warnings.Add($"Selected directory '{targetPath}' does not exists.");
+                warnings.Add($"Selected directory '{npkiPath}' does not exists.");
         }
 
         if (launcherViewModel.MountSpecificFolders)
         {
             foreach (var eachFolder in folderViewModel.Folders)
             {
-                // TODO: 마운트하지 못한 폴더 (존재하지 않거나 이름이 겹치는 폴더)에 대한 경고 메시지 표시 추가
                 var targetPath = Path.GetFullPath(
                     Environment.ExpandEnvironmentVariables(eachFolder));
+                var targetItem = CreateHostFolderMappingElement(targetPath);
 
-                if (!Directory.Exists(targetPath))
-                {
+                if (targetItem.HasValue)
+                    foldersToMount.Add(targetItem.Value.Key, targetItem.Value.Value);
+                else
                     warnings.Add($"Selected directory '{targetPath}' does not exists.");
-                    continue;
-                }
-
-                var alias = Path.GetFileName(targetPath.Trim(Path.DirectorySeparatorChar));
-                if (aliasList.Contains(alias))
-                {
-                    warnings.Add($"Selected directory '{targetPath}' cannot be mounted due to duplicated name.");
-                    continue;
-                }
-
-                var eachMappedFolderElem = new XElement("MappedFolder");
-
-                var hostFolderElem = new XElement("HostFolder", targetPath);
-                eachMappedFolderElem.Add(hostFolderElem);
-
-                mappedFoldersElem.Add(eachMappedFolderElem);
-                aliasList.Add(alias);
             }
         }
 
-        if (aliasList.Any())
-            root.Add(mappedFoldersElem);
+        if (foldersToMount.Any())
+        {
+            foreach (var eachMountPoint in foldersToMount)
+                mappedFoldersElem.Add(eachMountPoint.Value);
+        }
+
+        root.Add(mappedFoldersElem);
 
         var doc = new XDocument(root);
         _locationService.EnsureAppDataDirectoryCreated();

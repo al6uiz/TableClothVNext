@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,12 +18,14 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
         IMessenger messenger,
         AvaloniaViewModelManager viewModelManager,
         AppSettingsManager appSettingsManager,
-        WindowsSandboxComposer windowsSandboxComposer)
+        WindowsSandboxComposer windowsSandboxComposer,
+        TableClothCatalogService tableClothCatalogService)
     {
         _messenger = messenger;
         _viewModelManager = viewModelManager;
         _appSettingsManager = appSettingsManager;
         _windowsSandboxComposer = windowsSandboxComposer;
+        _tableClothCatalogService = tableClothCatalogService;
     }
 
     public LauncherMainWindowViewModel() { }
@@ -31,6 +34,7 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
     private readonly AvaloniaViewModelManager _viewModelManager = default!;
     private readonly AppSettingsManager _appSettingsManager = default!;
     private readonly WindowsSandboxComposer _windowsSandboxComposer = default!;
+    private readonly TableClothCatalogService _tableClothCatalogService = default!;
 
     public sealed record class AboutButtonMessage;
 
@@ -121,6 +125,16 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
     [RelayCommand]
     private void ManageFolderButton()
         => _messenger.Send<ManageFolderButtonMessage>();
+
+    [RelayCommand]
+    private async Task Loaded(CancellationToken cancellationToken = default)
+    {
+        if (Design.IsDesignMode)
+            return;
+
+        await _tableClothCatalogService.LoadCatalogAsync(cancellationToken).ConfigureAwait(false);
+        await _tableClothCatalogService.DownloadImagesAsync(cancellationToken).ConfigureAwait(false);
+    }
 
     public override void ImportFromModel(object? model)
     {

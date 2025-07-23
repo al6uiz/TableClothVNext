@@ -1,39 +1,60 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:TableCloth3.Help.ViewModels"
-		mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
-		Width="500" Height="300"
-		MinWidth="500" MinHeight="300" CanResize="False"
-        x:Class="TableCloth3.HelpMainWindow"
-		x:DataType="vm:HelpMainWindowViewModel"
-        Title="TableCloth3 Command Line Help" Padding="10">
-	<Design.DataContext>
-		<vm:HelpMainWindowViewModel />
-	</Design.DataContext>
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="80*" />
-			<RowDefinition Height="Auto" />
-		</Grid.RowDefinitions>
-		<ScrollViewer Grid.Row="0" Margin="5">
-			<TextBlock TextWrapping="WrapWithOverflow">
-				TableCloth3 Command Line Help<LineBreak/>
-				<LineBreak/>
-				To run TableCloth3 with command line arguments, use the following syntax:<LineBreak/>
-				<LineBreak/>
-				`TableCloth3.exe [options]`<LineBreak/>
-				<LineBreak/>
-				Where `[options]` can include:<LineBreak/>
-				<LineBreak/>
-				`--help` or `-h`: Displays this help message.<LineBreak/>
-				`--version` or `-v`: Displays the version of TableCloth3.<LineBreak/>
-				`--install &lt;package&gt;`: Installs the specified package.<LineBreak/>
-				`--uninstall &lt;package&gt;`: Uninstalls the specified package.<LineBreak/>
-				`--list`: Lists all installed packages.<LineBreak/>
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:TableCloth3.Help.ViewModels"
+    xmlns:ctl="clr-namespace:TableCloth3.Help.Controls"
+    mc:Ignorable="d"
+    Width="550"
+    Height="340"
+    CanResize="False"
+    x:Class="TableCloth3.HelpMainWindow"
+    x:DataType="vm:HelpMainWindowViewModel"
+    Title="TableCloth3 Command Line Help">
+    <Design.DataContext>
+        <vm:HelpMainWindowViewModel />
+    </Design.DataContext>
+    <Grid RowDefinitions="Auto,*">
+        <Grid ColumnDefinitions="Auto,*" Background="Transparent">
+            <Image Margin="8,4" IsHitTestVisible="False" Source="avares:/Assets/Images/TableCloth.png" Width="16" Height="16" DockPanel.Dock="Left" Name="WindowIcon" RenderOptions.BitmapInterpolationMode="HighQuality">
+                <Image.IsVisible>
+                    <OnPlatform Default="False">
+                        <On
+                            Options="Windows"
+                            Content="True" />
+                    </OnPlatform>
+                </Image.IsVisible>
+            </Image>
+            <TextBlock Text="{Binding Title, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" FontSize="12" IsHitTestVisible="False" VerticalAlignment="Center" Grid.Column="1">
+                <TextBlock.IsVisible>
+                    <OnPlatform Default="False">
+                        <On
+                            Options="Windows"
+                            Content="True" />
+                    </OnPlatform>
+                </TextBlock.IsVisible>
+            </TextBlock>
+        </Grid>
+
+        <Grid Margin="20" RowDefinitions="Auto,*,Auto" Grid.Row="1">
+            <TextBlock Text="TableCloth3 Command Line Help" Margin="0,0,0,20" FontWeight="Bold" />
+            <TextBlock TextWrapping="WrapWithOverflow" Grid.Row="1" xml:space="preserve" ctl:InlineCodeText.CodeBackground="{DynamicResource SolidBackgroundFillColorSecondary}" ctl:InlineCodeText.CodeForeground="{DynamicResource AccentFillColorSecondaryBrush}">
+				<ctl:InlineCodeText.Text>
+					To run TableCloth3 with command line arguments, use the following syntax:
+
+					`TableCloth3.exe [options]`
+
+					Where `[options]` can include:
+
+					`--help` or `-h`: Displays this help message.
+					`--version` or `-v`: Displays the version of TableCloth3.
+					`--install &lt;package&gt;`: Installs the specified package.
+					`--uninstall &lt;package&gt;`: Uninstalls the specified package.
+					`--list`: Lists all installed packages.
+				</ctl:InlineCodeText.Text>
 			</TextBlock>
-		</ScrollViewer>
-		<Button HorizontalAlignment="Center" Content="Close" Grid.Row="1" Command="{Binding CloseButtonCommand, Priority=1}" />
-	</Grid>
+            <Button HorizontalAlignment="Center" Grid.Row="2" Margin="0,20,0,0" IsCancel="True" Content="Close" Command="{Binding CloseButtonCommand, Priority=1}" />
+        </Grid>
+    </Grid>
 </Window>

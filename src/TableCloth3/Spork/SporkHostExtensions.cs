@@ -17,6 +17,7 @@ internal static class SporkHostExtensions
         else
             builder.Services.AddSingleton<IElevationService, UnixElevationService>();
 
+        builder.Services.AddTransient<ITaskBarProgressService,TaskBarProgressService>();
         builder.Services.AddTransient<InstallerProgressWindowViewModel>();
         builder.Services.AddTransient<InstallerStepItemViewModel>();
         builder.Services.AddTransient<InstallerProgressWindow>();

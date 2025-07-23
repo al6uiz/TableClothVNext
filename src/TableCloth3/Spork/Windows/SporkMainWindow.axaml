@@ -1,16 +1,18 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+<Window
+		xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:lang="clr-namespace:TableCloth3.Spork.Languages"
 		xmlns:vm="clr-namespace:TableCloth3.Spork.ViewModels"
 		xmlns:ui="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
-        mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="480"
-		Width="640" Height="480" CanResize="True"
+		xmlns:fui="using:FluentAvalonia.UI.Controls"
+		mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="580"
+		Width="800" Height="600" CanResize="True"
 		MinWidth="640" MinHeight="480"
-        x:Class="TableCloth3.Spork.Windows.SporkMainWindow"
+		x:Class="TableCloth3.Spork.Windows.SporkMainWindow"
 		x:DataType="vm:SporkMainWindowViewModel"
-        Title="{x:Static lang:SporkStrings.SporkMainWindowTitle}" Padding="20"
+		Title="{x:Static lang:SporkStrings.SporkMainWindowTitle}"
 		Icon="avares:/Assets/Images/Spork.png"
 		WindowStartupLocation="CenterScreen">
 	<Design.DataContext>
@@ -21,186 +23,147 @@
 			<InvokeCommandAction Command="{Binding LoadedCommand}" />
 		</RoutedEventTriggerBehavior>
 	</Interaction.Behaviors>
-	<TabControl>
-		<TabItem Header="{x:Static lang:SporkStrings.CatalogHeader}">
-			<Grid>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="90*" />
-					<RowDefinition Height="Auto" />
-				</Grid.RowDefinitions>
-				<Grid Grid.Row="0">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="50*" />
-						<ColumnDefinition Width="50*" />
-					</Grid.ColumnDefinitions>
-					<Label Grid.Column="0" Padding="0 0 0 10" VerticalAlignment="Center" Content="{x:Static lang:SporkStrings.InstructionLabel}" />
-					<TextBox
-						Grid.Column="1"
-						Watermark="{x:Static lang:SporkStrings.SearchBoxWatermark}"
-						Width="200"
-						Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"
-						HorizontalAlignment="Right"
-					/>
-				</Grid>
-				<Grid Grid.Row="1" IsVisible="{Binding IsLoadingCompleted}">
-					<StackPanel
-						IsVisible="{Binding HasNoItems}"
-						HorizontalAlignment="Center"
-						VerticalAlignment="Center"
-						Margin="32"
-						Spacing="16">
+	<Grid RowDefinitions="Auto,*">
+		<Grid ColumnDefinitions="Auto,Auto,*,Auto" Background="Transparent">
+			<Image Margin="8,4" IsHitTestVisible="False" Source="avares:/Assets/Images/Spork.png" Width="16" Height="16" DockPanel.Dock="Left" Name="WindowIcon" RenderOptions.BitmapInterpolationMode="HighQuality">
+				<Image.IsVisible>
+					<OnPlatform Default="False">
+						<On
+								Options="Windows"
+								Content="True" />
+					</OnPlatform>
+				</Image.IsVisible>
+			</Image>
 
-						<Canvas Width="64" Height="64">
-							<Path
+			<TextBlock Text="{Binding Title, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" FontSize="12" IsHitTestVisible="False" VerticalAlignment="Center" Grid.Column="1">
+				<TextBlock.IsVisible>
+					<OnPlatform Default="False">
+						<On
+								Options="Windows"
+								Content="True" />
+					</OnPlatform>
+				</TextBlock.IsVisible>
+			</TextBlock>
+
+			<TextBox Name="SearchBox" Grid.Column="2" Margin="0,10,0,-10" Classes.clearButton="True" Watermark="{x:Static lang:SporkStrings.SearchBoxWatermark}" Width="260" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" />
+		</Grid>
+		<Grid Grid.Row="1" Margin="20">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+			<Grid Grid.Row="1" IsVisible="{Binding IsLoadingCompleted}">
+				<StackPanel IsVisible="{Binding HasNoItems}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="32" Spacing="16">
+
+					<Canvas
+							Width="64"
+							Height="64">
+						<Path
 								Stroke="#B0B6BE"
 								StrokeThickness="2"
 								Fill="#F3F4F6"
-								Data="M8,20 L32,8 L56,20 L32,32 Z"/>
-							<Path
+								Data="M8,20 L32,8 L56,20 L32,32 Z" />
+						<Path
 								Stroke="#B0B6BE"
 								StrokeThickness="2"
 								Fill="#E8EAF0"
-								Data="M8,20 L8,44 L32,56 L32,32 Z"/>
-							<Path
+								Data="M8,20 L8,44 L32,56 L32,32 Z" />
+						<Path
 								Stroke="#B0B6BE"
 								StrokeThickness="2"
 								Fill="#E2E4EB"
-								Data="M56,20 L56,44 L32,56 L32,32 Z"/>
-							<Path
+								Data="M56,20 L56,44 L32,56 L32,32 Z" />
+						<Path
 								Stroke="#B0B6BE"
 								StrokeThickness="2"
 								StrokeDashArray="2,3"
 								Data="M20,40 Q32,48 44,40" />
-						</Canvas>
+					</Canvas>
 
-						<TextBlock
-							Text="{x:Static lang:SporkStrings.NoResultsFound}"
-							FontWeight="Bold"
-							FontSize="18"
-							HorizontalAlignment="Center"
-							Foreground="#3A3A4A"/>
-					</StackPanel>
-					<Grid IsVisible="{Binding HasItems}">
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="120" />
-							<ColumnDefinition Width="80*" />
-						</Grid.ColumnDefinitions>
-						<ListBox Grid.Column="0" Background="Transparent"
-								 IsVisible="{Binding HasItems}"
-								 ItemsSource="{Binding CategoryItems}"
-								 SelectedValue="{Binding Path=SelectedCategory}"
-								 DisplayMemberBinding="{Binding CategoryDisplayName}" />
-						<ScrollViewer Grid.Column="1" IsVisible="{Binding HasItems}" Padding="10 0 0 0">
-							<ItemsControl ItemsSource="{Binding FilteredItems}" IsVisible="{x:True}">
-								<ItemsControl.ItemTemplate>
-									<DataTemplate>
-										<Border Margin="0,8"
-												CornerRadius="12"
-												BorderBrush="#E0E0E0"
-												BorderThickness="1"
-												Padding="18,12">
-											<Grid ColumnDefinitions="auto,70*,auto" RowDefinitions="auto,auto">
-												<Image Width="32" Height="32" Margin="0,0,16,0"
-													   Grid.RowSpan="2" Source="{Binding ServiceIcon}"
-													   VerticalAlignment="Center"/>
-
-												<StackPanel Orientation="Horizontal" Spacing="8" Grid.Column="1">
-													<TextBlock Text="{Binding DisplayName}" FontWeight="Bold" FontSize="18"/>
-													<Border Background="#FFD54F" CornerRadius="8" Padding="3,0" VerticalAlignment="Center" Margin="0,0,0,2">
-														<TextBlock Text="{Binding CategoryDisplayName}" FontSize="12" Padding="3" Foreground="#665600"/>
-													</Border>
-												</StackPanel>
-
-												<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TargetUrl}" FontSize="13" Foreground="#757575" Margin="0,3,0,0"/>
-
-												<StackPanel Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
-															VerticalAlignment="Center" HorizontalAlignment="Right" Spacing="5">
-													<Button Content="{x:Static lang:SporkStrings.LaunchButton}" Command="{Binding LaunchSiteCommand}" CommandParameter="{Binding ServiceId}" MinWidth="60" />
-												</StackPanel>
-											</Grid>
-										</Border>
-									</DataTemplate>
-								</ItemsControl.ItemTemplate>
-							</ItemsControl>
-						</ScrollViewer>
-					</Grid>
-				</Grid>
-				<Grid Grid.Row="1" IsVisible="{Binding IsLoading}">
-					<StackPanel
-						HorizontalAlignment="Center"
-						VerticalAlignment="Center"
-						Margin="32"
-						Spacing="16">
-
-						<Canvas Width="64" Height="64">
-							<Path
-								Stroke="#B0B6BE"
-								StrokeThickness="2"
-								Fill="#F3F4F6"
-								Data="M16,10 L48,10 Q52,10 52,14 L52,18 Q52,22 48,24 Q32,32 48,40 Q52,42 52,46 L52,50 Q52,54 48,54 L16,54 Q12,54 12,50 L12,46 Q12,42 16,40 Q32,32 16,24 Q12,22 12,18 L12,14 Q12,10 16,10 Z"/>
-							<Path
-								Fill="#E2E4EB"
-								Stroke="Transparent"
-								Data="M20,14 Q32,18 44,14 Q44,18 32,24 Q20,18 20,14 Z"/>
-							<Ellipse
-								Fill="#E8EAF0"
-								Stroke="Transparent"
-								Width="8"
-								Height="4"
-								Canvas.Left="28"
-								Canvas.Top="48"/>
-							<Path
-								Stroke="#8BA4E2"
-								StrokeThickness="2"
-								StrokeDashArray="2,2"
-								Data="M32,24 L32,48"/>
-							<Rectangle
-								Fill="#B0B6BE"
-								Width="32"
-								Height="4"
-								RadiusX="2"
-								RadiusY="2"
-								Canvas.Left="16"
-								Canvas.Top="6"/>
-							<Rectangle
-								Fill="#B0B6BE"
-								Width="32"
-								Height="4"
-								RadiusX="2"
-								RadiusY="2"
-								Canvas.Left="16"
-								Canvas.Top="54"/>
-						</Canvas>
-						<TextBlock
-							Text="{x:Static lang:SporkStrings.LoadingMessage}"
-							FontWeight="Bold"
-							FontSize="18"
-							HorizontalAlignment="Center"
-							Foreground="#3A3A4A"/>
-					</StackPanel>
-				</Grid>
-				<Grid Grid.Row="2">
+					<TextBlock Text="{x:Static lang:SporkStrings.NoResultsFound}" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" Foreground="#3A3A4A" />
+				</StackPanel>
+				<Grid IsVisible="{Binding HasItems}">
 					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="50*" />
-						<ColumnDefinition Width="50*" />
+						<ColumnDefinition Width="120" />
+						<ColumnDefinition Width="80*" />
 					</Grid.ColumnDefinitions>
-					<StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0 20 0 0" Height="30">
-						<Button Content="{x:Static lang:SporkStrings.AboutButton}" Command="{Binding AboutButtonCommand}" />
-						<TextBlock Margin="3" />
-						<Button Content="{x:Static lang:SporkStrings.RefreshButton}" Command="{Binding RefreshCatalogCommand}" />
-					</StackPanel>
-					<StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 20 0 0" Height="30">
-						<Button Content="{x:Static lang:SporkStrings.CloseButton}" Command="{Binding CloseButtonCommand}" />
-					</StackPanel>
+					<ListBox Grid.Column="0" Background="Transparent" IsVisible="{Binding HasItems}" ItemsSource="{Binding CategoryItems}" SelectedValue="{Binding Path=SelectedCategory}" DisplayMemberBinding="{Binding CategoryDisplayName}" />
+					<Border
+							Grid.Column="1"
+							BorderThickness="1"
+							Margin="10,0,0,0"
+							CornerRadius="6"
+							Background="{DynamicResource LayerFillColorDefaultBrush}"
+							BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+							IsVisible="{Binding HasItems}">
+						<ListBox ItemsSource="{Binding FilteredItems}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<Grid ColumnDefinitions="auto,70*,auto" Margin="18,12" RowDefinitions="auto,auto">
+										<Image Width="32" Height="32" Margin="0,0,16,0" RenderOptions.BitmapInterpolationMode="HighQuality" Grid.RowSpan="2" Source="{Binding ServiceIcon}" VerticalAlignment="Center" />
+
+										<StackPanel Orientation="Horizontal" Spacing="8" Grid.Column="1">
+											<TextBlock Text="{Binding DisplayName}" FontWeight="Bold" FontSize="18" />
+											<Border
+													Background="#FFD54F"
+													CornerRadius="8"
+													Padding="3,0"
+													VerticalAlignment="Center"
+													Margin="0,0,0,2">
+												<TextBlock Text="{Binding CategoryDisplayName}" FontSize="12" FontWeight="SemiBold" Padding="3" Foreground="#665600" />
+											</Border>
+										</StackPanel>
+
+										<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TargetUrl}" FontSize="13" Foreground="#757575" Margin="0,3,0,0" />
+
+
+										<Button Content="{x:Static lang:SporkStrings.LaunchButton}" Command="{Binding LaunchSiteCommand}" CommandParameter="{Binding ServiceId}" MinWidth="60" Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" VerticalAlignment="Center" HorizontalAlignment="Right" />
+									</Grid>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ListBox>
+					</Border>
 				</Grid>
 			</Grid>
-		</TabItem>
-		<TabItem Header="Softwares" IsVisible="False">
-		</TabItem>
-		<TabItem Header="Chat" IsVisible="False">
-		</TabItem>
-		<TabItem Header="About" IsVisible="False">
-		</TabItem>
-	</TabControl>
+			<Grid Grid.Row="1" IsVisible="{Binding IsLoading}">
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="32" Spacing="16">
+
+					<fui:ProgressRing
+							Width="80"
+							Height="80"
+							IsIndeterminate="True" />
+
+					<TextBlock Text="{x:Static lang:SporkStrings.LoadingMessage}" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" Foreground="{DynamicResource AccentFillColorSecondaryBrush}" />
+				</StackPanel>
+			</Grid>
+			<Grid Grid.Row="2" Margin="0,20,0,0">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="50*" />
+					<ColumnDefinition Width="50*" />
+				</Grid.ColumnDefinitions>
+				<StackPanel Grid.Column="0" Orientation="Horizontal">
+					<Button Content="{x:Static lang:SporkStrings.AboutButton}" Command="{Binding AboutButtonCommand}" />
+
+					<Button Content="{x:Static lang:SporkStrings.RefreshButton}" Command="{Binding RefreshCatalogCommand}" Margin="10,0,0,0" />
+				</StackPanel>
+				<StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
+					<Button Content="{x:Static lang:SporkStrings.CloseButton}" Command="{Binding CloseButtonCommand}" />
+				</StackPanel>
+			</Grid>
+		</Grid>
+		<!--<TabControl Grid.Row="1"
+					Margin="10"
+				Padding="0"
+										>
+			<TabItem Header="{x:Static lang:SporkStrings.CatalogHeader}">
+			</TabItem>
+			<TabItem Header="Softwares"
+					 IsVisible="False" />
+			<TabItem Header="Chat"
+					 IsVisible="False" />
+			<TabItem Header="About"
+					 IsVisible="False" />
+		</TabControl>-->
+	</Grid>
 </Window>

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
+using FluentAvalonia.UI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
@@ -16,7 +17,7 @@ using static TableCloth3.Launcher.ViewModels.LauncherMainWindowViewModel;
 namespace TableCloth3.Launcher.Windows;
 
 public partial class LauncherMainWindow :
-    Window,
+    AppWindow,
     IAboutButtonMessageRecipient,
     ICloseButtonMessageRecipient,
     IManageFolderButtonMessageRecipient,
@@ -38,6 +39,11 @@ public partial class LauncherMainWindow :
 
         DataContext = _viewModel;
 
+        TitleBar.ExtendsContentIntoTitleBar = true;
+        TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
+
+        ShowAsDialog = true;
+    
         _messenger.Register<AboutButtonMessage>(this);
         _messenger.Register<CloseButtonMessage>(this);
         _messenger.Register<ManageFolderButtonMessage>(this);

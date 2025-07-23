@@ -120,13 +120,13 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposa
         catch { remoteLength = default; }
 
         await remoteStream.CopyToAsync(fileStream, remoteLength, this, cancellationToken: cancellationToken).ConfigureAwait(false);
-        Report(100);
+        Report(50);
     }
 
     [RelayCommand]
     private async Task PerformInstallStep(CancellationToken cancellationToken = default)
     {
-        this.Report(0);
+        this.Report(50);
         await Task.Delay(TimeSpan.FromSeconds(2d), cancellationToken).ConfigureAwait(false);
         this.Report(100);
     }
@@ -144,7 +144,7 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposa
 
     public bool HasError => !string.IsNullOrWhiteSpace(StepError);
 
-    public bool ShowPercentage => StepProgress is StepProgress.Installing or StepProgress.Loading;
+	public bool ShowPercentage => StepProgress is not StepProgress.Unknown and not StepProgress.None;
 
     private void Dispose(bool disposing)
     {

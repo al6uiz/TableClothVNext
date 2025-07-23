@@ -1,7 +1,7 @@
 using AsyncAwaitBestPractices;
-using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
+using FluentAvalonia.UI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
@@ -15,7 +15,7 @@ using static TableCloth3.Spork.ViewModels.TableClothCatalogItemViewModel;
 namespace TableCloth3.Spork.Windows;
 
 public partial class SporkMainWindow :
-    Window,
+    AppWindow,
     IRecipient<LoadingFailureNotification>,
     IRecipient<AboutButtonRequest>,
     IRecipient<CloseButtonRequest>,
@@ -37,9 +37,12 @@ public partial class SporkMainWindow :
         _messenger.Register<LoadingFailureNotification>(this);
         _messenger.Register<AboutButtonRequest>(this);
         _messenger.Register<CloseButtonRequest>(this);
-        _messenger.Register<LaunchSiteRequest>(this);
+        _messenger.Register<LaunchSiteRequest>(this); 
 
         DataContext = _viewModel;
+
+        TitleBar.ExtendsContentIntoTitleBar = true;
+        TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
     }
 
     public SporkMainWindow()

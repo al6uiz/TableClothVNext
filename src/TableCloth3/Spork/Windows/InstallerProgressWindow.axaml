@@ -1,66 +1,73 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+<Window
+		xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:lang="clr-namespace:TableCloth3.Spork.Languages"
 		xmlns:vm="clr-namespace:TableCloth3.Spork.ViewModels"
 		xmlns:ui="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
+		xmlns:fui="using:FluentAvalonia.UI.Controls"
+		xmlns:local="clr-namespace:TableCloth3"
 		mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="480"
 		Width="300" Height="400" CanResize="False"
 		MinWidth="300" MinHeight="400"
-        x:Class="TableCloth3.InstallerProgressWindow"
+		x:Class="TableCloth3.InstallerProgressWindow"
 		x:DataType="vm:InstallerProgressWindowViewModel"
-        Title="{x:Static lang:SporkStrings.InstallerProgressWindowTitle}"
-		Padding="20" Icon="avares:/Assets/Images/Spork.png"
+		Title="{x:Static lang:SporkStrings.InstallerProgressWindowTitle}"
+		Icon="avares:/Assets/Images/Spork.png"
 		WindowStartupLocation="CenterOwner"
+		ShowAsDialog="True"
 		ExtendClientAreaChromeHints="NoChrome"
 		ExtendClientAreaToDecorationsHint="True">
-	<Design.DataContext>
-		<vm:InstallerProgressWindowViewModel />
-	</Design.DataContext>
-	<Interaction.Behaviors>
-		<RoutedEventTriggerBehavior RoutedEvent="{x:Static ui:Control.LoadedEvent}">
-			<InvokeCommandAction Command="{Binding LoadedCommand}" />
-		</RoutedEventTriggerBehavior>
-	</Interaction.Behaviors>
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="70*" />
-			<RowDefinition Height="Auto" />
-		</Grid.RowDefinitions>
-		<Label Grid.Row="0" Content="{x:Static lang:SporkStrings.InProgressMessage}" />
-		<ScrollViewer Grid.Row="1" Margin="0 15 0 0">
-			<ItemsControl ItemsSource="{Binding Steps}">
-				<ItemsControl.ItemTemplate>
-					<DataTemplate>
-						<Grid Margin="0 5 15 0" IsVisible="{Binding IsVisible}">
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="Auto" />
-								<ColumnDefinition Width="90*" />
-								<ColumnDefinition Width="Auto" />
-							</Grid.ColumnDefinitions>
-							<Grid.RowDefinitions>
-								<RowDefinition Height="Auto" />
-								<RowDefinition Height="Auto" />
-							</Grid.RowDefinitions>
-							<Label Grid.Row="0" Grid.Column="0" Content="{Binding StatusText}" />
-							<Label Grid.Row="0" Grid.Column="1" Content="{Binding PackageName}" />
-							<HyperlinkButton Grid.Row="0" Grid.Column="2" Content="Reason" IsVisible="{Binding HasError}" Tag="{Binding StepError}" />
-							<ProgressBar Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsVisible="{Binding ShowPercentage}" Value="{Binding Percentage}" />
-						</Grid>
-					</DataTemplate>
-				</ItemsControl.ItemTemplate>
-			</ItemsControl>
-		</ScrollViewer>
-		<Grid Grid.Row="2" Margin="0 15 0 0">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="50*" />
-				<ColumnDefinition Width="50*" />
-			</Grid.ColumnDefinitions>
-			<Button Grid.Column="1" Command="{Binding CancelButtonCommand}"
-					Content="{x:Static lang:SporkStrings.CancelButton}"
-					HorizontalAlignment="Right" />
+		<Design.DataContext>
+				<vm:InstallerProgressWindowViewModel />
+		</Design.DataContext>
+		<Interaction.Behaviors>
+				<RoutedEventTriggerBehavior RoutedEvent="{x:Static ui:Control.LoadedEvent}">
+						<InvokeCommandAction Command="{Binding LoadedCommand}" />
+				</RoutedEventTriggerBehavior>
+		</Interaction.Behaviors>
+		<Grid Margin="20">
+				<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="70*" />
+						<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				<StackPanel Orientation="Horizontal" Grid.Row="0">
+						<fui:ProgressRing Width="24" Height="24" IsIndeterminate="True" />
+						<TextBlock Text="{x:Static lang:SporkStrings.InProgressMessage}" VerticalAlignment="Center" Margin="10,0,0,0" />
+				</StackPanel>
+				<ScrollViewer
+						Grid.Row="1"
+						Margin="0,15,0,0">
+						<ItemsControl ItemsSource="{Binding Steps}">
+								<ItemsControl.ItemTemplate>
+										<DataTemplate>
+												<Grid Margin="0,5,15,0" IsVisible="{Binding IsVisible}">
+														<Grid.ColumnDefinitions>
+																<ColumnDefinition Width="Auto" />
+																<ColumnDefinition Width="90*" />
+																<ColumnDefinition Width="Auto" />
+														</Grid.ColumnDefinitions>
+														<Grid.RowDefinitions>
+																<RowDefinition Height="Auto" />
+																<RowDefinition Height="Auto" />
+														</Grid.RowDefinitions>
+														<Label Grid.Row="0" Grid.Column="0" Content="{Binding StatusText}" />
+														<Label Grid.Row="0" Grid.Column="1" Content="{Binding PackageName}" />
+														<HyperlinkButton Grid.Row="0" Grid.Column="2" Content="Reason" IsVisible="{Binding HasError}" Tag="{Binding StepError}" />
+														<ProgressBar Grid.Row="1" Opacity="{Binding ShowPercentage, Converter={local:BooleanToOpacityConverter}}" Grid.Column="1" Grid.ColumnSpan="2" Value="{Binding Percentage}" />
+												</Grid>
+										</DataTemplate>
+								</ItemsControl.ItemTemplate>
+						</ItemsControl>
+				</ScrollViewer>
+				<Grid Grid.Row="2" Margin="0,15,0,0">
+						<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="50*" />
+								<ColumnDefinition Width="50*" />
+						</Grid.ColumnDefinitions>
+						<Button Grid.Column="1" Command="{Binding CancelButtonCommand}" Content="{x:Static lang:SporkStrings.CancelButton}" HorizontalAlignment="Right" />
+				</Grid>
 		</Grid>
-	</Grid>
 </Window>

@@ -1,16 +1,23 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:lang="clr-namespace:TableCloth3.Launcher.Languages"
-		xmlns:vm="clr-namespace:TableCloth3.Launcher.ViewModels"
-		xmlns:ui="clr-namespace:Avalonia.Input;assembly=Avalonia.Base"
-        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
-		Width="500" Height="400" Padding="20"
-        x:Class="TableCloth3.FolderManageWindow"
-		x:DataType="vm:FolderManageWindowViewModel"
-        Title="{x:Static lang:LauncherStrings.FolderManageWindowTitle}" WindowStartupLocation="CenterOwner" CanResize="False"
-		Icon="avares:/Assets/Images/TableCloth.png">
+<Window
+	xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:lang="clr-namespace:TableCloth3.Launcher.Languages"
+	xmlns:vm="clr-namespace:TableCloth3.Launcher.ViewModels"
+	xmlns:ui="clr-namespace:Avalonia.Input;assembly=Avalonia.Base"
+	mc:Ignorable="d"
+	d:DesignWidth="500"
+	d:DesignHeight="400"
+	Width="500"
+	Height="400"
+	Padding="20"
+	x:Class="TableCloth3.FolderManageWindow"
+	x:DataType="vm:FolderManageWindowViewModel"
+	Title="{x:Static lang:LauncherStrings.FolderManageWindowTitle}"
+	WindowStartupLocation="CenterOwner"
+	CanResize="False"
+	Icon="avares:/Assets/Images/TableCloth.png">
 	<Design.DataContext>
 		<vm:FolderManageWindowViewModel />
 	</Design.DataContext>
@@ -31,14 +38,16 @@
 			<ListBox Grid.Row="1" ItemsSource="{Binding Folders}" x:Name="FolderList">
 				<Interaction.Behaviors>
 					<RoutedEventTriggerBehavior RoutedEvent="{x:Static ui:InputElement.DoubleTappedEvent}">
-						<InvokeCommandAction Command="{Binding DoubleTappedCommand}" />
+						<InvokeCommandAction
+							Command="{Binding DoubleTappedCommand}"
+							CommandParameter="{Binding #FolderList.SelectedItem}" />
 					</RoutedEventTriggerBehavior>
 				</Interaction.Behaviors>
 			</ListBox>
 			<StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Height="30">
 				<Button Content="{x:Static lang:LauncherStrings.AddFoldersButton}" Command="{Binding AddFolderButtonCommand}" />
 				<TextBlock Margin="5" />
-				<Button Content="{x:Static lang:LauncherStrings.RemoveFolderButton}" Command="{Binding RemoveFolderButtonCommand}" />
+				<Button Content="{x:Static lang:LauncherStrings.RemoveFolderButton}" Command="{Binding RemoveFolderButtonCommand}" CommandParameter="{Binding #FolderList.SelectedItem}" />
 				<TextBlock Margin="5" />
 				<Button Content="{x:Static lang:LauncherStrings.ClearAllFoldersButton}" Command="{Binding ClearAllFoldersButtonCommand}" />
 			</StackPanel>

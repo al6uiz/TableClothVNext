@@ -56,17 +56,21 @@ public sealed partial class FolderManageWindowViewModel : BaseViewModel
         _messenger.Send<AddFolderButtonMessage>();
     }
 
-    [RelayCommand]
-    private void RemoveFolderButton()
+    [RelayCommand(CanExecute = nameof(CanRemoveFolder))]
+    private void RemoveFolderButton(string? selected)
     {
         _messenger.Send<RemoveFolderButtonMessage>();
     }
 
-    [RelayCommand]
+    private bool CanRemoveFolder(string? selected) => !string.IsNullOrEmpty(selected);
+
+    [RelayCommand(CanExecute = nameof(CanClearAllFolders))]
     private void ClearAllFoldersButton()
     {
         _messenger.Send<ClearAllFoldersButtonMessage>();
     }
+
+    private bool CanClearAllFolders() => Folders.Count > 0;
 
     [RelayCommand]
     private void CloseButton()

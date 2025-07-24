@@ -30,6 +30,7 @@
 			<RowDefinition Height="*" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
+		<Label Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" HorizontalContentAlignment="Right" Content="Loading..." Background="DarkRed" Foreground="White" IsVisible="{Binding Loading}" />
 		<CheckBox Grid.Row="0" Content="{x:Static lang:LauncherStrings.UseMicrophone}" IsChecked="{Binding UseMicrophone}" />
 		<CheckBox Grid.Row="1" Content="{x:Static lang:LauncherStrings.UseWebCamera}" IsChecked="{Binding UseWebCamera}" />
 		<CheckBox Grid.Row="2" Content="{x:Static lang:LauncherStrings.SharePrinters}" IsChecked="{Binding SharePrinters}" />

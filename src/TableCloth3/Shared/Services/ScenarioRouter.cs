@@ -21,4 +21,14 @@ public sealed class ScenarioRouter
 
         return scenarioValue;
     }
+
+    public SporkScenario GetSporkScenario()
+    {
+        var modeString = _configuration["SporkMode"];
+
+        if (!Enum.TryParse<SporkScenario>(modeString, true, out var scenarioValue))
+            return default;
+
+        return scenarioValue;
+    }
 }

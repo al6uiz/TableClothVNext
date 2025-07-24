@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using TableCloth3.Shared.Languages;
+using TableCloth3.Shared.Models;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
 
@@ -21,13 +22,15 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         IMessenger messenger,
         TableClothCatalogService catalogService,
         AvaloniaViewModelManager avaloniaViewModelManager,
-        LocationService sporkLocationService)
+        LocationService sporkLocationService,
+        ScenarioRouter scenarioRouter)
         : this()
     {
         _messenger = messenger;
         _catalogService = catalogService;
         _avaloniaViewModelManager = avaloniaViewModelManager;
         _sporkLocationService = sporkLocationService;
+        _scenarioRouter = scenarioRouter;
     }
 
     public SporkMainWindowViewModel()
@@ -63,6 +66,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     private readonly TableClothCatalogService _catalogService = default!;
     private readonly AvaloniaViewModelManager _avaloniaViewModelManager = default!;
     private readonly LocationService _sporkLocationService = default!;
+    private readonly ScenarioRouter _scenarioRouter = default!;
 
     protected override void PrepareDesignTimePreview()
     {
@@ -153,7 +157,41 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
             IsLoading = true;
             Items.Clear();
 
-            await _catalogService.DownloadImagesAsync(cancellationToken).ConfigureAwait(false);
+            if (_scenarioRouter.GetSporkScenario() == SporkScenario.Standalone)
+            {
+                if ((await _catalogService.CheckNeedUpdateRequiredAsync(cancellationToken).ConfigureAwait(false)))
+                {
+                    await _catalogService.DownloadCatalogAsync(cancellationToken).ConfigureAwait(false);
+                    await _catalogService.DownloadImagesAsync(cancellationToken).ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                var destAppDataDirectory = _sporkLocationService.EnsureAppDataDirectoryCreated().FullName;
+                var destImagesDirectory = _sporkLocationService.EnsureImagesDirectoryCreated().FullName;
+
+                var launcherDataDirectory = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                    "Launcher");
+                var launcherImagesDirectory = Path.Combine(launcherDataDirectory, "Images");
+
+                File.Copy(
+                    Path.Combine(launcherDataDirectory, "build-info.json"),
+                    Path.Combine(destAppDataDirectory, "build-info.json"),
+                    true);
+                File.Copy(
+                    Path.Combine(launcherDataDirectory, "Catalog.xml"),
+                    Path.Combine(destAppDataDirectory, "Catalog.xml"),
+                    true);
+
+                foreach (var eachFile in Directory.GetFiles(launcherImagesDirectory, "*.*"))
+                {
+                    File.Copy(
+                        eachFile,
+                        Path.Combine(destImagesDirectory, Path.GetFileName(eachFile)),
+                        true);
+                }
+            }
 
             var doc = await _catalogService.LoadCatalogAsync(cancellationToken).ConfigureAwait(false);
             var services = doc.XPathSelectElements("/TableClothCatalog/InternetServices/Service");

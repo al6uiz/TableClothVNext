@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using TableCloth3.Shared.ViewModels;
 
 namespace TableCloth3.Spork.ViewModels;
@@ -53,6 +54,9 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
     [ObservableProperty]
     private ObservableCollection<InstallerStepItemViewModel> _steps = [];
 
+    [ObservableProperty]
+    private string _targetUrl = "https://yourtablecloth.app/";
+
     [RelayCommand]
     private async Task Loaded(CancellationToken cancellationToken = default)
     {
@@ -68,82 +72,36 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
 
     private async Task RunInstallerStepsAsync(CancellationToken cancellationToken = default)
     {
-        var loadQueue = new Queue<InstallerStepItemViewModel>();
-        var installQueue = new Queue<InstallerStepItemViewModel>();
-
         try
         {
-            foreach (var eachStep in Steps)
-                loadQueue.Enqueue(eachStep);
-
-            var loadTask = Task.Run(async () =>
+            foreach (var item in Steps)
             {
-                while (loadQueue.Count > 0)
+                try
                 {
-                    if (cancellationToken.IsCancellationRequested)
-                        break;
-                    var item = loadQueue.Dequeue();
-                    try
-                    {
-                        item.StepProgress = StepProgress.Loading;
-                        await item.LoadInstallStepCommand.ExecuteAsync(cancellationToken).ConfigureAwait(false);
-                        installQueue.Enqueue(item);
-                        item.Event.Set();
-                        item.StepProgress = StepProgress.Ready;
-                    }
-                    catch (Exception ex)
-                    {
-                        item.StepError = ex.Message;
-                        item.StepProgress = StepProgress.Failed;
-                        _messenger.Send<CancelNotification>(new(true, ex));
-                    }
+                    item.StepProgress = StepProgress.Loading;
+                    await item.LoadInstallStepCommand.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+                    item.StepProgress = StepProgress.Ready;
+                    await item.PerformInstallStepCommand.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+                    item.StepProgress = StepProgress.Succeed;
                 }
-            }, cancellationToken);
+                catch (Exception ex)
+                {
+                    item.StepError = ex.Message;
+                    item.StepProgress = StepProgress.Failed;
+                    _messenger.Send<CancelNotification>(new(true, ex));
+                }
+            }
 
-            var installTask = Task.Run(async () =>
+            if (!string.IsNullOrWhiteSpace(TargetUrl) &&
+                Uri.TryCreate(TargetUrl, UriKind.Absolute, out var parsedTargetUrl) &&
+                parsedTargetUrl != null)
             {
-                var metEndOfSuite = false;
-
-                while (!metEndOfSuite)
+                Process.Start(new ProcessStartInfo(parsedTargetUrl.AbsoluteUri)
                 {
-                    if (cancellationToken.IsCancellationRequested)
-                        break;
+                    UseShellExecute = true,
+                });
+            }
 
-                    if (!installQueue.TryDequeue(out var item))
-                    {
-                        await Task.Delay(TimeSpan.FromSeconds(0.5d), cancellationToken).ConfigureAwait(false);
-                        continue;
-                    }
-
-                    using (item)
-                    {
-                        await item.Event.WaitAsync(cancellationToken).ConfigureAwait(false);
-
-                        if (item.ItemType == ItemType.EndOfSuite)
-                        {
-                            metEndOfSuite = true;
-                            continue;
-                        }
-                        else
-                        {
-                            try
-                            {
-                                item.StepProgress = StepProgress.Installing;
-                                await item.PerformInstallStepCommand.ExecuteAsync(cancellationToken).ConfigureAwait(false);
-                                item.StepProgress = StepProgress.Succeed;
-                            }
-                            catch (Exception ex)
-                            {
-                                item.StepError = ex.Message;
-                                item.StepProgress = StepProgress.Failed;
-                                _messenger.Send<CancelNotification>(new(true, ex));
-                            }
-                        }
-                    }
-                }
-            }, cancellationToken);
-
-            await Task.WhenAll(loadTask, installTask).ConfigureAwait(false);
             _messenger.Send<FinishNotification>();
         }
         catch (Exception ex)

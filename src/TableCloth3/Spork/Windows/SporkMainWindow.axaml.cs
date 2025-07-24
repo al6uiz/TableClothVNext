@@ -85,6 +85,7 @@ public partial class SporkMainWindow :
     void IRecipient<LaunchSiteRequest>.Receive(LaunchSiteRequest message)
     {
         var installerWindow = _windowManager.GetAvaloniaWindow<InstallerProgressWindow>();
+        installerWindow.ViewModel.TargetUrl = message.ViewModel.TargetUrl;
 
         foreach (var eachStep in message.ViewModel.Packages)
         {

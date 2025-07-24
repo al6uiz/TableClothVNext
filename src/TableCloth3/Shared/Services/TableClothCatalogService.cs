@@ -28,8 +28,13 @@ public sealed class TableClothCatalogService
     public async Task<XDocument> LoadCatalogAsync(
         CancellationToken cancellationToken = default)
     {
-        var httpClient = _httpClientFactory.CreateCatalogHttpClient();
-        using var contentStream = await httpClient.GetStreamAsync($"/TableClothCatalog/Catalog.xml?ts={Uri.EscapeDataString(DateTime.UtcNow.Ticks.ToString())}", cancellationToken).ConfigureAwait(false);
+        var targetDirectory = _locationService.EnsureAppDataDirectoryCreated().FullName;
+        var downloadPath = Path.Combine(targetDirectory, "Catalog.xml");
+
+        if (!File.Exists(downloadPath))
+            throw new FileNotFoundException($"Local catalog file '{downloadPath}' does not exists.");
+
+        using var contentStream = File.OpenRead(downloadPath);
         return await XDocument.LoadAsync(contentStream, default, cancellationToken).ConfigureAwait(false);
     }
 
@@ -46,12 +51,12 @@ public sealed class TableClothCatalogService
             _ => SharedStrings.OtherCategoryDisplayName,
         };
 
-    public async Task DownloadImagesAsync(
+    public async Task<bool> CheckNeedUpdateRequiredAsync(
         CancellationToken cancellationToken = default)
     {
         var httpClient = _httpClientFactory.CreateCatalogHttpClient();
         var ts = Uri.EscapeDataString(DateTime.UtcNow.Ticks.ToString());
-        var imageUpdateRequired = false;
+        var updateRequired = false;
 
         var remoteBuildInfoJson = await httpClient.GetStringAsync(
             $"/TableClothCatalog/build-info.json?ts={ts}",
@@ -74,22 +79,41 @@ public sealed class TableClothCatalogService
                 var localCommitId = localBuildInfoDoc.RootElement.GetProperty("commit_id").GetString();
 
                 if (!string.Equals(remoteCommitId, localCommitId, StringComparison.Ordinal))
-                    imageUpdateRequired = true;
+                    updateRequired = true;
             }
             catch
             {
-                imageUpdateRequired = true;
+                updateRequired = true;
             }
         }
         else
-            imageUpdateRequired = true;
+            updateRequired = true;
 
-        if (!imageUpdateRequired)
-            return;
+        return updateRequired;
+    }
 
-        await File.WriteAllTextAsync(
-            localBuildInfoPath, remoteBuildInfoJson, cancellationToken)
-            .ConfigureAwait(false);
+    public async Task DownloadCatalogAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var httpClient = _httpClientFactory.CreateCatalogHttpClient();
+        var ts = Uri.EscapeDataString(DateTime.UtcNow.Ticks.ToString());
+
+        using var imagePackContentStream = await httpClient.GetStreamAsync(
+            $"/TableClothCatalog/Catalog.xml?ts={ts}",
+            cancellationToken).ConfigureAwait(false);
+
+        var targetDirectory = _locationService.EnsureAppDataDirectoryCreated().FullName;
+        var downloadPath = Path.Combine(targetDirectory, "Catalog.xml");
+        using var localStream = File.Open(downloadPath, FileMode.Create, FileAccess.ReadWrite);
+        await imagePackContentStream.CopyToAsync(localStream, cancellationToken).ConfigureAwait(false);
+        localStream.Seek(0L, SeekOrigin.Begin);
+    }
+
+    public async Task DownloadImagesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var httpClient = _httpClientFactory.CreateCatalogHttpClient();
+        var ts = Uri.EscapeDataString(DateTime.UtcNow.Ticks.ToString());
 
         using var imagePackContentStream = await httpClient.GetStreamAsync(
             $"/TableClothCatalog/Images.zip?ts={ts}",

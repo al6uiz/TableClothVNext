@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using AsyncAwaitBestPractices;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -71,6 +72,9 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
     [ObservableProperty]
     private bool _mountSpecificFolders = false;
 
+    [ObservableProperty]
+    private bool _loading = false;
+
     [RelayCommand]
     private void AboutButton()
         => _messenger.Send<AboutButtonMessage>();
@@ -132,8 +136,23 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
         if (Design.IsDesignMode)
             return;
 
-        await _tableClothCatalogService.LoadCatalogAsync(cancellationToken).ConfigureAwait(false);
-        await _tableClothCatalogService.DownloadImagesAsync(cancellationToken).ConfigureAwait(false);
+        if (!(await _tableClothCatalogService.CheckNeedUpdateRequiredAsync(cancellationToken).ConfigureAwait(false)))
+            return;
+
+        Loading = true;
+
+        Task.WhenAll([
+            _tableClothCatalogService.DownloadCatalogAsync(cancellationToken),
+            _tableClothCatalogService.DownloadImagesAsync(cancellationToken),
+        ])
+        .ContinueWith(x =>
+        {
+            Loading = false;
+        })
+        .SafeFireAndForget(ex =>
+        {
+            // TODO: Notify Error Event
+        });
     }
 
     public override void ImportFromModel(object? model)

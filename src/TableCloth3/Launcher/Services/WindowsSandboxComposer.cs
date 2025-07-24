@@ -90,7 +90,7 @@ public sealed class WindowsSandboxComposer
 
         var logonCommandElem = new XElement("LogonCommand");
         var commandElem = new XElement("Command");
-        commandElem.Value = $"{thisFolder.Value.Key}\\{Path.GetFileName(processFilePath)} --mode=Spork --sporkMode=embedded";
+        commandElem.Value = $"{thisFolder.Value.Key}\\{Path.GetFileName(processFilePath)} --mode=Spork --sporkMode=Embedded";
         logonCommandElem.Add(commandElem);
         root.Add(logonCommandElem);
 

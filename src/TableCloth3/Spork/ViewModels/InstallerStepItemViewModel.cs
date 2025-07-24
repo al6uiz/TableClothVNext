@@ -1,15 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using DotNext.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using TableCloth3.Shared;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
+using TableCloth3.Spork.Contracts;
+using TableCloth3.Spork.Services;
 
 namespace TableCloth3.Spork.ViewModels;
 
-public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposable, IAsyncDisposable, IProgress<int>
+public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgress<int>
 {
     public sealed record class ProgressNotificationMessage(int? progress);
 
@@ -18,11 +19,13 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposa
     [ActivatorUtilitiesConstructor]
     public InstallerStepItemViewModel(
         LocationService sporkLocationService,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        IProcessManagerFactory processManagerFactory)
         : this()
     {
         _sporkLocationService = sporkLocationService;
         _httpClientFactory = httpClientFactory;
+        _processManagaerFactory = processManagerFactory;
     }
 
     public InstallerStepItemViewModel()
@@ -32,6 +35,7 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposa
 
     private readonly LocationService _sporkLocationService = default!;
     private readonly IHttpClientFactory _httpClientFactory = default!;
+    private readonly IProcessManagerFactory _processManagaerFactory = default!;
 
     [ObservableProperty]
     private ItemType _itemType = ItemType.None;
@@ -58,12 +62,10 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposa
     private StepProgress _stepProgress = StepProgress.None;
 
     [ObservableProperty]
+    private string _localFilePath = string.Empty;
+
+    [ObservableProperty]
     private int _percentage = 0;
-
-    internal AsyncManualResetEvent Event => _mre;
-
-    private AsyncManualResetEvent _mre = new AsyncManualResetEvent(false);
-    private bool _disposedValue;
 
     partial void OnStepErrorChanged(string value)
         => OnPropertyChanged(nameof(HasError));
@@ -80,6 +82,7 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposa
     [RelayCommand]
     private async Task LoadInstallStep(CancellationToken cancellationToken = default)
     {
+        Report(0);
         var tempFileName = $"{ServiceId}_{PackageName.Replace(" ", "_")}";
         var extension = string.Empty;
 
@@ -119,16 +122,38 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposa
         try { remoteLength = remoteStream.Length; }
         catch { remoteLength = default; }
 
-        await remoteStream.CopyToAsync(fileStream, remoteLength, this, cancellationToken: cancellationToken).ConfigureAwait(false);
-        Report(100);
+        Report(30);
+
+        await remoteStream.CopyToAsync(fileStream, remoteLength, cancellationToken: cancellationToken).ConfigureAwait(false);
+        LocalFilePath = filePath;
+        Report(60);
     }
 
     [RelayCommand]
     private async Task PerformInstallStep(CancellationToken cancellationToken = default)
     {
-        this.Report(0);
-        await Task.Delay(TimeSpan.FromSeconds(2d), cancellationToken).ConfigureAwait(false);
-        this.Report(100);
+        Report(60);
+
+        if (ItemType == ItemType.InstallerBinary)
+        {
+            using var processManager = _processManagaerFactory.Create();
+            await processManager.StartAsync(
+                LocalFilePath,
+                PackageArguments,
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+            await processManager.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        }
+        else if (ItemType == ItemType.PowerShellScript)
+        {
+            // TODO: PowerShell Script Execution
+        }
+        else if (ItemType == ItemType.EndOfSuite)
+        {
+            // TODO: Launch ASTx settings app here if exists
+        }
+
+        Report(100);
     }
 
     public string StatusText => StepProgress switch
@@ -145,38 +170,6 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IDisposa
     public bool HasError => !string.IsNullOrWhiteSpace(StepError);
 
     public bool ShowPercentage => StepProgress is StepProgress.Installing or StepProgress.Loading;
-
-    private void Dispose(bool disposing)
-    {
-        if (!_disposedValue)
-        {
-            if (disposing)
-            {
-                _mre.Dispose();
-            }
-
-            _mre = null!;
-            _disposedValue = true;
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (_mre != null)
-        {
-            await _mre.DisposeAsync().ConfigureAwait(false);
-            _mre = null!;
-        }
-
-        Dispose(false);
-        GC.SuppressFinalize(this);
-    }
 
     public void Report(int value)
     {

@@ -70,6 +70,24 @@ namespace TableCloth3.Spork.Languages {
         }
         
         /// <summary>
+        ///   About과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string AboutHeader {
+            get {
+                return ResourceManager.GetString("AboutHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Addons과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string AddonsHeader {
+            get {
+                return ResourceManager.GetString("AddonsHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   _Cancel과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string CancelButton {
@@ -84,6 +102,15 @@ namespace TableCloth3.Spork.Languages {
         public static string CatalogHeader {
             get {
                 return ResourceManager.GetString("CatalogHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Chat과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string ChatHeader {
+            get {
+                return ResourceManager.GetString("ChatHeader", resourceCulture);
             }
         }
         
@@ -147,6 +174,15 @@ namespace TableCloth3.Spork.Languages {
         public static string NoResultsFound {
             get {
                 return ResourceManager.GetString("NoResultsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Details과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string ReasonLinkText {
+            get {
+                return ResourceManager.GetString("ReasonLinkText", resourceCulture);
             }
         }
         

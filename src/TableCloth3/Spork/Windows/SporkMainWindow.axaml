@@ -196,11 +196,11 @@
 				</Grid>
 			</Grid>
 		</TabItem>
-		<TabItem Header="Softwares" IsVisible="False">
+		<TabItem Header="{x:Static lang:SporkStrings.AddonsHeader}" IsVisible="False">
 		</TabItem>
-		<TabItem Header="Chat" IsVisible="False">
+		<TabItem Header="{x:Static lang:SporkStrings.ChatHeader}" IsVisible="False">
 		</TabItem>
-		<TabItem Header="About" IsVisible="False">
+		<TabItem Header="{x:Static lang:SporkStrings.AboutHeader}" IsVisible="False">
 		</TabItem>
 	</TabControl>
 </Window>

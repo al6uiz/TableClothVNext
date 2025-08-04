@@ -175,4 +175,20 @@
   <data name="UnexpectedErrorMessage_Arg0" xml:space="preserve">
     <value>Unexpected Error Occurred: {0}</value>
   </data>
+  <data name="ReasonLinkText" xml:space="preserve">
+    <value>Details</value>
+    <comment>InstallerProgressWindow</comment>
+  </data>
+  <data name="AddonsHeader" xml:space="preserve">
+    <value>Addons</value>
+    <comment>SporkMainWindow</comment>
+  </data>
+  <data name="ChatHeader" xml:space="preserve">
+    <value>Chat</value>
+    <comment>SporkMainWindow</comment>
+  </data>
+  <data name="AboutHeader" xml:space="preserve">
+    <value>About</value>
+    <comment>SporkMainWindow</comment>
+  </data>
 </root>

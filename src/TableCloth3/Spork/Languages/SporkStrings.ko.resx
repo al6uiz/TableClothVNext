@@ -162,4 +162,16 @@
   <data name="UnexpectedErrorMessage_Arg0" xml:space="preserve">
     <value>예상하지 못한 오류가 발생했습니다: {0}</value>
   </data>
+  <data name="ReasonLinkText" xml:space="preserve">
+    <value>자세히</value>
+  </data>
+  <data name="AddonsHeader" xml:space="preserve">
+    <value>부가 기능</value>
+  </data>
+  <data name="ChatHeader" xml:space="preserve">
+    <value>채팅</value>
+  </data>
+  <data name="AboutHeader" xml:space="preserve">
+    <value>정보</value>
+  </data>
 </root>

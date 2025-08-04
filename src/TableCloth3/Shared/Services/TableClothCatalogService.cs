@@ -51,47 +51,6 @@ public sealed class TableClothCatalogService
             _ => SharedStrings.OtherCategoryDisplayName,
         };
 
-    public async Task<bool> CheckNeedUpdateRequiredAsync(
-        CancellationToken cancellationToken = default)
-    {
-        var httpClient = _httpClientFactory.CreateCatalogHttpClient();
-        var ts = Uri.EscapeDataString(DateTime.UtcNow.Ticks.ToString());
-        var updateRequired = false;
-
-        var remoteBuildInfoJson = await httpClient.GetStringAsync(
-            $"/TableClothCatalog/build-info.json?ts={ts}",
-            cancellationToken).ConfigureAwait(false);
-        var remoteBuildInfoDoc = JsonDocument.Parse(remoteBuildInfoJson);
-        var remoteCommitId = remoteBuildInfoDoc.RootElement.GetProperty("commit_id").GetString();
-
-        var localBuildInfoPath = Path.Combine(
-            _locationService.EnsureAppDataDirectoryCreated().FullName,
-            "build-info.json");
-
-        if (File.Exists(localBuildInfoPath))
-        {
-            try
-            {
-                var localBuildInfoJson = await File
-                    .ReadAllTextAsync(localBuildInfoPath, cancellationToken)
-                    .ConfigureAwait(false);
-                var localBuildInfoDoc = JsonDocument.Parse(localBuildInfoJson);
-                var localCommitId = localBuildInfoDoc.RootElement.GetProperty("commit_id").GetString();
-
-                if (!string.Equals(remoteCommitId, localCommitId, StringComparison.Ordinal))
-                    updateRequired = true;
-            }
-            catch
-            {
-                updateRequired = true;
-            }
-        }
-        else
-            updateRequired = true;
-
-        return updateRequired;
-    }
-
     public async Task DownloadCatalogAsync(
         CancellationToken cancellationToken = default)
     {

@@ -48,6 +48,36 @@ public sealed class WindowsSandboxComposer
         return new(sandboxFolder, mappedFolderElem);
     }
 
+    private string GeneratePowerShellScript(string thisFolder, string execFileName)
+    {
+        var processFilePath = Process.GetCurrentProcess().MainModule?.FileName;
+        if (string.IsNullOrWhiteSpace(processFilePath))
+            throw new Exception("Cannot determine application executable file path.");
+
+        var thisDirectory = Path.GetDirectoryName(processFilePath);
+        if (string.IsNullOrWhiteSpace(thisDirectory))
+            throw new Exception("Cannot determine application directory path.");
+
+        return $$"""
+            $desktopPath = [Environment]::GetFolderPath('Desktop')
+            $shortcutPath = Join-Path $desktopPath "Launch Spork.lnk"
+            $targetPath = "{{thisFolder}}\{{execFileName}}"
+            $arguments = "--mode=Spork --sporkMode=Embedded"
+            $workingDirectory = "{{thisFolder}}"
+            $wshShell = New-Object -ComObject WScript.Shell
+
+            $shortcut = $wshShell.CreateShortcut($shortcutPath)
+            $shortcut.TargetPath = $targetPath
+            $shortcut.Arguments = $arguments
+            $shortcut.WorkingDirectory = $workingDirectory
+            $shortcut.WindowStyle = 1
+            $shortcut.IconLocation = "$targetPath,0"
+            $shortcut.Save()
+
+            Start-Process -FilePath $targetPath -ArgumentList $arguments -WorkingDirectory $workingDirectory -Verb RunAs
+            """;
+    }
+
     public async Task<string> GenerateWindowsSandboxProfileAsync(
         LauncherMainWindowViewModel launcherViewModel,
         FolderManageWindowViewModel folderViewModel,
@@ -70,27 +100,28 @@ public sealed class WindowsSandboxComposer
         var processFilePath = Process.GetCurrentProcess().MainModule?.FileName;
         if (string.IsNullOrWhiteSpace(processFilePath))
             throw new Exception("Cannot determine application executable file path.");
+
         var thisDirectory = Path.GetDirectoryName(processFilePath);
         if (string.IsNullOrWhiteSpace(thisDirectory))
             throw new Exception("Cannot determine application directory path.");
         var thisFolder = CreateHostFolderMappingElement(thisDirectory);
         if (thisFolder == null)
             throw new Exception($"Cannot create host folder mapping element for '{thisDirectory}'.");
+        foldersToMount.Add(thisFolder.Value.Key, thisFolder.Value.Value);
 
         var launcherAppDataFolder = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Launcher");
+        if (string.IsNullOrWhiteSpace(launcherAppDataFolder))
+            throw new Exception("Cannot determine application data path.");
         var launcherAppDataFolderElem = CreateHostFolderMappingElement(launcherAppDataFolder);
-        if (launcherAppDataFolderElem.HasValue)
-            foldersToMount.Add(launcherAppDataFolderElem.Value.Key, launcherAppDataFolderElem.Value.Value);
-        else
-            warnings.Add($"Selected directory '{launcherAppDataFolder}' does not exists.");
-
-        foldersToMount.Add(thisFolder.Value.Key, thisFolder.Value.Value);
+        if (!launcherAppDataFolderElem.HasValue)
+            throw new Exception($"Cannot create host folder mapping element for '{launcherAppDataFolder}'.");
+        foldersToMount.Add(launcherAppDataFolderElem.Value.Key, launcherAppDataFolderElem.Value.Value);
 
         var logonCommandElem = new XElement("LogonCommand");
         var commandElem = new XElement("Command");
-        commandElem.Value = $"{thisFolder.Value.Key}\\{Path.GetFileName(processFilePath)} --mode=Spork --sporkMode=Embedded";
+        commandElem.Value = $"powershell.exe -ExecutionPolicy Bypass -File {launcherAppDataFolderElem.Value.Key}\\Launch.ps1";
         logonCommandElem.Add(commandElem);
         root.Add(logonCommandElem);
 
@@ -142,6 +173,14 @@ public sealed class WindowsSandboxComposer
         });
 
         await doc.SaveAsync(xw, cancellationToken).ConfigureAwait(false);
+
+        var scriptContent = GeneratePowerShellScript(thisFolder.Value.Key, Path.GetFileName(processFilePath));
+        _locationService.EnsureAppDataDirectoryCreated();
+        await File.WriteAllTextAsync(
+            _locationService.WindowsSandboxLauncherPath,
+            scriptContent,
+            cancellationToken).ConfigureAwait(false);
+
         return _locationService.WindowsSandboxProfilePath;
     }
 }

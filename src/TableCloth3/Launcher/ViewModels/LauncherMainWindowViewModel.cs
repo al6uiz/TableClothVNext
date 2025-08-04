@@ -131,12 +131,9 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
         => _messenger.Send<ManageFolderButtonMessage>();
 
     [RelayCommand]
-    private async Task Loaded(CancellationToken cancellationToken = default)
+    private void Loaded(CancellationToken cancellationToken = default)
     {
         if (Design.IsDesignMode)
-            return;
-
-        if (!(await _tableClothCatalogService.CheckNeedUpdateRequiredAsync(cancellationToken).ConfigureAwait(false)))
             return;
 
         Loading = true;

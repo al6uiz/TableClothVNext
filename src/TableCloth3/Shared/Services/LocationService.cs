@@ -31,4 +31,7 @@ public sealed class LocationService
 
     public string WindowsSandboxProfilePath
         => Path.Combine(AppDataDirectory, "Sandbox.wsb");
+
+    public string WindowsSandboxLauncherPath
+        => Path.Combine(AppDataDirectory, "Launch.ps1");
 }

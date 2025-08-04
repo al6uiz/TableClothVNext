@@ -159,11 +159,9 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
             if (_scenarioRouter.GetSporkScenario() == SporkScenario.Standalone)
             {
-                if ((await _catalogService.CheckNeedUpdateRequiredAsync(cancellationToken).ConfigureAwait(false)))
-                {
-                    await _catalogService.DownloadCatalogAsync(cancellationToken).ConfigureAwait(false);
-                    await _catalogService.DownloadImagesAsync(cancellationToken).ConfigureAwait(false);
-                }
+                var catalogDownloadTask = _catalogService.DownloadCatalogAsync(cancellationToken);
+                var imageDownloadTask = _catalogService.DownloadImagesAsync(cancellationToken);
+                await Task.WhenAll(catalogDownloadTask, imageDownloadTask).ConfigureAwait(false);
             }
             else
             {

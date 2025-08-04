@@ -123,41 +123,18 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgres
     {
         Report(60);
 
-        using var processManager = _processManagerFactory.Create();
-        await processManager.StartAsync(
-            LocalFilePath,
-            PackageArguments,
-            cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-        await processManager.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-
-        //if (ItemType == ItemType.InstallerBinary)
-        //{
-        //}
-        //else if (ItemType == ItemType.PowerShellScript)
-        //{
-        //    // TODO: PowerShell Script Execution
-        //}
-        //else if (ItemType == ItemType.EndOfSuite)
-        //{
-        //    // TODO: Launch ASTx settings app here if exists
-        //    var stSessPath = Path.Combine(
-        //        Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-        //        "AhnLab", "Safe Transaction", "StSess.exe");
-        //    var comSpecPath = Environment.GetEnvironmentVariable("ComSpec") ??
-        //        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
-
-        //    if (File.Exists(stSessPath))
-        //    {
-        //        using var processManager = _processManagerFactory.Create();
-        //        await processManager.StartAsync(
-        //            comSpecPath,
-        //            "/c start \"\" \"" + stSessPath + "\" \"" + "/config" + "\"",
-        //            cancellationToken: cancellationToken)
-        //            .ConfigureAwait(false);
-        //        await processManager.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-        //    }
-        //}
+        if (!string.IsNullOrWhiteSpace(LocalFilePath) && File.Exists(LocalFilePath))
+        {
+            using var processManager = _processManagerFactory.Create();
+            await processManager.StartAsync(
+                LocalFilePath,
+                PackageArguments,
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+            await processManager.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        }
+        else
+            throw new Exception($"Unexpected error: Local file path is empty or does not exist -- {LocalFilePath}");
 
         Report(100);
     }

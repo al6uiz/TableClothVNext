@@ -97,10 +97,14 @@ public partial class SporkMainWindow :
             installerWindow.ViewModel.Steps.Add(eachVM);
         }
 
-        var endVM = _viewModelManager.GetAvaloniaViewModel<InstallerStepItemViewModel>();
-        endVM.ServiceId = message.ViewModel.ServiceId;
-        endVM.IsVisible = false;
-        installerWindow.ViewModel.Steps.Add(endVM);
+        var stSessVM = _viewModelManager.GetAvaloniaViewModel<InstallerStepItemViewModel>();
+        stSessVM.ServiceId = message.ViewModel.ServiceId;
+        stSessVM.PackageName = "StSessConfig";
+        stSessVM.LocalFilePath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+            "AhnLab", "Safe Transaction", "StSess.exe");
+        stSessVM.PackageArguments = "/config";
+        installerWindow.ViewModel.Steps.Add(stSessVM);
 
         installerWindow.ShowDialog(this);
     }

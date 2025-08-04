@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
-using TableCloth3.Spork.Contracts;
+using TableCloth3.Shared.Contracts;
 
-namespace TableCloth3.Spork.Services;
+namespace TableCloth3.Shared.Services;
 
 public sealed class ProcessManager : IProcessManager
 {

@@ -91,7 +91,6 @@ public partial class SporkMainWindow :
         {
             var eachVM = _viewModelManager.GetAvaloniaViewModel<InstallerStepItemViewModel>();
             eachVM.ServiceId = message.ViewModel.ServiceId;
-            eachVM.ItemType = ItemType.InstallerBinary;
             eachVM.PackageName = eachStep.PackageName;
             eachVM.PackageUrl = eachStep.PackageUrl;
             eachVM.PackageArguments = eachStep.PackageArguments;
@@ -100,7 +99,6 @@ public partial class SporkMainWindow :
 
         var endVM = _viewModelManager.GetAvaloniaViewModel<InstallerStepItemViewModel>();
         endVM.ServiceId = message.ViewModel.ServiceId;
-        endVM.ItemType = ItemType.EndOfSuite;
         endVM.IsVisible = false;
         installerWindow.ViewModel.Steps.Add(endVM);
 

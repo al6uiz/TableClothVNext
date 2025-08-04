@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using TableCloth3.Launcher.Models;
 using TableCloth3.Launcher.Services;
+using TableCloth3.Shared.Contracts;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
 
@@ -20,13 +21,15 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
         AvaloniaViewModelManager viewModelManager,
         AppSettingsManager appSettingsManager,
         WindowsSandboxComposer windowsSandboxComposer,
-        TableClothCatalogService tableClothCatalogService)
+        TableClothCatalogService tableClothCatalogService,
+        IProcessManagerFactory processManagerFactory)
     {
         _messenger = messenger;
         _viewModelManager = viewModelManager;
         _appSettingsManager = appSettingsManager;
         _windowsSandboxComposer = windowsSandboxComposer;
         _tableClothCatalogService = tableClothCatalogService;
+        _processManagerFactory = processManagerFactory;
     }
 
     public LauncherMainWindowViewModel() { }
@@ -36,6 +39,7 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
     private readonly AppSettingsManager _appSettingsManager = default!;
     private readonly WindowsSandboxComposer _windowsSandboxComposer = default!;
     private readonly TableClothCatalogService _tableClothCatalogService = default!;
+    private readonly IProcessManagerFactory _processManagerFactory = default!;
 
     public sealed record class AboutButtonMessage;
 
@@ -100,21 +104,17 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
             if (warnings.Any())
                 _messenger.Send<NotifyWarningsMessage>(new NotifyWarningsMessage(warnings));
 
-            using var process = Process.Start(new ProcessStartInfo(wsbPath)
-            {
-                UseShellExecute = true,
-                WindowStyle = ProcessWindowStyle.Normal,
-            });
+            var windowsSandboxExecPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.System),
+                "WindowsSandbox.exe");
 
-            if (process == null)
-            {
-                _messenger.Send<NotifyErrorMessage>(new NotifyErrorMessage(
-                    new Exception("Cannot start the Windows Sandbox process.")));
-                return;
-            }
-
-            process.EnableRaisingEvents = true;
-            await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+            using var processManager = _processManagerFactory.Create();
+            await processManager.StartAsync(
+                windowsSandboxExecPath,
+                wsbPath,
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+            await processManager.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

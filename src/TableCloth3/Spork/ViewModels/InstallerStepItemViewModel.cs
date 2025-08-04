@@ -3,9 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using TableCloth3.Shared;
+using TableCloth3.Shared.Contracts;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
-using TableCloth3.Spork.Contracts;
 using TableCloth3.Spork.Services;
 
 namespace TableCloth3.Spork.ViewModels;
@@ -25,7 +25,7 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgres
     {
         _sporkLocationService = sporkLocationService;
         _httpClientFactory = httpClientFactory;
-        _processManagaerFactory = processManagerFactory;
+        _processManagerFactory = processManagerFactory;
     }
 
     public InstallerStepItemViewModel()
@@ -35,10 +35,7 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgres
 
     private readonly LocationService _sporkLocationService = default!;
     private readonly IHttpClientFactory _httpClientFactory = default!;
-    private readonly IProcessManagerFactory _processManagaerFactory = default!;
-
-    [ObservableProperty]
-    private ItemType _itemType = ItemType.None;
+    private readonly IProcessManagerFactory _processManagerFactory = default!;
 
     [ObservableProperty]
     private bool _isVisible = true;
@@ -83,49 +80,41 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgres
     private async Task LoadInstallStep(CancellationToken cancellationToken = default)
     {
         Report(0);
-        var tempFileName = $"{ServiceId}_{PackageName.Replace(" ", "_")}";
-        var extension = string.Empty;
 
-        if (Uri.TryCreate(PackageUrl, UriKind.Absolute, out var parsedUri) &&
-            parsedUri != null)
-            extension = Path.GetExtension(parsedUri.LocalPath).TrimStart('.');
-        else
+        if (!string.IsNullOrWhiteSpace(PackageUrl))
         {
-            switch (ItemType)
+            var tempFileName = $"{ServiceId}_{PackageName.Replace(" ", "_")}";
+            var extension = string.Empty;
+
+            if (Uri.TryCreate(PackageUrl, UriKind.Absolute, out var parsedUri) && parsedUri != null)
+                extension = Path.GetExtension(parsedUri.LocalPath).TrimStart('.');
+
+            if (string.IsNullOrWhiteSpace(extension))
             {
-                case ItemType.InstallerBinary:
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                     extension = "exe";
-                    break;
-                case ItemType.PowerShellScript:
-                    extension = "ps1";
-                    break;
+                else
+                    extension = "bin";
             }
+
+            var filePath = Path.Combine(
+                _sporkLocationService.EnsureDownloadsDirectoryCreated().FullName,
+                $"{tempFileName}.{extension}");
+
+            var client = _httpClientFactory.CreateChromeHttpClient();
+            using var remoteStream = await client.GetStreamAsync(PackageUrl, cancellationToken).ConfigureAwait(false);
+            using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
+
+            var remoteLength = default(long?);
+            try { remoteLength = remoteStream.Length; }
+            catch { remoteLength = default; }
+
+            Report(30);
+
+            await remoteStream.CopyToAsync(fileStream, remoteLength, cancellationToken: cancellationToken).ConfigureAwait(false);
+            LocalFilePath = filePath;
         }
 
-        if (string.IsNullOrWhiteSpace(extension))
-        {
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                extension = "exe";
-            else
-                extension = "bin";
-        }
-
-        var filePath = Path.Combine(
-            _sporkLocationService.EnsureDownloadsDirectoryCreated().FullName,
-            $"{tempFileName}.{extension}");
-
-        var client = _httpClientFactory.CreateChromeHttpClient();
-        using var remoteStream = await client.GetStreamAsync(PackageUrl, cancellationToken).ConfigureAwait(false);
-        using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
-
-        var remoteLength = default(long?);
-        try { remoteLength = remoteStream.Length; }
-        catch { remoteLength = default; }
-
-        Report(30);
-
-        await remoteStream.CopyToAsync(fileStream, remoteLength, cancellationToken: cancellationToken).ConfigureAwait(false);
-        LocalFilePath = filePath;
         Report(60);
     }
 
@@ -134,24 +123,41 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgres
     {
         Report(60);
 
-        if (ItemType == ItemType.InstallerBinary)
-        {
-            using var processManager = _processManagaerFactory.Create();
-            await processManager.StartAsync(
-                LocalFilePath,
-                PackageArguments,
-                cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-            await processManager.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-        }
-        else if (ItemType == ItemType.PowerShellScript)
-        {
-            // TODO: PowerShell Script Execution
-        }
-        else if (ItemType == ItemType.EndOfSuite)
-        {
-            // TODO: Launch ASTx settings app here if exists
-        }
+        using var processManager = _processManagerFactory.Create();
+        await processManager.StartAsync(
+            LocalFilePath,
+            PackageArguments,
+            cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+        await processManager.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+
+        //if (ItemType == ItemType.InstallerBinary)
+        //{
+        //}
+        //else if (ItemType == ItemType.PowerShellScript)
+        //{
+        //    // TODO: PowerShell Script Execution
+        //}
+        //else if (ItemType == ItemType.EndOfSuite)
+        //{
+        //    // TODO: Launch ASTx settings app here if exists
+        //    var stSessPath = Path.Combine(
+        //        Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+        //        "AhnLab", "Safe Transaction", "StSess.exe");
+        //    var comSpecPath = Environment.GetEnvironmentVariable("ComSpec") ??
+        //        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
+
+        //    if (File.Exists(stSessPath))
+        //    {
+        //        using var processManager = _processManagerFactory.Create();
+        //        await processManager.StartAsync(
+        //            comSpecPath,
+        //            "/c start \"\" \"" + stSessPath + "\" \"" + "/config" + "\"",
+        //            cancellationToken: cancellationToken)
+        //            .ConfigureAwait(false);
+        //        await processManager.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        //    }
+        //}
 
         Report(100);
     }

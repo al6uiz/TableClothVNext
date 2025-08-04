@@ -1,4 +1,4 @@
-﻿namespace TableCloth3.Spork.Contracts;
+﻿namespace TableCloth3.Shared.Contracts;
 
 public interface IProcessManagerFactory
 {

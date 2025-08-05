@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
+using TableCloth3.Launcher.Languages;
 using TableCloth3.Launcher.Models;
 using TableCloth3.Launcher.ViewModels;
 using TableCloth3.Shared.Services;
@@ -135,7 +136,7 @@ public partial class LauncherMainWindow :
             var messageBoxParam = new MessageBoxStandardParams()
             {
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                ContentTitle = "Error",
+                ContentTitle = LauncherStrings.ErrorTitle,
                 ContentMessage = message.FoundException.Message,
                 Icon = MsBox.Avalonia.Enums.Icon.Error,
                 ButtonDefinitions = MsBox.Avalonia.Enums.ButtonEnum.Ok,
@@ -157,7 +158,7 @@ public partial class LauncherMainWindow :
             var messageBoxParam = new MessageBoxStandardParams()
             {
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                ContentTitle = "Warning",
+                ContentTitle = LauncherStrings.WarningTitle,
                 ContentMessage = string.Join(Environment.NewLine, message.FoundWarnings),
                 Icon = MsBox.Avalonia.Enums.Icon.Warning,
                 ButtonDefinitions = MsBox.Avalonia.Enums.ButtonEnum.Ok,

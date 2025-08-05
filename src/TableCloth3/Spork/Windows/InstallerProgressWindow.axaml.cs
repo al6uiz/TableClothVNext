@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using System.Diagnostics;
+using TableCloth3.Spork.Languages;
 using TableCloth3.Spork.ViewModels;
 using static TableCloth3.Spork.ViewModels.InstallerProgressWindowViewModel;
 using static TableCloth3.Spork.ViewModels.InstallerStepItemViewModel;
@@ -62,8 +63,8 @@ public partial class InstallerProgressWindow :
             if (message.DueToError)
             {
                 var result = MessageBoxManager.GetMessageBoxStandard(
-                    "Installation Cancelled",
-                    $"Installation cancelled due to error. {message.FoundException}",
+                    SporkStrings.InstallationCancelledTitle,
+                    string.Format(SporkStrings.InstallationCancelledMessage, message.FoundException),
                     ButtonEnum.Ok,
                     MsBox.Avalonia.Enums.Icon.Warning);
                 result.ShowWindowDialogAsync(this);
@@ -80,8 +81,8 @@ public partial class InstallerProgressWindow :
             if (message.HasError)
             {
                 var result = MessageBoxManager.GetMessageBoxStandard(
-                    "Installation Error",
-                    "An error occurred during installation.",
+                    SporkStrings.InstallationErrorTitle,
+                    SporkStrings.InstallationErrorMessage,
                     ButtonEnum.Ok,
                     MsBox.Avalonia.Enums.Icon.Error);
                 result.ShowWindowDialogAsync(this);
@@ -110,8 +111,8 @@ public partial class InstallerProgressWindow :
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
             var result = MessageBoxManager.GetMessageBoxStandard(
-                "Confirmation",
-                "To continue using AhnLab Safe Transaction, uncheck \"Block remote access\" in the settings window. Modify the settings in the settings window, close it, and then click OK.",
+                SporkStrings.UserConfirmationTitle,
+                message.ViewModel.UserConfirmationText,
                 ButtonEnum.Ok,
                 MsBox.Avalonia.Enums.Icon.Info);
 
@@ -125,7 +126,7 @@ public partial class InstallerProgressWindow :
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
             var result = MessageBoxManager.GetMessageBoxStandard(
-                "Error",
+                SporkStrings.InstallerProgressErrorTitle,
                 message.ViewModel.StepError,
                 ButtonEnum.Ok,
                 MsBox.Avalonia.Enums.Icon.Error);
@@ -139,10 +140,9 @@ public partial class InstallerProgressWindow :
         Dispatcher.UIThread.Invoke(() =>
         {
             var result = MessageBoxManager.GetMessageBoxStandard(
-                "Installation Failure",
-                $"An error occurred during installation: {message.FoundException}",
-                ButtonEnum.Ok,
-                MsBox.Avalonia.Enums.Icon.Error);
+                SporkStrings.UnexpectedErrorMessage_Title,
+                string.Format(SporkStrings.UnexpectedErrorMessage_Arg0, message.FoundException.Message),
+                ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
             result.ShowWindowDialogAsync(this);
             Close();
         });

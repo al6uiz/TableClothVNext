@@ -8,6 +8,7 @@ using System.Diagnostics;
 using TableCloth3.Shared;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
+using TableCloth3.Spork.Languages;
 using TableCloth3.Spork.Services;
 
 namespace TableCloth3.Spork.ViewModels;
@@ -100,6 +101,9 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgres
 
     [ObservableProperty]
     private bool _requireUserConfirmation = false;
+
+    [ObservableProperty]
+    private string _userConfirmationText = SporkStrings.UserConfirmationMessage;
 
     [ObservableProperty]
     private bool _requireIndirectExecute = false;

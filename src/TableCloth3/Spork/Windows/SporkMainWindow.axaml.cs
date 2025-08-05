@@ -101,12 +101,13 @@ public partial class SporkMainWindow :
 
         var stSessVM = _viewModelManager.GetAvaloniaViewModel<InstallerStepItemViewModel>();
         stSessVM.ServiceId = message.ViewModel.ServiceId;
-        stSessVM.PackageName = "StSessConfig";
+        stSessVM.PackageName = "AstxConfig";
         stSessVM.LocalFilePath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
             "AhnLab", "Safe Transaction", "StSess.exe");
         stSessVM.PackageArguments = "/config";
         stSessVM.RequireUserConfirmation = true;
+        stSessVM.UserConfirmationText = SporkStrings.AstxConfirmationMessage;
         stSessVM.RequireIndirectExecute = true;
         installerWindow.ViewModel.Steps.Add(stSessVM);
 

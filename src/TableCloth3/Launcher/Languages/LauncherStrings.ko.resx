@@ -132,6 +132,9 @@
   <data name="CloseManageWindow" xml:space="preserve">
     <value>닫기(_C)</value>
   </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>오류</value>
+  </data>
   <data name="FolderManageWindowInstruction" xml:space="preserve">
     <value>샌드박스 환경 안에서 사용할 폴더를 선택해주세요.</value>
   </data>
@@ -164,5 +167,8 @@
   </data>
   <data name="UseWebCamera" xml:space="preserve">
     <value>웹캠 녹화 사용(_W)</value>
+  </data>
+  <data name="WarningTitle" xml:space="preserve">
+    <value>경고</value>
   </data>
 </root>

@@ -106,6 +106,15 @@ namespace TableCloth3.Launcher.Languages {
         }
         
         /// <summary>
+        ///   Error과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string ErrorTitle {
+            get {
+                return ResourceManager.GetString("ErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Please select the folder you want to use within the sandbox.과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string FolderManageWindowInstruction {
@@ -201,6 +210,15 @@ namespace TableCloth3.Launcher.Languages {
         public static string UseWebCamera {
             get {
                 return ResourceManager.GetString("UseWebCamera", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Warning과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string WarningTitle {
+            get {
+                return ResourceManager.GetString("WarningTitle", resourceCulture);
             }
         }
     }

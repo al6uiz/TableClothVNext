@@ -88,6 +88,15 @@ namespace TableCloth3.Spork.Languages {
         }
         
         /// <summary>
+        ///   To continue using AhnLab Safe Transaction, uncheck &quot;Block remote access&quot; in the settings window. Modify the settings in the settings window, close it, and then click OK.과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string AstxConfirmationMessage {
+            get {
+                return ResourceManager.GetString("AstxConfirmationMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   _Cancel과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string CancelButton {
@@ -129,6 +138,51 @@ namespace TableCloth3.Spork.Languages {
         public static string InProgressMessage {
             get {
                 return ResourceManager.GetString("InProgressMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Installation cancelled due to error. {0}과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string InstallationCancelledMessage {
+            get {
+                return ResourceManager.GetString("InstallationCancelledMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Installation Cancelled과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string InstallationCancelledTitle {
+            get {
+                return ResourceManager.GetString("InstallationCancelledTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   An error occurred during installation.과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string InstallationErrorMessage {
+            get {
+                return ResourceManager.GetString("InstallationErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Installation Error과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string InstallationErrorTitle {
+            get {
+                return ResourceManager.GetString("InstallationErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Error과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string InstallerProgressErrorTitle {
+            get {
+                return ResourceManager.GetString("InstallerProgressErrorTitle", resourceCulture);
             }
         }
         
@@ -228,6 +282,24 @@ namespace TableCloth3.Spork.Languages {
         public static string UnexpectedErrorMessage_Title {
             get {
                 return ResourceManager.GetString("UnexpectedErrorMessage_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Please click the Ok button to continue.과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string UserConfirmationMessage {
+            get {
+                return ResourceManager.GetString("UserConfirmationMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Confirm과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string UserConfirmationTitle {
+            get {
+                return ResourceManager.GetString("UserConfirmationTitle", resourceCulture);
             }
         }
     }

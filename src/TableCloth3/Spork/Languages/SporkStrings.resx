@@ -171,9 +171,11 @@
   </data>
   <data name="UnexpectedErrorMessage_Title" xml:space="preserve">
     <value>Unexpected Error Occurred</value>
+    <comment>SporkMainWindow</comment>
   </data>
   <data name="UnexpectedErrorMessage_Arg0" xml:space="preserve">
     <value>Unexpected Error Occurred: {0}</value>
+    <comment>SporkMainWindow</comment>
   </data>
   <data name="ReasonLinkText" xml:space="preserve">
     <value>Details</value>
@@ -190,5 +192,37 @@
   <data name="AboutHeader" xml:space="preserve">
     <value>About</value>
     <comment>SporkMainWindow</comment>
+  </data>
+  <data name="InstallationCancelledTitle" xml:space="preserve">
+    <value>Installation Cancelled</value>
+    <comment>InstallerProgressWindow</comment>
+  </data>
+  <data name="InstallationCancelledMessage" xml:space="preserve">
+    <value>Installation cancelled due to error. {0}</value>
+    <comment>InstallerProgressWindow</comment>
+  </data>
+  <data name="InstallationErrorTitle" xml:space="preserve">
+    <value>Installation Error</value>
+    <comment>InstallerProgressWindow</comment>
+  </data>
+  <data name="InstallationErrorMessage" xml:space="preserve">
+    <value>An error occurred during installation.</value>
+    <comment>InstallerProgressWindow</comment>
+  </data>
+  <data name="UserConfirmationMessage" xml:space="preserve">
+    <value>Please click the Ok button to continue.</value>
+    <comment>InstallerProgressWindow</comment>
+  </data>
+  <data name="AstxConfirmationMessage" xml:space="preserve">
+    <value>To continue using AhnLab Safe Transaction, uncheck "Block remote access" in the settings window. Modify the settings in the settings window, close it, and then click OK.</value>
+    <comment>InstallerProgressWindow</comment>
+  </data>
+  <data name="UserConfirmationTitle" xml:space="preserve">
+    <value>Confirm</value>
+    <comment>InstallerProgressWindow</comment>
+  </data>
+  <data name="InstallerProgressErrorTitle" xml:space="preserve">
+    <value>Error</value>
+    <comment>InstallerProgressWindow</comment>
   </data>
 </root>

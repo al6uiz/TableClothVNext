@@ -137,6 +137,10 @@
     <value>&amp;Close</value>
     <comment>FolderManageWindow</comment>
   </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Error</value>
+    <comment>LauncherMainWindow</comment>
+  </data>
   <data name="FolderManageWindowInstruction" xml:space="preserve">
     <value>Please select the folder you want to use within the sandbox.</value>
     <comment>FolderManageWindow</comment>
@@ -179,6 +183,10 @@
   </data>
   <data name="UseWebCamera" xml:space="preserve">
     <value>Use _Web Camera</value>
+    <comment>LauncherMainWindow</comment>
+  </data>
+  <data name="WarningTitle" xml:space="preserve">
+    <value>Warning</value>
     <comment>LauncherMainWindow</comment>
   </data>
 </root>

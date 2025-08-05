@@ -103,7 +103,7 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgres
     private bool _requireUserConfirmation = false;
 
     [ObservableProperty]
-    private bool _requireShellExecute = false;
+    private bool _requireIndirectExecute = false;
 
     [ObservableProperty]
     private int _percentage = 0;
@@ -169,19 +169,14 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgres
 
         if (!string.IsNullOrWhiteSpace(LocalFilePath) && File.Exists(LocalFilePath))
         {
-            if (RequireShellExecute)
+            if (RequireIndirectExecute)
             {
-                // If shell execution is required, we will use the default shell to execute the file.
-                var psi = new ProcessStartInfo(LocalFilePath, PackageArguments)
-                {
-                    UseShellExecute = true,
-                    WorkingDirectory = Path.GetDirectoryName(LocalFilePath) ?? string.Empty,
-                };
-                using var process = Process.Start(psi);
+                using var process = Process.Start(
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe"),
+                    $"/c \"{LocalFilePath}\" {PackageArguments}");
+
                 if (process != null)
-                {
                     await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-                }
             }
             else
             {

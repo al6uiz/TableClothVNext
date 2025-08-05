@@ -11,11 +11,11 @@
         x:Class="TableCloth3.InstallerProgressWindow"
 		x:DataType="vm:InstallerProgressWindowViewModel"
         Title="{x:Static lang:SporkStrings.InstallerProgressWindowTitle}"
-		Padding="20" Icon="avares:/Assets/Images/Spork.png"
+		Icon="avares:/Assets/Images/Spork.png"
 		WindowStartupLocation="CenterOwner"
 		ExtendClientAreaChromeHints="NoChrome"
 		ExtendClientAreaToDecorationsHint="True"
-		ShowInTaskbar="False" BorderThickness="1" BorderBrush="Gray">
+		ShowInTaskbar="False">
 	<Design.DataContext>
 		<vm:InstallerProgressWindowViewModel />
 	</Design.DataContext>
@@ -24,44 +24,46 @@
 			<InvokeCommandAction Command="{Binding LoadedCommand}" />
 		</RoutedEventTriggerBehavior>
 	</Interaction.Behaviors>
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="70*" />
-			<RowDefinition Height="Auto" />
-		</Grid.RowDefinitions>
-		<Label Grid.Row="0" Content="{x:Static lang:SporkStrings.InProgressMessage}" />
-		<ScrollViewer Grid.Row="1" Margin="0 15 0 0">
-			<ItemsControl ItemsSource="{Binding Steps}">
-				<ItemsControl.ItemTemplate>
-					<DataTemplate>
-						<Grid Margin="0 5 15 0" IsVisible="{Binding IsVisible}">
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="Auto" />
-								<ColumnDefinition Width="90*" />
-								<ColumnDefinition Width="Auto" />
-							</Grid.ColumnDefinitions>
-							<Grid.RowDefinitions>
-								<RowDefinition Height="Auto" />
-								<RowDefinition Height="Auto" />
-							</Grid.RowDefinitions>
-							<Label Grid.Row="0" Grid.Column="0" Content="{Binding StatusText}" />
-							<Label Grid.Row="0" Grid.Column="1" Content="{Binding PackageName}" />
-							<HyperlinkButton Grid.Row="0" Grid.Column="2" Content="{x:Static lang:SporkStrings.ReasonLinkText}" IsVisible="{Binding HasError}" Command="{Binding ShowErrorCommand}" CommandParameter="{Binding StepError}" />
-							<ProgressBar Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsVisible="{Binding ShowPercentage}" Value="{Binding Percentage}" />
-						</Grid>
-					</DataTemplate>
-				</ItemsControl.ItemTemplate>
-			</ItemsControl>
-		</ScrollViewer>
-		<Grid Grid.Row="2" Margin="0 15 0 0">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="50*" />
-				<ColumnDefinition Width="50*" />
-			</Grid.ColumnDefinitions>
-			<Button Grid.Column="1" Command="{Binding CancelButtonCommand}"
-					Content="{x:Static lang:SporkStrings.CancelButton}"
-					HorizontalAlignment="Right" />
+	<Border Padding="20" BorderBrush="Gray" BorderThickness="1">
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="70*" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+			<Label Grid.Row="0" Content="{x:Static lang:SporkStrings.InProgressMessage}" />
+			<ScrollViewer Grid.Row="1" Margin="0 15 0 0">
+				<ItemsControl ItemsSource="{Binding Steps}">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<Grid Margin="0 5 15 0" IsVisible="{Binding IsVisible}">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="90*" />
+									<ColumnDefinition Width="Auto" />
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+								<Label Grid.Row="0" Grid.Column="0" Content="{Binding StatusText}" />
+								<Label Grid.Row="0" Grid.Column="1" Content="{Binding PackageName}" />
+								<HyperlinkButton Grid.Row="0" Grid.Column="2" Content="{x:Static lang:SporkStrings.ReasonLinkText}" IsVisible="{Binding HasError}" Command="{Binding ShowErrorCommand}" CommandParameter="{Binding StepError}" />
+								<ProgressBar Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" IsVisible="{Binding ShowPercentage}" Value="{Binding Percentage}" />
+							</Grid>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+			</ScrollViewer>
+			<Grid Grid.Row="2" Margin="0 15 0 0">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="50*" />
+					<ColumnDefinition Width="50*" />
+				</Grid.ColumnDefinitions>
+				<Button Grid.Column="1" Command="{Binding CancelButtonCommand}"
+						Content="{x:Static lang:SporkStrings.CancelButton}"
+						HorizontalAlignment="Right" />
+			</Grid>
 		</Grid>
-	</Grid>
+	</Border>
 </Window>

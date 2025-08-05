@@ -88,24 +88,19 @@ public partial class InstallerProgressWindow :
             }
             else
             {
-                var result = MessageBoxManager.GetMessageBoxStandard(
-                    "Installation Complete",
-                    "The installation has completed successfully.",
-                    ButtonEnum.Ok,
-                    MsBox.Avalonia.Enums.Icon.Info);
-                result.ShowWindowDialogAsync(this);
-            }
+                var targetUrl = ViewModel.TargetUrl;
 
-            var targetUrl = ViewModel.TargetUrl;
-
-            if (!string.IsNullOrWhiteSpace(targetUrl) &&
-                Uri.TryCreate(targetUrl, UriKind.Absolute, out var parsedTargetUrl) &&
-                parsedTargetUrl != null)
-            {
-                Process.Start(new ProcessStartInfo(parsedTargetUrl.AbsoluteUri)
+                if (!string.IsNullOrWhiteSpace(targetUrl) &&
+                    Uri.TryCreate(targetUrl, UriKind.Absolute, out var parsedTargetUrl) &&
+                    parsedTargetUrl != null)
                 {
-                    UseShellExecute = true,
-                });
+                    Process.Start(new ProcessStartInfo(parsedTargetUrl.AbsoluteUri)
+                    {
+                        UseShellExecute = true,
+                    });
+                }
+
+                Close();
             }
         });
     }

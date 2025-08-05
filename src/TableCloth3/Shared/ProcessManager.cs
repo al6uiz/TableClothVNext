@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace TableCloth3.Shared.Services;
+namespace TableCloth3.Shared;
 
 public sealed class ProcessManager : IDisposable
 {

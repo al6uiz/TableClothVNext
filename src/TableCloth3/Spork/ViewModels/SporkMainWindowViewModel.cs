@@ -163,29 +163,37 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
             }
             else
             {
-                var destAppDataDirectory = _sporkLocationService.EnsureAppDataDirectoryCreated().FullName;
-                var destImagesDirectory = _sporkLocationService.EnsureImagesDirectoryCreated().FullName;
-
-                var launcherDataDirectory = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                    "Launcher");
-                var launcherImagesDirectory = Path.Combine(launcherDataDirectory, "Images");
-
-                File.Copy(
-                    Path.Combine(launcherDataDirectory, "build-info.json"),
-                    Path.Combine(destAppDataDirectory, "build-info.json"),
-                    true);
-                File.Copy(
-                    Path.Combine(launcherDataDirectory, "Catalog.xml"),
-                    Path.Combine(destAppDataDirectory, "Catalog.xml"),
-                    true);
-
-                foreach (var eachFile in Directory.GetFiles(launcherImagesDirectory, "*.*"))
+                var launcherDataDirectory = _sporkLocationService.GetDesktopSubDirectory("Launcher");
+                if (Directory.Exists(launcherDataDirectory))
                 {
+                    var launcherImagesDirectory = Path.Combine(launcherDataDirectory, "Images");
+
+                    var destAppDataDirectory = _sporkLocationService.EnsureAppDataDirectoryCreated().FullName;
+                    var destImagesDirectory = _sporkLocationService.EnsureImagesDirectoryCreated().FullName;
+
                     File.Copy(
-                        eachFile,
-                        Path.Combine(destImagesDirectory, Path.GetFileName(eachFile)),
+                        Path.Combine(launcherDataDirectory, "build-info.json"),
+                        Path.Combine(destAppDataDirectory, "build-info.json"),
                         true);
+                    File.Copy(
+                        Path.Combine(launcherDataDirectory, "Catalog.xml"),
+                        Path.Combine(destAppDataDirectory, "Catalog.xml"),
+                        true);
+
+                    foreach (var eachFile in Directory.GetFiles(launcherImagesDirectory, "*.*"))
+                    {
+                        File.Copy(
+                            eachFile,
+                            Path.Combine(destImagesDirectory, Path.GetFileName(eachFile)),
+                            true);
+                    }
+                }
+
+                var npkiDirectory = _sporkLocationService.GetDesktopSubDirectory("NPKI");
+                if (Directory.Exists(npkiDirectory))
+                {
+                    var destNPKIDirectory = _sporkLocationService.EnsureLocalLowNpkiDirectoryCreated().FullName;
+                    CopyDirectory(npkiDirectory, destNPKIDirectory, true);
                 }
             }
 
@@ -263,4 +271,31 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     [RelayCommand]
     private void CloseButton()
         => _messenger.Send<CloseButtonRequest>();
+
+    private void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
+    {
+        var dir = new DirectoryInfo(sourceDir);
+
+        if (!dir.Exists)
+            throw new DirectoryNotFoundException($"Source directory not found: {sourceDir}");
+
+        var subDirs = dir.GetDirectories();
+
+        Directory.CreateDirectory(destinationDir);
+
+        foreach (FileInfo file in dir.GetFiles())
+        {
+            var targetFilePath = Path.Combine(destinationDir, file.Name);
+            file.CopyTo(targetFilePath, overwrite: true);
+        }
+
+        if (recursive)
+        {
+            foreach (DirectoryInfo subDir in subDirs)
+            {
+                var newDestinationDir = Path.Combine(destinationDir, subDir.Name);
+                CopyDirectory(subDir.FullName, newDestinationDir, recursive);
+            }
+        }
+    }
 }

@@ -34,4 +34,32 @@ public sealed class LocationService
 
     public string WindowsSandboxLauncherPath
         => Path.Combine(AppDataDirectory, "Launch.ps1");
+
+    public string DesktopDirectory
+        => Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+    public DirectoryInfo EnsureDesktopDirectoryCreated()
+        => Directory.CreateDirectory(DesktopDirectory);
+
+    public string GetDesktopSubDirectory(string directoryName)
+    {
+        if (string.IsNullOrWhiteSpace(directoryName))
+            throw new ArgumentException("Directory name cannot be null or whitespace.", nameof(directoryName));
+        return Path.Combine(DesktopDirectory, directoryName);
+    }
+
+    public DirectoryInfo GetDesktopSubDirectoryInfo(string directoryName)
+        => new DirectoryInfo(GetDesktopSubDirectory(directoryName));
+
+    public string LocalLowAppDataDirectory
+        => SafeNativeMethods.GetLocalAppDataLowFolder();
+
+    public DirectoryInfo EnsureLocalLowAppDataDirectoryCreated()
+        => Directory.CreateDirectory(LocalLowAppDataDirectory);
+
+    public string LocalLowNpkiDirectory
+        => Path.Combine(LocalLowAppDataDirectory, "NPKI");
+
+    public DirectoryInfo EnsureLocalLowNpkiDirectoryCreated()
+        => Directory.CreateDirectory(LocalLowNpkiDirectory);
 }

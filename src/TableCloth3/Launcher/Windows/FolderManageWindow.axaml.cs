@@ -22,6 +22,10 @@ public partial class FolderManageWindow :
     IClearAllFoldersButtonMessageRecipient,
     ICloseButtonMessageRecipient
 {
+    private readonly FolderManageWindowViewModel _viewModel = default!;
+    private readonly IMessenger _messenger = default!;
+    private readonly AppSettingsManager _appSettingsManager = default!;
+
     [ActivatorUtilitiesConstructor]
     public FolderManageWindow(
         FolderManageWindowViewModel viewModel,
@@ -48,19 +52,15 @@ public partial class FolderManageWindow :
         InitializeComponent();
     }
 
-    private readonly FolderManageWindowViewModel _viewModel = default!;
-    private readonly IMessenger _messenger = default!;
-    private readonly AppSettingsManager _appSettingsManager = default!;
-
-    private FolderSettingsModel _config = default!;
+    public FolderManageWindowViewModel ViewModel
+        => _viewModel;
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
-        _appSettingsManager?.LoadAsync<LauncherSerializerContext, FolderSettingsModel>(LauncherSerializerContext.Default, "folderConfig.json")
+        _appSettingsManager?.LoadAsync<LauncherSerializerContext, LauncherSettingsModel>(LauncherSerializerContext.Default, "launcherConfig.json")
             .ContinueWith(x =>
             {
-                _config = x.Result ?? new FolderSettingsModel();
-                _viewModel.ImportFromModel(_config);
+                var config = x.Result ?? new LauncherSettingsModel();
             })
             .SafeFireAndForget();
         base.OnLoaded(e);
@@ -69,12 +69,6 @@ public partial class FolderManageWindow :
     protected override void OnClosed(EventArgs e)
     {
         _messenger?.UnregisterAll(this);
-
-        _viewModel.ExportToModel(_config);
-        _appSettingsManager.SaveAsync(
-            LauncherSerializerContext.Default,
-            _config, "folderConfig.json").SafeFireAndForget();
-
         base.OnClosed(e);
     }
 

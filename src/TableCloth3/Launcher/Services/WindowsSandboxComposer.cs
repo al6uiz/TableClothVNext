@@ -80,7 +80,6 @@ public sealed class WindowsSandboxComposer
 
     public async Task<string> GenerateWindowsSandboxProfileAsync(
         LauncherMainWindowViewModel launcherViewModel,
-        FolderManageWindowViewModel folderViewModel,
         List<string> warnings,
         CancellationToken cancellationToken = default)
     {
@@ -140,7 +139,7 @@ public sealed class WindowsSandboxComposer
 
         if (launcherViewModel.MountSpecificFolders)
         {
-            foreach (var eachFolder in folderViewModel.Folders)
+            foreach (var eachFolder in launcherViewModel.Folders)
             {
                 var targetPath = Path.GetFullPath(
                     Environment.ExpandEnvironmentVariables(eachFolder));

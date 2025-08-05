@@ -111,7 +111,7 @@ public partial class InstallerProgressWindow :
         {
             var result = MessageBoxManager.GetMessageBoxStandard(
                 "Confirmation",
-                "Press OK to continue",
+                "To continue using AhnLab Safe Transaction, uncheck \"Block remote access\" in the settings window. Modify the settings in the settings window, close it, and then click OK.",
                 ButtonEnum.Ok,
                 MsBox.Avalonia.Enums.Icon.Info);
 

@@ -56,8 +56,16 @@ public partial class LauncherMainWindow :
         _appSettingsManager?.LoadAsync<LauncherSerializerContext, LauncherSettingsModel>(LauncherSerializerContext.Default, "launcherConfig.json")
             .ContinueWith(x =>
             {
-                _config = x.Result ?? new LauncherSettingsModel();
-                _viewModel.ImportFromModel(_config);
+                var config = x.Result ?? new LauncherSettingsModel();
+                _viewModel.UseMicrophone = config.UseMicrophone;
+                _viewModel.UseWebCamera = config.UseWebCamera;
+                _viewModel.SharePrinters = config.SharePrinters;
+                _viewModel.MountNpkiFolders = config.MountNpkiFolders;
+                _viewModel.MountSpecificFolders = config.MountSpecificFolders;
+
+                _viewModel.Folders.Clear();
+                foreach (var eachDir in config.Folders)
+                    _viewModel.Folders.Add(eachDir);
             })
             .SafeFireAndForget();
         base.OnLoaded(e);
@@ -67,9 +75,18 @@ public partial class LauncherMainWindow :
     {
         _messenger?.UnregisterAll(this);
 
-        _viewModel.ExportToModel(_config);
+        var config = new LauncherSettingsModel
+        {
+            UseMicrophone = _viewModel.UseMicrophone,
+            UseWebCamera = _viewModel.UseWebCamera,
+            SharePrinters = _viewModel.SharePrinters,
+            MountNpkiFolders = _viewModel.MountNpkiFolders,
+            MountSpecificFolders = _viewModel.MountSpecificFolders,
+            Folders = _viewModel.Folders.ToArray(),
+        };
+
         _appSettingsManager.SaveAsync(
-            LauncherSerializerContext.Default, _config,
+            LauncherSerializerContext.Default, config,
             "launcherConfig.json").SafeFireAndForget();
 
         base.OnClosed(e);
@@ -79,8 +96,6 @@ public partial class LauncherMainWindow :
     private readonly IMessenger _messenger = default!;
     private readonly AvaloniaWindowManager _windowManager = default!;
     private readonly AppSettingsManager _appSettingsManager = default!;
-
-    private LauncherSettingsModel _config = default!;
 
     void IRecipient<AboutButtonMessage>.Receive(AboutButtonMessage message)
     {
@@ -96,7 +111,21 @@ public partial class LauncherMainWindow :
     void IRecipient<ManageFolderButtonMessage>.Receive(ManageFolderButtonMessage message)
     {
         var folderManageWindow = _windowManager.GetAvaloniaWindow<FolderManageWindow>();
-        folderManageWindow.ShowDialog(this);
+
+        folderManageWindow.ViewModel.Folders.Clear();
+        foreach (var eachDir in message.Folders)
+            folderManageWindow.ViewModel.Folders.Add(eachDir);
+
+        folderManageWindow.ShowDialog(this).ContinueWith(x =>
+        {
+            if (x.IsCompletedSuccessfully)
+            {
+                _viewModel.Folders.Clear();
+
+                foreach (var eachDir in folderManageWindow.ViewModel.Folders)
+                    _viewModel.Folders.Add(eachDir);
+            }
+        }).SafeFireAndForget();
     }
 
     void IRecipient<NotifyErrorMessage>.Receive(NotifyErrorMessage message)

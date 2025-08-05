@@ -13,8 +13,4 @@ public abstract partial class BaseViewModel : ObservableObject
     }
 
     protected virtual void PrepareDesignTimePreview() { }
-
-    public virtual void ImportFromModel(object? model) { }
-
-    public virtual void ExportToModel(object? model) { }
 }

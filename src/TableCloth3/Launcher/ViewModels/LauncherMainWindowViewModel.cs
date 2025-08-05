@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using TableCloth3.Launcher.Models;
 using TableCloth3.Launcher.Services;
@@ -48,7 +49,7 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
 
     public interface ICloseButtonMessageRecipient : IRecipient<CloseButtonMessage>;
 
-    public sealed record class ManageFolderButtonMessage;
+    public sealed record class ManageFolderButtonMessage(ObservableCollection<string> Folders);
 
     public interface IManageFolderButtonMessageRecipient : IRecipient<ManageFolderButtonMessage>;
 
@@ -76,6 +77,9 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
     private bool _mountSpecificFolders = false;
 
     [ObservableProperty]
+    private ObservableCollection<string> _folders = new ObservableCollection<string>();
+
+    [ObservableProperty]
     private bool _loading = false;
 
     [RelayCommand]
@@ -94,11 +98,9 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
                     throw new Exception("Only one Windows Sandbox session allowed.");
 
             var warnings = new List<string>();
-            var folderViewModel = _viewModelManager.GetAvaloniaViewModel<FolderManageWindowViewModel>();
-            var model = await _appSettingsManager.LoadAsync<LauncherSerializerContext, LauncherSettingsModel>(LauncherSerializerContext.Default, "launcherConfig.json", cancellationToken).ConfigureAwait(false);
-            folderViewModel.ImportFromModel(model);
+            var config = await _appSettingsManager.LoadAsync<LauncherSerializerContext, LauncherSettingsModel>(LauncherSerializerContext.Default, "launcherConfig.json", cancellationToken).ConfigureAwait(false);
             var wsbPath = await _windowsSandboxComposer.GenerateWindowsSandboxProfileAsync(
-                this, folderViewModel, warnings, cancellationToken).ConfigureAwait(false);
+                this, warnings, cancellationToken).ConfigureAwait(false);
 
             if (warnings.Any())
                 _messenger.Send<NotifyWarningsMessage>(new NotifyWarningsMessage(warnings));
@@ -107,13 +109,10 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
                 Environment.GetFolderPath(Environment.SpecialFolder.System),
                 "WindowsSandbox.exe");
 
-            using var processManager = _processManagerFactory.Create();
-            await processManager.StartAsync(
-                windowsSandboxExecPath,
-                wsbPath,
-                cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-            await processManager.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+            using var process = _processManagerFactory.RunThroughCmdShell(windowsSandboxExecPath, wsbPath);
+
+            if (process != null)
+                await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -127,7 +126,7 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
 
     [RelayCommand]
     private void ManageFolderButton()
-        => _messenger.Send<ManageFolderButtonMessage>();
+        => _messenger.Send<ManageFolderButtonMessage>(new ManageFolderButtonMessage(Folders));
 
     [RelayCommand]
     private void Loaded(CancellationToken cancellationToken = default)
@@ -149,31 +148,5 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
         {
             // TODO: Notify Error Event
         });
-    }
-
-    public override void ImportFromModel(object? model)
-    {
-        if (model is LauncherSettingsModel e)
-        {
-            UseWebCamera = e.UseWebCamera;
-            UseMicrophone = e.UseMicrophone;
-            SharePrinters = e.SharePrinters;
-            MountNpkiFolders = e.MountNpkiFolders;
-            MountSpecificFolders = e.MountSpecificFolders;
-        }
-        base.ImportFromModel(model);
-    }
-
-    public override void ExportToModel(object? model)
-    {
-        if (model is LauncherSettingsModel e)
-        {
-            e.UseWebCamera = UseWebCamera;
-            e.UseMicrophone = UseMicrophone;
-            e.SharePrinters = SharePrinters;
-            e.MountNpkiFolders = MountNpkiFolders;
-            e.MountSpecificFolders = MountSpecificFolders;
-        }
-        base.ExportToModel(model);
     }
 }

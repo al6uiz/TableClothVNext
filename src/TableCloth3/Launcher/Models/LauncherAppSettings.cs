@@ -7,9 +7,5 @@ public sealed class LauncherSettingsModel
     public bool SharePrinters { get; set; }
     public bool MountNpkiFolders { get; set; }
     public bool MountSpecificFolders { get; set; }
-}
-
-public sealed class FolderSettingsModel
-{
     public string[] Folders { get; set; } = Array.Empty<string>();
 }

@@ -73,24 +73,4 @@ public sealed partial class FolderManageWindowViewModel : BaseViewModel
     {
         _messenger.Send<CloseButtonMessage>();
     }
-
-    public override void ImportFromModel(object? model)
-    {
-        if (model is FolderSettingsModel e)
-        {
-            Folders.Clear();
-            foreach (var eachFolder in e.Folders)
-                Folders.Add(eachFolder);
-        }
-        base.ImportFromModel(model);
-    }
-
-    public override void ExportToModel(object? model)
-    {
-        if (model is FolderSettingsModel e)
-        {
-            e.Folders = Folders.ToArray();
-        }
-        base.ExportToModel(model);
-    }
 }

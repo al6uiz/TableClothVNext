@@ -8,7 +8,7 @@ public sealed class ProcessManagerFactory
     public ProcessManager Create()
         => new ProcessManager();
 
-    public Process? RunThroughCmdShell(string fileName, string arguments = "")
+    public Process CreateCmdShellProcess(string fileName, string arguments = "")
     {
         if (Environment.OSVersion.Platform != PlatformID.Win32NT)
             throw new PlatformNotSupportedException("This method is only supported on Windows.");
@@ -16,11 +16,17 @@ public sealed class ProcessManagerFactory
         var startInfo = new ProcessStartInfo
         {
             FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe"),
-            Arguments = $"/c \"{fileName}\" {arguments}",
-            UseShellExecute = false,
-            CreateNoWindow = true,
+            Arguments = $"/c start \"\" \"{fileName}\" \"{arguments}\"",
+            UseShellExecute = true,
+            WindowStyle = ProcessWindowStyle.Minimized,
         };
 
-        return Process.Start(startInfo);
+        var process = new Process()
+        {
+            EnableRaisingEvents = true,
+            StartInfo = startInfo,
+        };
+
+        return process;
     }
 }

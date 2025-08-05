@@ -174,9 +174,9 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgres
         {
             if (RequireIndirectExecute)
             {
-                using var process = this._processManagerFactory.RunThroughCmdShell(LocalFilePath, PackageArguments);
+                using var process = this._processManagerFactory.CreateCmdShellProcess(LocalFilePath, PackageArguments);
 
-                if (process != null)
+                if (process.Start())
                     await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
             }
             else

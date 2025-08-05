@@ -109,9 +109,9 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
                 Environment.GetFolderPath(Environment.SpecialFolder.System),
                 "WindowsSandbox.exe");
 
-            using var process = _processManagerFactory.RunThroughCmdShell(windowsSandboxExecPath, wsbPath);
+            using var process = _processManagerFactory.CreateCmdShellProcess(windowsSandboxExecPath, wsbPath);
 
-            if (process != null)
+            if (process.Start())
                 await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)

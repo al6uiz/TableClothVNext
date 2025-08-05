@@ -1,7 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using DotNext.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 using TableCloth3.Shared;
 using TableCloth3.Shared.Contracts;
 using TableCloth3.Shared.Services;
@@ -10,32 +13,67 @@ using TableCloth3.Spork.Services;
 
 namespace TableCloth3.Spork.ViewModels;
 
-public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgress<int>
+public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgress<int>, IDisposable
 {
-    public sealed record class ProgressNotificationMessage(int? progress);
+    public sealed record class UserConfirmationRequest(InstallerStepItemViewModel ViewModel);
 
-    public interface IProgressNotificationRecipient : IRecipient<ProgressNotificationMessage>;
+    public interface IUserConfirmationRecipient : IRecipient<UserConfirmationRequest>;
+
+    public sealed record class ShowErrorRequest(InstallerStepItemViewModel ViewModel);
+
+    public interface IShowErrorRequestRecipient : IRecipient<ShowErrorRequest>;
+
+    private readonly LocationService _sporkLocationService = default!;
+    private readonly IHttpClientFactory _httpClientFactory = default!;
+    private readonly IProcessManagerFactory _processManagerFactory = default!;
+    private readonly IMessenger _messenger = default!;
 
     [ActivatorUtilitiesConstructor]
     public InstallerStepItemViewModel(
         LocationService sporkLocationService,
         IHttpClientFactory httpClientFactory,
-        IProcessManagerFactory processManagerFactory)
+        IProcessManagerFactory processManagerFactory,
+        IMessenger messenger)
         : this()
     {
         _sporkLocationService = sporkLocationService;
         _httpClientFactory = httpClientFactory;
         _processManagerFactory = processManagerFactory;
+        _messenger = messenger;
     }
 
     public InstallerStepItemViewModel()
         : base()
     {
+        _confirmEvent = new AsyncAutoResetEvent(false);
     }
 
-    private readonly LocationService _sporkLocationService = default!;
-    private readonly IHttpClientFactory _httpClientFactory = default!;
-    private readonly IProcessManagerFactory _processManagerFactory = default!;
+    private void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _confirmEvent.Dispose();
+            }
+
+            _disposed = true;
+        }
+    }
+
+    ~InstallerStepItemViewModel()
+    {
+        Dispose(false);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    private AsyncAutoResetEvent _confirmEvent;
+    private bool _disposed;
 
     [ObservableProperty]
     private bool _isVisible = true;
@@ -60,6 +98,12 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgres
 
     [ObservableProperty]
     private string _localFilePath = string.Empty;
+
+    [ObservableProperty]
+    private bool _requireUserConfirmation = false;
+
+    [ObservableProperty]
+    private bool _requireShellExecute = false;
 
     [ObservableProperty]
     private int _percentage = 0;
@@ -125,18 +169,62 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgres
 
         if (!string.IsNullOrWhiteSpace(LocalFilePath) && File.Exists(LocalFilePath))
         {
-            using var processManager = _processManagerFactory.Create();
-            await processManager.StartAsync(
-                LocalFilePath,
-                PackageArguments,
-                cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-            await processManager.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+            if (RequireShellExecute)
+            {
+                // If shell execution is required, we will use the default shell to execute the file.
+                var psi = new ProcessStartInfo(LocalFilePath, PackageArguments)
+                {
+                    UseShellExecute = true,
+                    WorkingDirectory = Path.GetDirectoryName(LocalFilePath) ?? string.Empty,
+                };
+                using var process = Process.Start(psi);
+                if (process != null)
+                {
+                    await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                using var processManager = _processManagerFactory.Create();
+                await processManager.StartAsync(
+                    LocalFilePath,
+                    PackageArguments,
+                    Path.GetDirectoryName(LocalFilePath) ?? string.Empty,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+                await processManager.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
-        else
-            throw new Exception($"Unexpected error: Local file path is empty or does not exist -- {LocalFilePath}");
+
+        if (RequireUserConfirmation)
+        {
+            _messenger.Send(new UserConfirmationRequest(this));
+            await _confirmEvent.WaitAsync(cancellationToken).ConfigureAwait(false);
+        }
 
         Report(100);
+    }
+
+    [RelayCommand]
+    private async Task Confirm(CancellationToken cancellationToken = default)
+    {
+        if (_disposed)
+            return;
+
+        _confirmEvent.Set();
+        await Task.CompletedTask.ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private void ShowError()
+    {
+        if (_disposed)
+            return;
+
+        if (string.IsNullOrWhiteSpace(StepError))
+            return;
+
+        _messenger.Send<ShowErrorRequest>(new(this));
     }
 
     public string StatusText => StepProgress switch

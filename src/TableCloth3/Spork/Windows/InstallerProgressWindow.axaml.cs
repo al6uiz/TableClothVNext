@@ -1,17 +1,24 @@
+using AsyncAwaitBestPractices;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using System.Diagnostics;
 using TableCloth3.Spork.ViewModels;
 using static TableCloth3.Spork.ViewModels.InstallerProgressWindowViewModel;
+using static TableCloth3.Spork.ViewModels.InstallerStepItemViewModel;
 
 namespace TableCloth3;
 
 public partial class InstallerProgressWindow :
     Window,
     ICancelNotificationRecipient,
-    IFinishNotificationRecipient
+    IFailureNotificationRecipient,
+    IFinishNotificationRecipient,
+    IUserConfirmationRecipient,
+    IShowErrorRequestRecipient
 {
     [ActivatorUtilitiesConstructor]
     public InstallerProgressWindow(
@@ -26,6 +33,9 @@ public partial class InstallerProgressWindow :
 
         _messenger.Register<CancelNotification>(this);
         _messenger.Register<FinishNotification>(this);
+        _messenger.Register<UserConfirmationRequest>(this);
+        _messenger.Register<ShowErrorRequest>(this);
+        _messenger.Register<FailureNotification>(this);
     }
 
     public InstallerProgressWindow()
@@ -49,6 +59,16 @@ public partial class InstallerProgressWindow :
     {
         Dispatcher.UIThread.Invoke(() =>
         {
+            if (message.DueToError)
+            {
+                var result = MessageBoxManager.GetMessageBoxStandard(
+                    "Installation Cancelled",
+                    $"Installation cancelled due to error. {message.FoundException}",
+                    ButtonEnum.Ok,
+                    MsBox.Avalonia.Enums.Icon.Warning);
+                result.ShowWindowDialogAsync(this);
+            }
+
             Close();
         });
     }
@@ -57,9 +77,78 @@ public partial class InstallerProgressWindow :
     {
         Dispatcher.UIThread.Invoke(() =>
         {
-            var psi = new ProcessStartInfo("https://yourtablecloth.app/");
-            psi.UseShellExecute = true;
-            Process.Start(psi);
+            if (message.HasError)
+            {
+                var result = MessageBoxManager.GetMessageBoxStandard(
+                    "Installation Error",
+                    "An error occurred during installation.",
+                    ButtonEnum.Ok,
+                    MsBox.Avalonia.Enums.Icon.Error);
+                result.ShowWindowDialogAsync(this);
+            }
+            else
+            {
+                var result = MessageBoxManager.GetMessageBoxStandard(
+                    "Installation Complete",
+                    "The installation has completed successfully.",
+                    ButtonEnum.Ok,
+                    MsBox.Avalonia.Enums.Icon.Info);
+                result.ShowWindowDialogAsync(this);
+            }
+
+            var targetUrl = ViewModel.TargetUrl;
+
+            if (!string.IsNullOrWhiteSpace(targetUrl) &&
+                Uri.TryCreate(targetUrl, UriKind.Absolute, out var parsedTargetUrl) &&
+                parsedTargetUrl != null)
+            {
+                Process.Start(new ProcessStartInfo(parsedTargetUrl.AbsoluteUri)
+                {
+                    UseShellExecute = true,
+                });
+            }
+        });
+    }
+
+    void IRecipient<UserConfirmationRequest>.Receive(UserConfirmationRequest message)
+    {
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            var result = MessageBoxManager.GetMessageBoxStandard(
+                "Confirmation",
+                "Press OK to continue",
+                ButtonEnum.Ok,
+                MsBox.Avalonia.Enums.Icon.Info);
+
+            await result.ShowWindowDialogAsync(this);
+            message.ViewModel.ConfirmCommand.Execute(message.ViewModel);
+        });
+    }
+
+    void IRecipient<ShowErrorRequest>.Receive(ShowErrorRequest message)
+    {
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            var result = MessageBoxManager.GetMessageBoxStandard(
+                "Error",
+                message.ViewModel.StepError,
+                ButtonEnum.Ok,
+                MsBox.Avalonia.Enums.Icon.Error);
+            await result.ShowWindowDialogAsync(this);
+            message.ViewModel.ConfirmCommand.Execute(message.ViewModel);
+        });
+    }
+
+    void IRecipient<FailureNotification>.Receive(FailureNotification message)
+    {
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            var result = MessageBoxManager.GetMessageBoxStandard(
+                "Installation Failure",
+                $"An error occurred during installation: {message.FoundException}",
+                ButtonEnum.Ok,
+                MsBox.Avalonia.Enums.Icon.Error);
+            result.ShowWindowDialogAsync(this);
             Close();
         });
     }

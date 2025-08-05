@@ -26,11 +26,15 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
 
     private readonly IMessenger _messenger = default!;
 
-    public sealed record class CancelNotification(bool dueToError, Exception? foundException);
+    public sealed record class CancelNotification(bool DueToError, Exception? FoundException);
 
     public interface ICancelNotificationRecipient : IRecipient<CancelNotification>;
 
-    public sealed record class FinishNotification;
+    public sealed record class FailureNotification(Exception FoundException);
+
+    public interface IFailureNotificationRecipient : IRecipient<FailureNotification>;
+
+    public sealed record class FinishNotification(bool HasError);
 
     public interface IFinishNotificationRecipient : IRecipient<FinishNotification>;
 
@@ -74,6 +78,7 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
     {
         try
         {
+            var hasError = false;
             foreach (var item in Steps)
             {
                 try
@@ -86,27 +91,21 @@ public sealed partial class InstallerProgressWindowViewModel : BaseViewModel
                 }
                 catch (Exception ex)
                 {
+                    hasError = true;
                     item.StepError = ex.Message;
                     item.StepProgress = StepProgress.Failed;
-                    _messenger.Send<CancelNotification>(new(true, ex));
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(TargetUrl) &&
-                Uri.TryCreate(TargetUrl, UriKind.Absolute, out var parsedTargetUrl) &&
-                parsedTargetUrl != null)
-            {
-                Process.Start(new ProcessStartInfo(parsedTargetUrl.AbsoluteUri)
-                {
-                    UseShellExecute = true,
-                });
-            }
-
-            _messenger.Send<FinishNotification>();
+            _messenger.Send<FinishNotification>(new(hasError));
+        }
+        catch (TaskCanceledException)
+        {
+            _messenger.Send<CancelNotification>(new(false, default));
         }
         catch (Exception ex)
         {
-            _messenger.Send<CancelNotification>(new(true, ex));
+            _messenger.Send<FailureNotification>(new(ex));
         }
     }
 }

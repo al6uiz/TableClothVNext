@@ -94,6 +94,8 @@ public partial class SporkMainWindow :
             eachVM.PackageName = eachStep.PackageName;
             eachVM.PackageUrl = eachStep.PackageUrl;
             eachVM.PackageArguments = eachStep.PackageArguments;
+            eachVM.RequireUserConfirmation = false;
+            eachVM.RequireShellExecute = false;
             installerWindow.ViewModel.Steps.Add(eachVM);
         }
 
@@ -104,6 +106,8 @@ public partial class SporkMainWindow :
             Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
             "AhnLab", "Safe Transaction", "StSess.exe");
         stSessVM.PackageArguments = "/config";
+        stSessVM.RequireUserConfirmation = true;
+        stSessVM.RequireShellExecute = true;
         installerWindow.ViewModel.Steps.Add(stSessVM);
 
         installerWindow.ShowDialog(this);

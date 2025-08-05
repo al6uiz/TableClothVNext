@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Diagnostics;
-using TableCloth3.Shared.Contracts;
 using TableCloth3.Shared.Services;
 using TableCloth3.Spork.Contracts;
 using TableCloth3.Spork.Services;

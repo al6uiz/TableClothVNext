@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using TableCloth3.Shared.Contracts;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
 using TableCloth3.Shared.Windows;
@@ -55,7 +54,7 @@ internal static class SharedHostExtensions
         builder.Services.AddSingleton<AvaloniaViewModelManager>();
         builder.Services.AddSingleton<AvaloniaWindowManager>();
 
-        builder.Services.AddSingleton<IProcessManagerFactory, ProcessManagerFactory>();
+        builder.Services.AddSingleton<ProcessManagerFactory>();
 
         builder.Services.AddHttpClient(CatalogHttpClient, client =>
         {

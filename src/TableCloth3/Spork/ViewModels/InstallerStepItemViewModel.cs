@@ -6,7 +6,6 @@ using DotNext.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using TableCloth3.Shared;
-using TableCloth3.Shared.Contracts;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
 using TableCloth3.Spork.Services;
@@ -25,14 +24,14 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgres
 
     private readonly LocationService _sporkLocationService = default!;
     private readonly IHttpClientFactory _httpClientFactory = default!;
-    private readonly IProcessManagerFactory _processManagerFactory = default!;
+    private readonly ProcessManagerFactory _processManagerFactory = default!;
     private readonly IMessenger _messenger = default!;
 
     [ActivatorUtilitiesConstructor]
     public InstallerStepItemViewModel(
         LocationService sporkLocationService,
         IHttpClientFactory httpClientFactory,
-        IProcessManagerFactory processManagerFactory,
+        ProcessManagerFactory processManagerFactory,
         IMessenger messenger)
         : this()
     {
@@ -171,9 +170,7 @@ public sealed partial class InstallerStepItemViewModel : BaseViewModel, IProgres
         {
             if (RequireIndirectExecute)
             {
-                using var process = Process.Start(
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe"),
-                    $"/c \"{LocalFilePath}\" {PackageArguments}");
+                using var process = this._processManagerFactory.RunThroughCmdShell(LocalFilePath, PackageArguments);
 
                 if (process != null)
                     await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);

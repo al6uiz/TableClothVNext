@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using TableCloth3.Launcher.Models;
 using TableCloth3.Launcher.Services;
-using TableCloth3.Shared.Contracts;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
 
@@ -22,7 +21,7 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
         AppSettingsManager appSettingsManager,
         WindowsSandboxComposer windowsSandboxComposer,
         TableClothCatalogService tableClothCatalogService,
-        IProcessManagerFactory processManagerFactory)
+        ProcessManagerFactory processManagerFactory)
     {
         _messenger = messenger;
         _viewModelManager = viewModelManager;
@@ -39,7 +38,7 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
     private readonly AppSettingsManager _appSettingsManager = default!;
     private readonly WindowsSandboxComposer _windowsSandboxComposer = default!;
     private readonly TableClothCatalogService _tableClothCatalogService = default!;
-    private readonly IProcessManagerFactory _processManagerFactory = default!;
+    private readonly ProcessManagerFactory _processManagerFactory = default!;
 
     public sealed record class AboutButtonMessage;
 

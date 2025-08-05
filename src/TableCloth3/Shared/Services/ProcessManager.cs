@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
-using TableCloth3.Shared.Contracts;
 
 namespace TableCloth3.Shared.Services;
 
-public sealed class ProcessManager : IProcessManager
+public sealed class ProcessManager : IDisposable
 {
     private Process? _process;
     private TaskCompletionSource<int>? _exitTaskSource;

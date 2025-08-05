@@ -1,11 +1,20 @@
-﻿using TableCloth3.Shared.Contracts;
+﻿using System.Diagnostics;
+using System.Threading;
 
 namespace TableCloth3.Shared.Services;
 
-public sealed class ProcessManagerFactory : IProcessManagerFactory
+public sealed class ProcessManagerFactory
 {
-    public IProcessManager Create()
+    public ProcessManager Create()
+        => new ProcessManager();
+
+    public Process? RunThroughCmdShell(string fileName, string arguments = "")
     {
-        return new ProcessManager();
+        if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            throw new PlatformNotSupportedException("This method is only supported on Windows.");
+
+        return Process.Start(
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe"),
+            $"/c \"{fileName}\" {arguments}");
     }
 }

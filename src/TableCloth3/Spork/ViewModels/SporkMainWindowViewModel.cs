@@ -52,10 +52,6 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
     public interface ILoadingFailureNotificationRecipient : IRecipient<LoadingFailureNotification>;
     
-    public sealed record class AboutButtonRequest;
-
-    public interface IAboutButtonRequestRecipient : IRecipient<AboutButtonRequest>;
-
     public sealed record class CloseButtonRequest;
 
     public interface ICloseButtonRequestRecipient : IRecipient<CloseButtonRequest>;
@@ -142,10 +138,6 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
             query = query.Where(x => x.Category.Equals(SelectedCategory.CategoryName, StringComparison.OrdinalIgnoreCase));
         FilteredItems = query;
     }
-
-    [RelayCommand]
-    private void AboutButton()
-        => _messenger.Send<AboutButtonRequest>();
 
     [RelayCommand]
     private async Task RefreshCatalog(CancellationToken cancellationToken = default)

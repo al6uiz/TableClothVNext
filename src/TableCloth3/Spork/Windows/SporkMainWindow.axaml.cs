@@ -17,7 +17,6 @@ namespace TableCloth3.Spork.Windows;
 public partial class SporkMainWindow :
     Window,
     IRecipient<LoadingFailureNotification>,
-    IRecipient<AboutButtonRequest>,
     IRecipient<CloseButtonRequest>,
     IRecipient<LaunchSiteRequest>
 {
@@ -35,7 +34,6 @@ public partial class SporkMainWindow :
         _viewModelManager = viewModelManager;
 
         _messenger.Register<LoadingFailureNotification>(this);
-        _messenger.Register<AboutButtonRequest>(this);
         _messenger.Register<CloseButtonRequest>(this);
         _messenger.Register<LaunchSiteRequest>(this);
 
@@ -69,12 +67,6 @@ public partial class SporkMainWindow :
                 ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
             msgBox.ShowWindowDialogAsync(this).SafeFireAndForget();
         });
-    }
-
-    void IRecipient<AboutButtonRequest>.Receive(AboutButtonRequest message)
-    {
-        var aboutWindow = _windowManager.GetAvaloniaWindow<AboutWindow>();
-        aboutWindow.ShowDialog(this);
     }
 
     void IRecipient<CloseButtonRequest>.Receive(CloseButtonRequest message)

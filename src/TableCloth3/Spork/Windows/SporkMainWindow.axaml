@@ -5,6 +5,7 @@
 		xmlns:lang="clr-namespace:TableCloth3.Spork.Languages"
 		xmlns:vm="clr-namespace:TableCloth3.Spork.ViewModels"
 		xmlns:ui="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
+		xmlns:controls="clr-namespace:TableCloth3.Shared.Controls"
         mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="480"
 		Width="640" Height="480" CanResize="True"
 		MinWidth="640" MinHeight="480"
@@ -186,8 +187,6 @@
 						<ColumnDefinition Width="50*" />
 					</Grid.ColumnDefinitions>
 					<StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0 20 0 0" Height="30">
-						<Button Content="{x:Static lang:SporkStrings.AboutButton}" Command="{Binding AboutButtonCommand}" />
-						<TextBlock Margin="3" />
 						<Button Content="{x:Static lang:SporkStrings.RefreshButton}" Command="{Binding RefreshCatalogCommand}" />
 					</StackPanel>
 					<StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 20 0 0" Height="30">
@@ -196,11 +195,12 @@
 				</Grid>
 			</Grid>
 		</TabItem>
-		<TabItem Header="{x:Static lang:SporkStrings.AddonsHeader}" IsVisible="False">
+		<TabItem Header="{x:Static lang:SporkStrings.AddonsHeader}">
 		</TabItem>
 		<TabItem Header="{x:Static lang:SporkStrings.ChatHeader}" IsVisible="False">
 		</TabItem>
-		<TabItem Header="{x:Static lang:SporkStrings.AboutHeader}" IsVisible="False">
+		<TabItem Header="{x:Static lang:SporkStrings.AboutHeader}">
+			<controls:AboutControl DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=Window}}" />
 		</TabItem>
 	</TabControl>
 </Window>

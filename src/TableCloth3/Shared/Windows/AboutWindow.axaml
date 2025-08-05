@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:lang="clr-namespace:TableCloth3.Shared.Languages"
 		xmlns:vm="clr-namespace:TableCloth3.Shared.ViewModels"
+		xmlns:controls="clr-namespace:TableCloth3.Shared.Controls"
         mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="250"
 		Width="600" Height="250" CanResize="False"
         x:Class="TableCloth3.Shared.Windows.AboutWindow"
@@ -14,38 +15,9 @@
 	<Design.DataContext>
 		<vm:AboutWindowViewModel />
 	</Design.DataContext>
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="80*" />
-			<RowDefinition Height="20*" />
-		</Grid.RowDefinitions>
-		<Image Source="avares:/Assets/Images/TableCloth.png" Opacity="0.16" />
-		<Rectangle Fill="#66FFFFFF" Grid.RowSpan="2" />
-
-		<Label Grid.Row="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
-			<TextBlock TextAlignment="Center">
-				<TextBlock FontSize="25" Text="{x:Static lang:SharedStrings.AppTitle}" />
-				<LineBreak />
-				<TextBlock Text="{Binding VersionInfo}" />
-				<LineBreak />
-				<LineBreak />
-				<TextBlock Text="{x:Static lang:SharedStrings.AppLicense}" />
-				<LineBreak />
-				<TextBlock Text="{x:Static lang:SharedStrings.AppTrademark}" />
-				<LineBreak />
-				<LineBreak />
-				<TextBlock Text="{x:Static lang:SharedStrings.AppCopyright}" />
-			</TextBlock>
-		</Label>
-
-		<StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" Height="30">
-			<Button Content="{x:Static lang:SharedStrings.VisitWebSiteButton}" Command="{Binding VisitWebSiteButtonCommand}" />
-			<TextBlock Margin="5" />
-			<Button Content="{x:Static lang:SharedStrings.VisitGitHubButton}" Command="{Binding VisitGitHubButtonCommand}" />
-			<TextBlock Margin="5" />
-			<Button Content="{x:Static lang:SharedStrings.CheckUpdateButton}" Command="{Binding CheckUpdateButtonCommand}" />
-			<TextBlock Margin="5" />
-			<Button Content="{x:Static lang:SharedStrings.AboutWindowCloseButton}" Command="{Binding CloseButtonCommand}" />
-		</StackPanel>
-	</Grid>
+	<controls:AboutControl
+		VersionInfo="{Binding VersionInfo}"
+		VisitGitHubCommand="{Binding VisitGitHubButtonCommand}"
+		VisitWebSiteCommand="{Binding VisitWebSiteButtonCommand}"
+		CheckUpdateCommand="{Binding CheckUpdateButtonCommand}" />
 </Window>

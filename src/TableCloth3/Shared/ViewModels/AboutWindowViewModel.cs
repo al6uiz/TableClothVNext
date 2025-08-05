@@ -34,10 +34,6 @@ public sealed partial class AboutWindowViewModel : BaseViewModel
     public sealed record class CheckUpdateButtonMessage;
 
     public interface ICheckUpdateButtonMessageRecipient : IRecipient<CheckUpdateButtonMessage>;
-    
-    public sealed record class CloseButtonMessage;
-
-    public interface ICloseButtonMessageRecipient : IRecipient<CloseButtonMessage>;
 
     [ObservableProperty]
     private string versionInfo = Assembly
@@ -56,8 +52,4 @@ public sealed partial class AboutWindowViewModel : BaseViewModel
     [RelayCommand]
     private void CheckUpdateButton()
         => messenger.Send<CheckUpdateButtonMessage>();
-
-    [RelayCommand]
-    private void CloseButton()
-        => messenger.Send<CloseButtonMessage>();
 }

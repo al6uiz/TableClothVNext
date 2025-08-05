@@ -12,8 +12,7 @@ public partial class AboutWindow :
     Window,
     IVisitWebSiteButtonMessageRecipient,
     IVisitGitHubButtonMessageRecipient,
-    ICheckUpdateButtonMessageRecipient,
-    ICloseButtonMessageRecipient
+    ICheckUpdateButtonMessageRecipient
 {
     [ActivatorUtilitiesConstructor]
     public AboutWindow(
@@ -29,7 +28,6 @@ public partial class AboutWindow :
         _messenger.Register<VisitWebSiteButtonMessage>(this);
         _messenger.Register<VisitGitHubButtonMessage>(this);
         _messenger.Register<CheckUpdateButtonMessage>(this);
-        _messenger.Register<CloseButtonMessage>(this);
     }
 
     public AboutWindow()
@@ -79,7 +77,4 @@ public partial class AboutWindow :
     {
         // TODO
     }
-
-    void IRecipient<CloseButtonMessage>.Receive(CloseButtonMessage message)
-        => Close();
 }

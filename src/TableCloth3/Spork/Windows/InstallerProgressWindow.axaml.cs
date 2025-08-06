@@ -11,7 +11,7 @@ using TableCloth3.Spork.ViewModels;
 using static TableCloth3.Spork.ViewModels.InstallerProgressWindowViewModel;
 using static TableCloth3.Spork.ViewModels.InstallerStepItemViewModel;
 
-namespace TableCloth3;
+namespace TableCloth3.Spork.Windows;
 
 public partial class InstallerProgressWindow :
     Window,

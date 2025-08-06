@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TableCloth3.Help.ViewModels;
 using static TableCloth3.Help.ViewModels.HelpMainWindowViewModel;
 
-namespace TableCloth3;
+namespace TableCloth3.Help.Windows;
 
 public partial class HelpMainWindow : Window, ICloseButtonMessageRecipient
 {

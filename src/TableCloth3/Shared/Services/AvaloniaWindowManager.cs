@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
+using TableCloth3.Help.Windows;
 using TableCloth3.Launcher.Windows;
 using TableCloth3.Shared.Models;
 using TableCloth3.Spork.Windows;

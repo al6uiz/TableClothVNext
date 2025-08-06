@@ -12,7 +12,7 @@ using TableCloth3.Launcher.ViewModels;
 using TableCloth3.Shared.Services;
 using static TableCloth3.Launcher.ViewModels.FolderManageWindowViewModel;
 
-namespace TableCloth3;
+namespace TableCloth3.Launcher.Windows;
 
 public partial class FolderManageWindow :
     Window,

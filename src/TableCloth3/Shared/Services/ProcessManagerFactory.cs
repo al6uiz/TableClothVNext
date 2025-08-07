@@ -16,7 +16,7 @@ public sealed class ProcessManagerFactory
         var startInfo = new ProcessStartInfo
         {
             FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe"),
-            Arguments = $"/c start \"\" \"{fileName}\" \"{arguments}\"",
+            Arguments = $"/c start /wait \"\" \"{fileName}\" \"{arguments}\"",
             UseShellExecute = true,
             WindowStyle = ProcessWindowStyle.Minimized,
         };

@@ -59,6 +59,17 @@ public sealed class WindowsSandboxComposer
             throw new Exception("Cannot determine application directory path.");
 
         return $$"""
+            $desktopPath = [Environment]::GetFolderPath("Desktop")
+            $sourcePath = Join-Path $desktopPath "dotnet"
+            $programFilesPath = [Environment]::GetFolderPath("ProgramFiles")
+            $targetPath = Join-Path $programFilesPath "dotnet"
+
+            if (Test-Path $sourcePath) {
+                if (-Not (Test-Path $targetPath)) {
+                    cmd.exe /c "mklink /D `"$targetPath`" `"$sourcePath`""
+                }
+            }
+
             $desktopPath = [Environment]::GetFolderPath('Desktop')
             $shortcutPath = Join-Path $desktopPath "Launch Spork.lnk"
             $targetPath = "{{thisFolder}}\{{execFileName}}"
@@ -117,6 +128,17 @@ public sealed class WindowsSandboxComposer
         if (!launcherAppDataFolderElem.HasValue)
             throw new Exception($"Cannot create host folder mapping element for '{launcherAppDataFolder}'.");
         foldersToMount.Add(launcherAppDataFolderElem.Value.Key, launcherAppDataFolderElem.Value.Value);
+
+        var dotnetCoreDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+            "dotnet");
+
+        if (Directory.Exists(dotnetCoreDirectory))
+        {
+            var dotnetCoreFolder = CreateHostFolderMappingElement(dotnetCoreDirectory, "C:\\Program Files\\dotnet", true);
+            if (dotnetCoreFolder.HasValue)
+                foldersToMount.Add(dotnetCoreFolder.Value.Key, dotnetCoreFolder.Value.Value);
+        }
 
         var logonCommandElem = new XElement("LogonCommand");
         var commandElem = new XElement("Command");

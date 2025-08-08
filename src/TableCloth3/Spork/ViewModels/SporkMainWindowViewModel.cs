@@ -324,7 +324,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
                     if (!(await _domainCompareService.IsSameDomainAsync(targetUrl, eachCatalogItem.TargetUrl, cancellationToken).ConfigureAwait(false)))
                         continue;
 
-                    _messenger.Send<TableClothCatalogItemViewModel.LaunchSiteRequest>(new(eachCatalogItem));
+                    _messenger.Send<TableClothCatalogItemViewModel.LaunchSiteRequest>(new(eachCatalogItem, targetUrl));
                 }
             }
         }

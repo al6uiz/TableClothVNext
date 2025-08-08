@@ -23,7 +23,7 @@ public sealed partial class TableClothCatalogItemViewModel : BaseViewModel
         _catalogService = catalogService;
     }
 
-    public sealed record class LaunchSiteRequest(TableClothCatalogItemViewModel ViewModel);
+    public sealed record class LaunchSiteRequest(TableClothCatalogItemViewModel ViewModel, string? TargetUrl);
 
     public interface ILaunchSiteRequestRecipient : IRecipient<LaunchSiteRequest>;
 
@@ -67,5 +67,5 @@ public sealed partial class TableClothCatalogItemViewModel : BaseViewModel
 
     [RelayCommand]
     private void LaunchSite(string serviceId)
-        => _messenger.Send<LaunchSiteRequest>(new(this));
+        => _messenger.Send<LaunchSiteRequest>(new(this, TargetUrl));
 }

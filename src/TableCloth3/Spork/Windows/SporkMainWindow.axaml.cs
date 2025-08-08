@@ -97,8 +97,10 @@ public partial class SporkMainWindow :
         Dispatcher.UIThread.Invoke(() =>
         {
             var installerWindow = _windowManager.GetAvaloniaWindow<InstallerProgressWindow>();
-            installerWindow.ViewModel.TargetUrl = message.ViewModel.TargetUrl;
-
+            if (!string.IsNullOrWhiteSpace(message.TargetUrl))
+                installerWindow.ViewModel.TargetUrl = message.TargetUrl;
+            else
+                installerWindow.ViewModel.TargetUrl = message.ViewModel.TargetUrl;
             foreach (var eachStep in message.ViewModel.Packages)
             {
                 var eachVM = _viewModelManager.GetAvaloniaViewModel<InstallerStepItemViewModel>();

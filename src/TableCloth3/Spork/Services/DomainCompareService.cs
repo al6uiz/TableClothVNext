@@ -39,6 +39,9 @@ public sealed class DomainCompareService
         if (!TryGetUri(url1, out var u1) || !TryGetUri(url2, out var u2))
             return false;
 
+        if (u1 == null || u2 == null)
+            return false;
+
         var h1 = GetIdnHost(u1);
         var h2 = GetIdnHost(u2);
 
@@ -57,11 +60,11 @@ public sealed class DomainCompareService
         return string.Equals(h1, h2, StringComparison.OrdinalIgnoreCase);
     }
 
-    private bool TryGetUri(string input, out Uri? uri)
-        => Uri.TryCreate(input, UriKind.Absolute, out uri) && !string.IsNullOrEmpty(uri.Host);
+    private bool TryGetUri(string? input, out Uri? uri)
+        => Uri.TryCreate(input, UriKind.Absolute, out uri) && !string.IsNullOrEmpty(uri?.Host);
 
-    private string GetIdnHost(Uri? uri)
-        => !string.IsNullOrEmpty(uri?.IdnHost) ? uri.IdnHost : uri.Host;
+    private string GetIdnHost(Uri uri)
+        => !string.IsNullOrEmpty(uri.IdnHost) ? uri.IdnHost : uri.Host;
 
     private bool IsIpLike(string host)
         => IPAddress.TryParse(host, out _) || host.Contains(":");

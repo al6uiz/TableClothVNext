@@ -151,6 +151,15 @@ namespace TableCloth3.Launcher.Languages {
         }
         
         /// <summary>
+        ///   Loading...과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string LoadingMessage {
+            get {
+                return ResourceManager.GetString("LoadingMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Manage F_olders...과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string ManageFolders {

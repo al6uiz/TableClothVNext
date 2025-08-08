@@ -147,6 +147,9 @@
   <data name="LaunchSandbox" xml:space="preserve">
     <value>시작(_L)</value>
   </data>
+  <data name="LoadingMessage" xml:space="preserve">
+    <value>불러오는 중...</value>
+  </data>
   <data name="ManageFolders" xml:space="preserve">
     <value>폴더 관리(_O)</value>
   </data>

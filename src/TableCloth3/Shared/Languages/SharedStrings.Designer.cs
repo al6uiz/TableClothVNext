@@ -223,6 +223,15 @@ namespace TableCloth3.Shared.Languages {
         }
         
         /// <summary>
+        ///   (untagged build)과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string UntaggedBuild {
+            get {
+                return ResourceManager.GetString("UntaggedBuild", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Visit _GitHub과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string VisitGitHubButton {

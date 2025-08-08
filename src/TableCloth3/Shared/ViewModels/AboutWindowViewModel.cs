@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using TableCloth3.Shared.Languages;
 
 namespace TableCloth3.Shared.ViewModels;
 
@@ -39,7 +40,7 @@ public sealed partial class AboutWindowViewModel : BaseViewModel
     private string versionInfo = Assembly
         .GetExecutingAssembly()
         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-        ?.InformationalVersion ?? "(untagged build)";
+        ?.InformationalVersion ?? SharedStrings.UntaggedBuild;
 
     [RelayCommand]
     private void VisitWebSiteButton()

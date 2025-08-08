@@ -171,6 +171,9 @@
   <data name="SecurityCategoryDisplayName" xml:space="preserve">
     <value>증권사</value>
   </data>
+  <data name="UntaggedBuild" xml:space="preserve">
+    <value>(버전 정보 없음)</value>
+  </data>
   <data name="VisitGitHubButton" xml:space="preserve">
     <value>_GitHub 방문</value>
   </data>

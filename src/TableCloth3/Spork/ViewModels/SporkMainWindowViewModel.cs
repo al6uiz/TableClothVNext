@@ -422,7 +422,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     private string versionInfo = Assembly
         .GetExecutingAssembly()
         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-        ?.InformationalVersion ?? "(untagged build)";
+        ?.InformationalVersion ?? SharedStrings.UntaggedBuild;
 
     [RelayCommand]
     private void VisitWebSiteButton()

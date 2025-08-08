@@ -183,6 +183,9 @@
     <value>Securities</value>
     <comment>Category</comment>
   </data>
+  <data name="UntaggedBuild" xml:space="preserve">
+    <value>(untagged build)</value>
+  </data>
   <data name="VisitGitHubButton" xml:space="preserve">
     <value>Visit _GitHub</value>
     <comment>AboutWindow</comment>

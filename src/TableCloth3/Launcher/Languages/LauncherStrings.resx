@@ -157,6 +157,10 @@
     <value>_Launch</value>
     <comment>LauncherMainWindow</comment>
   </data>
+  <data name="LoadingMessage" xml:space="preserve">
+    <value>Loading...</value>
+    <comment>LauncherMainWindow</comment>
+  </data>
   <data name="ManageFolders" xml:space="preserve">
     <value>Manage F_olders...</value>
     <comment>LauncherMainWindow</comment>

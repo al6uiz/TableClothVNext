@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using TableCloth3.Shared.Languages;
+using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
 using static TableCloth3.Shared.ViewModels.AboutWindowViewModel;
 
@@ -17,11 +18,13 @@ public partial class AboutWindow :
     [ActivatorUtilitiesConstructor]
     public AboutWindow(
         AboutWindowViewModel viewModel,
-        IMessenger messenger)
+        IMessenger messenger,
+        ProcessManagerFactory processManagerFactory)
         : this()
     {
         _viewModel = viewModel;
         _messenger = messenger;
+        _processManagerFactory = processManagerFactory;
 
         DataContext = _viewModel;
 
@@ -38,6 +41,7 @@ public partial class AboutWindow :
 
     private readonly AboutWindowViewModel _viewModel = default!;
     private readonly IMessenger _messenger = default!;
+    private readonly ProcessManagerFactory _processManagerFactory = default!;
 
     protected override void OnClosed(EventArgs e)
     {
@@ -51,12 +55,8 @@ public partial class AboutWindow :
             parsedUri == null)
             return;
 
-        var startInfo = new ProcessStartInfo(parsedUri.AbsoluteUri)
-        {
-            UseShellExecute = true,
-        };
-
-        Process.Start(startInfo);
+        using var process = _processManagerFactory.CreateShellExecuteProcess(parsedUri.AbsoluteUri);
+        process.Start();
     }
 
     void IRecipient<VisitGitHubButtonMessage>.Receive(VisitGitHubButtonMessage message)
@@ -65,12 +65,8 @@ public partial class AboutWindow :
             parsedUri == null)
             return;
 
-        var startInfo = new ProcessStartInfo(parsedUri.AbsoluteUri)
-        {
-            UseShellExecute = true,
-        };
-
-        Process.Start(startInfo);
+        using var process = _processManagerFactory.CreateShellExecuteProcess(parsedUri.AbsoluteUri);
+        process.Start();
     }
 
     void IRecipient<CheckUpdateButtonMessage>.Receive(CheckUpdateButtonMessage message)

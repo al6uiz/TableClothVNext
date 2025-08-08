@@ -4,12 +4,14 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using TableCloth3.Shared.Languages;
 using TableCloth3.Shared.Models;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
+using static TableCloth3.Shared.ViewModels.AboutWindowViewModel;
 
 namespace TableCloth3.Spork.ViewModels;
 
@@ -415,4 +417,22 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
             }
         }
     }
+
+    [ObservableProperty]
+    private string versionInfo = Assembly
+        .GetExecutingAssembly()
+        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+        ?.InformationalVersion ?? "(untagged build)";
+
+    [RelayCommand]
+    private void VisitWebSiteButton()
+        => _messenger.Send<VisitWebSiteButtonMessage>();
+
+    [RelayCommand]
+    private void VisitGitHubButton()
+        => _messenger.Send<VisitGitHubButtonMessage>();
+
+    [RelayCommand]
+    private void CheckUpdateButton()
+        => _messenger.Send<CheckUpdateButtonMessage>();
 }

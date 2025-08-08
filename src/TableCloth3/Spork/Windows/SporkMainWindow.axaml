@@ -358,7 +358,11 @@
 		<TabItem Header="{x:Static lang:SporkStrings.ChatHeader}" IsVisible="False">
 		</TabItem>
 		<TabItem Header="{x:Static lang:SporkStrings.AboutHeader}">
-			<controls:AboutControl DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=Window}}" />
+			<controls:AboutControl
+				VersionInfo="{Binding VersionInfo}"
+				VisitGitHubCommand="{Binding VisitGitHubButtonCommand}"
+				VisitWebSiteCommand="{Binding VisitWebSiteButtonCommand}"
+				CheckUpdateCommand="{Binding CheckUpdateButtonCommand}" />
 		</TabItem>
 	</TabControl>
 </Window>

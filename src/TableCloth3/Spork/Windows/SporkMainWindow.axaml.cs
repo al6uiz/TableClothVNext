@@ -6,10 +6,12 @@ using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using System.Diagnostics;
+using TableCloth3.Shared.Languages;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.Windows;
 using TableCloth3.Spork.Languages;
 using TableCloth3.Spork.ViewModels;
+using static TableCloth3.Shared.ViewModels.AboutWindowViewModel;
 using static TableCloth3.Spork.ViewModels.SporkMainWindowViewModel;
 using static TableCloth3.Spork.ViewModels.TableClothAddonItemViewModel;
 using static TableCloth3.Spork.ViewModels.TableClothCatalogItemViewModel;
@@ -18,10 +20,13 @@ namespace TableCloth3.Spork.Windows;
 
 public partial class SporkMainWindow :
     Window,
-    IRecipient<LoadingFailureNotification>,
-    IRecipient<CloseButtonRequest>,
-    IRecipient<LaunchSiteRequest>,
-    IRecipient<LaunchAddonRequest>
+    ILoadingFailureNotificationRecipient,
+    ICloseButtonRequestRecipient,
+    ILaunchSiteRequestRecipient,
+    ILaunchAddonRequestRecipient,
+    IVisitWebSiteButtonMessageRecipient,
+    IVisitGitHubButtonMessageRecipient,
+    ICheckUpdateButtonMessageRecipient
 {
     [ActivatorUtilitiesConstructor]
     public SporkMainWindow(
@@ -42,6 +47,9 @@ public partial class SporkMainWindow :
         _messenger.Register<CloseButtonRequest>(this);
         _messenger.Register<LaunchSiteRequest>(this);
         _messenger.Register<LaunchAddonRequest>(this);
+        _messenger.Register<VisitWebSiteButtonMessage>(this);
+        _messenger.Register<VisitGitHubButtonMessage>(this);
+        _messenger.Register<CheckUpdateButtonMessage>(this);
 
         DataContext = _viewModel;
     }
@@ -119,5 +127,30 @@ public partial class SporkMainWindow :
         using var process = _processManagerFactory.CreateShellExecuteProcess(message.ViewModel.TargetUrl/*, message.ViewModel.Arguments*/);
         if (process.Start())
             process.WaitForExit();
+    }
+
+    void IRecipient<VisitWebSiteButtonMessage>.Receive(VisitWebSiteButtonMessage message)
+    {
+        if (!Uri.TryCreate(SharedStrings.ProjectWebSiteUrl, UriKind.Absolute, out var parsedUri) ||
+            parsedUri == null)
+            return;
+
+        using var process = _processManagerFactory.CreateShellExecuteProcess(parsedUri.AbsoluteUri);
+        process.Start();
+    }
+
+    void IRecipient<VisitGitHubButtonMessage>.Receive(VisitGitHubButtonMessage message)
+    {
+        if (!Uri.TryCreate(SharedStrings.GitHubUrl, UriKind.Absolute, out var parsedUri) ||
+            parsedUri == null)
+            return;
+
+        using var process = _processManagerFactory.CreateShellExecuteProcess(parsedUri.AbsoluteUri);
+        process.Start();
+    }
+
+    void IRecipient<CheckUpdateButtonMessage>.Receive(CheckUpdateButtonMessage message)
+    {
+        // TODO
     }
 }

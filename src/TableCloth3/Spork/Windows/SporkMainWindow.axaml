@@ -40,13 +40,13 @@
 						Grid.Column="1"
 						Watermark="{x:Static lang:SporkStrings.SearchBoxWatermark}"
 						Width="200"
-						Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"
+						Text="{Binding CatalogFilterText, UpdateSourceTrigger=PropertyChanged}"
 						HorizontalAlignment="Right"
 					/>
 				</Grid>
-				<Grid Grid.Row="1" IsVisible="{Binding IsLoadingCompleted}">
+				<Grid Grid.Row="1" IsVisible="{Binding IsCatalogLoadingCompleted}">
 					<StackPanel
-						IsVisible="{Binding HasNoItems}"
+						IsVisible="{Binding HasNoCatalogItems}"
 						HorizontalAlignment="Center"
 						VerticalAlignment="Center"
 						Margin="32"
@@ -82,18 +82,18 @@
 							HorizontalAlignment="Center"
 							Foreground="#3A3A4A"/>
 					</StackPanel>
-					<Grid IsVisible="{Binding HasItems}">
+					<Grid IsVisible="{Binding HasCatalogItems}">
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="120" />
 							<ColumnDefinition Width="80*" />
 						</Grid.ColumnDefinitions>
 						<ListBox Grid.Column="0" Background="Transparent"
-								 IsVisible="{Binding HasItems}"
-								 ItemsSource="{Binding CategoryItems}"
-								 SelectedValue="{Binding Path=SelectedCategory}"
+								 IsVisible="{Binding HasCatalogItems}"
+								 ItemsSource="{Binding CatalogCategoryItems}"
+								 SelectedValue="{Binding Path=SelectedCatalogCategory}"
 								 DisplayMemberBinding="{Binding CategoryDisplayName}" />
-						<ScrollViewer Grid.Column="1" IsVisible="{Binding HasItems}" Padding="10 0 0 0">
-							<ItemsControl ItemsSource="{Binding FilteredItems}" IsVisible="{x:True}">
+						<ScrollViewer Grid.Column="1" IsVisible="{Binding HasCatalogItems}" Padding="10 0 0 0">
+							<ItemsControl ItemsSource="{Binding FilteredCatalogItems}" IsVisible="{x:True}">
 								<ItemsControl.ItemTemplate>
 									<DataTemplate>
 										<Border Margin="0,8"
@@ -127,7 +127,7 @@
 						</ScrollViewer>
 					</Grid>
 				</Grid>
-				<Grid Grid.Row="1" IsVisible="{Binding IsLoading}">
+				<Grid Grid.Row="1" IsVisible="{Binding IsCatalogLoading}">
 					<StackPanel
 						HorizontalAlignment="Center"
 						VerticalAlignment="Center"

@@ -34,19 +34,19 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     public SporkMainWindowViewModel()
         : base()
     {
-        Items.CollectionChanged += (s, e) =>
+        CatalogItems.CollectionChanged += (s, e) =>
         {
-            OnPropertyChanged(nameof(HasItems));
-            OnPropertyChanged(nameof(HasNoItems));
-            OnPropertyChanged(nameof(IsLoading));
-            OnPropertyChanged(nameof(FilteredItems));
+            OnPropertyChanged(nameof(HasCatalogItems));
+            OnPropertyChanged(nameof(HasNoCatalogItems));
+            OnPropertyChanged(nameof(IsCatalogLoading));
+            OnPropertyChanged(nameof(FilteredCatalogItems));
         };
 
-        ApplyFilter();
+        ApplyCatalogFilter();
     }
 
-    partial void OnIsLoadingChanged(bool value)
-        => OnPropertyChanged(nameof(IsLoadingCompleted));
+    partial void OnIsCatalogLoadingChanged(bool value)
+        => OnPropertyChanged(nameof(IsCatalogLoadingCompleted));
 
     public sealed record class LoadingFailureNotification(Exception OccurredException);
 
@@ -64,11 +64,11 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
     protected override void PrepareDesignTimePreview()
     {
-        CategoryItems.Add(new() { CategoryName = "Financing", IsWildcard = false, });
+        CatalogCategoryItems.Add(new() { CategoryName = "Financing", IsWildcard = false, });
 
         for (var i = 0; i < 100; i++)
         {
-            Items.Add(new(default!, default!, default!)
+            CatalogItems.Add(new(default!, default!, default!)
             {
                 Category = "Financing",
                 DisplayName = $"Test {i + 1}",
@@ -83,41 +83,41 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     }
 
     [ObservableProperty]
-    private ObservableCollection<TableClothCatalogItemViewModel> _items = [];
+    private ObservableCollection<TableClothCatalogItemViewModel> _catalogItems = [];
 
     [ObservableProperty]
-    private IEnumerable<TableClothCatalogItemViewModel> _filteredItems = [];
+    private IEnumerable<TableClothCatalogItemViewModel> _filteredCatalogItems = [];
 
     [ObservableProperty]
-    private string _filterText = string.Empty;
+    private string _catalogFilterText = string.Empty;
 
     [ObservableProperty]
-    private TableClothCategoryItemViewModel? _selectedCategory = default;
+    private TableClothCategoryItemViewModel? _selectedCatalogCategory = default;
 
     [ObservableProperty]
-    private ObservableCollection<TableClothCategoryItemViewModel> _categoryItems = [];
+    private ObservableCollection<TableClothCategoryItemViewModel> _catalogCategoryItems = [];
 
     [ObservableProperty]
-    private bool _isLoading = false;
+    private bool _isCatalogLoading = false;
 
-    public bool IsLoadingCompleted => !IsLoading;
+    public bool IsCatalogLoadingCompleted => !IsCatalogLoading;
 
-    public bool HasItems
+    public bool HasCatalogItems
     {
         get
         {
-            try { return FilteredItems.Any(); }
+            try { return FilteredCatalogItems.Any(); }
             catch { return false; }
         }
     }
 
-    public bool HasNoItems => !HasItems;
+    public bool HasNoCatalogItems => !HasCatalogItems;
 
-    partial void OnFilterTextChanged(string value)
-        => ApplyFilter();
+    partial void OnCatalogFilterTextChanged(string value)
+        => ApplyCatalogFilter();
 
-    partial void OnSelectedCategoryChanged(TableClothCategoryItemViewModel? value)
-        => ApplyFilter();
+    partial void OnSelectedCatalogCategoryChanged(TableClothCategoryItemViewModel? value)
+        => ApplyCatalogFilter();
 
     [RelayCommand]
     private async Task Loaded(CancellationToken cancellationToken = default)
@@ -129,14 +129,14 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void ApplyFilter()
+    private void ApplyCatalogFilter()
     {
-        var query = (IEnumerable<TableClothCatalogItemViewModel>)Items;
-        if (!string.IsNullOrWhiteSpace(FilterText))
-            query = query.Where(x => x.DisplayName.Contains(FilterText, StringComparison.OrdinalIgnoreCase));
-        if (SelectedCategory != null && !SelectedCategory.IsWildcard)
-            query = query.Where(x => x.Category.Equals(SelectedCategory.CategoryName, StringComparison.OrdinalIgnoreCase));
-        FilteredItems = query;
+        var query = (IEnumerable<TableClothCatalogItemViewModel>)CatalogItems;
+        if (!string.IsNullOrWhiteSpace(CatalogFilterText))
+            query = query.Where(x => x.DisplayName.Contains(CatalogFilterText, StringComparison.OrdinalIgnoreCase));
+        if (SelectedCatalogCategory != null && !SelectedCatalogCategory.IsWildcard)
+            query = query.Where(x => x.Category.Equals(SelectedCatalogCategory.CategoryName, StringComparison.OrdinalIgnoreCase));
+        FilteredCatalogItems = query;
     }
 
     [RelayCommand]
@@ -144,8 +144,8 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     {
         try
         {
-            IsLoading = true;
-            Items.Clear();
+            IsCatalogLoading = true;
+            CatalogItems.Clear();
 
             if (_scenarioRouter.GetSporkScenario() == SporkScenario.Standalone)
             {
@@ -227,7 +227,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
                     viewModel.Packages.Add(packageViewModel);
                 }
 
-                Items.Add(viewModel);
+                CatalogItems.Add(viewModel);
             }
         }
         catch (Exception ex)
@@ -236,28 +236,28 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         }
         finally
         {
-            IsLoading = false;
+            IsCatalogLoading = false;
         }
 
-        CategoryItems.Clear();
+        CatalogCategoryItems.Clear();
 
         var allItemCategory = _avaloniaViewModelManager.GetAvaloniaViewModel<TableClothCategoryItemViewModel>();
         allItemCategory.CategoryName = "All";
         allItemCategory.CategoryDisplayName = SharedStrings.AllCategoryDisplayName;
         allItemCategory.IsWildcard = true;
 
-        CategoryItems.Add(allItemCategory);
-        SelectedCategory = allItemCategory;
-        foreach (var eachCategory in Items.Select(x => x.Category).Distinct())
+        CatalogCategoryItems.Add(allItemCategory);
+        SelectedCatalogCategory = allItemCategory;
+        foreach (var eachCategory in CatalogItems.Select(x => x.Category).Distinct())
         {
             var eachItem = _avaloniaViewModelManager.GetAvaloniaViewModel<TableClothCategoryItemViewModel>();
             eachItem.CategoryName = eachCategory;
             eachItem.CategoryDisplayName = _catalogService.GetCatalogDisplayName(eachCategory);
             eachItem.IsWildcard = false;
-            CategoryItems.Add(eachItem);
+            CatalogCategoryItems.Add(eachItem);
         }
 
-        ApplyFilter();
+        ApplyCatalogFilter();
     }
 
     [RelayCommand]

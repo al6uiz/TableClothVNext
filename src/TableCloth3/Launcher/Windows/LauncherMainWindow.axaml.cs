@@ -1,6 +1,7 @@
 using AsyncAwaitBestPractices;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Rendering;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +9,7 @@ using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
 using TableCloth3.Launcher.Languages;
 using TableCloth3.Launcher.Models;
+using TableCloth3.Launcher.Services;
 using TableCloth3.Launcher.ViewModels;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.Windows;
@@ -18,6 +20,7 @@ namespace TableCloth3.Launcher.Windows;
 
 public partial class LauncherMainWindow :
     Window,
+    IShowDisclaimerWindowMessageRecipient,
     IAboutButtonMessageRecipient,
     ICloseButtonMessageRecipient,
     IManageFolderButtonMessageRecipient,
@@ -29,16 +32,17 @@ public partial class LauncherMainWindow :
         LauncherMainWindowViewModel viewModel,
         IMessenger messenger,
         AvaloniaWindowManager windowManager,
-        AppSettingsManager appSettingsManager)
+        LauncherSettingsManager launcherSettingsManager)
         : this()
     {
         _viewModel = viewModel;
         _messenger = messenger;
         _windowManager = windowManager;
-        _appSettingsManager = appSettingsManager;
+        _launcherSettingsManager = launcherSettingsManager;
 
         DataContext = _viewModel;
 
+        _messenger.Register<ShowDisclaimerWindowMessage>(this);
         _messenger.Register<AboutButtonMessage>(this);
         _messenger.Register<CloseButtonMessage>(this);
         _messenger.Register<ManageFolderButtonMessage>(this);
@@ -54,7 +58,7 @@ public partial class LauncherMainWindow :
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
-        _appSettingsManager?.LoadAsync<LauncherSerializerContext, LauncherSettingsModel>(LauncherSerializerContext.Default, "launcherConfig.json")
+        _launcherSettingsManager.LoadSettingsAsync()
             .ContinueWith(x =>
             {
                 var config = x.Result ?? new LauncherSettingsModel();
@@ -63,10 +67,33 @@ public partial class LauncherMainWindow :
                 _viewModel.SharePrinters = config.SharePrinters;
                 _viewModel.MountNpkiFolders = config.MountNpkiFolders;
                 _viewModel.MountSpecificFolders = config.MountSpecificFolders;
+                _viewModel.DisclaimerAccepted = config.DisclaimerAccepted;
 
                 _viewModel.Folders.Clear();
                 foreach (var eachDir in config.Folders)
                     _viewModel.Folders.Add(eachDir);
+
+                var requireAcknowledge = false;
+                if (_viewModel.DisclaimerAccepted.HasValue)
+                {
+                    if ((DateTime.UtcNow - _viewModel.DisclaimerAccepted.Value).TotalDays > 7)
+                    {
+                        requireAcknowledge = true;
+                        _viewModel.DisclaimerAccepted = null;
+                    }
+                }
+                else
+                    requireAcknowledge = true;
+
+                if (requireAcknowledge)
+                {
+                    Dispatcher.UIThread.InvokeAsync(async () =>
+                    {
+                        var window = _windowManager.GetAvaloniaWindow<DisclaimerWindow>();
+                        await window.ShowDialog(this);
+                        _viewModel.DisclaimerAccepted = DateTime.UtcNow;
+                    });
+                }
             })
             .SafeFireAndForget();
         base.OnLoaded(e);
@@ -84,11 +111,10 @@ public partial class LauncherMainWindow :
             MountNpkiFolders = _viewModel.MountNpkiFolders,
             MountSpecificFolders = _viewModel.MountSpecificFolders,
             Folders = _viewModel.Folders.ToArray(),
+            DisclaimerAccepted = _viewModel.DisclaimerAccepted,
         };
 
-        _appSettingsManager.SaveAsync(
-            LauncherSerializerContext.Default, config,
-            "launcherConfig.json").SafeFireAndForget();
+        _launcherSettingsManager.SaveSettingsAsync(config).SafeFireAndForget();
 
         base.OnClosed(e);
     }
@@ -96,7 +122,16 @@ public partial class LauncherMainWindow :
     private readonly LauncherMainWindowViewModel _viewModel = default!;
     private readonly IMessenger _messenger = default!;
     private readonly AvaloniaWindowManager _windowManager = default!;
-    private readonly AppSettingsManager _appSettingsManager = default!;
+    private readonly LauncherSettingsManager _launcherSettingsManager = default!;
+
+    void IRecipient<ShowDisclaimerWindowMessage>.Receive(ShowDisclaimerWindowMessage message)
+    {
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            var window = _windowManager.GetAvaloniaWindow<DisclaimerWindow>();
+            window.ShowDialog(this);
+        });
+    }
 
     void IRecipient<AboutButtonMessage>.Receive(AboutButtonMessage message)
     {

@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:TableCloth3.Launcher.ViewModels"
+		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="TableCloth3.Launcher.Windows.DisclaimerWindow"
+		x:DataType="vm:DisclaimerWindowViewModel"
+        Title="식탁보 사용 시 주의 사항"
+		WindowStartupLocation="CenterOwner"
+		Design.Width="600" Design.Height="300"
+		ExtendClientAreaChromeHints="NoChrome"
+		ExtendClientAreaToDecorationsHint="True"
+		Width="600" Height="300" CanResize="False" ShowInTaskbar="False" ShowActivated="True">
+	<Design.DataContext>
+		<vm:DisclaimerWindowViewModel />
+	</Design.DataContext>
+	<Grid Margin="20">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="80*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<TextBlock Grid.Row="0">꼭 읽어주세요.</TextBlock>
+		<Border Grid.Row="1" Margin="0 10 0 0" BorderThickness="1" BorderBrush="Gray" Padding="10">
+			<TextBlock TextWrapping="WrapWithOverflow" FontSize="20" Foreground="Red" FontWeight="Bold">
+				식탁보를 사용 중 발생하는 개인, 기업, 기관의 금전 손실, 세금 신고 누락 등을 비롯한 어떠한 장애나 손해에 대해서는 사용자 본인에게 책임이 있습니다.
+			</TextBlock>
+		</Border>
+		<Button Grid.Row="2" Content="동의합니다. 일주일 동안 이 화면을 보지 않겠습니다." HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" Command="{Binding AcceptCommand}"/>
+	</Grid>
+</Window>

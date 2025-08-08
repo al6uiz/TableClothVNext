@@ -11,6 +11,10 @@ internal static class LauncherHostExtensions
     public static IHostApplicationBuilder UseTableCloth3LauncherComponents(this IHostApplicationBuilder builder)
     {
         builder.Services.AddSingleton<WindowsSandboxComposer>();
+        builder.Services.AddSingleton<LauncherSettingsManager>();
+
+        builder.Services.AddSingleton<DisclaimerWindowViewModel>();
+        builder.Services.AddSingleton<DisclaimerWindow>();
 
         builder.Services.AddTransient<FolderManageWindowViewModel>();
         builder.Services.AddTransient<FolderManageWindow>();

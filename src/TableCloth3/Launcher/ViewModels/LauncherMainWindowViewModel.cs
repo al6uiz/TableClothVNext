@@ -1,13 +1,16 @@
 ﻿using AsyncAwaitBestPractices;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using TableCloth3.Launcher.Models;
 using TableCloth3.Launcher.Services;
+using TableCloth3.Launcher.Windows;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
 
@@ -19,27 +22,34 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
     public LauncherMainWindowViewModel(
         IMessenger messenger,
         AvaloniaViewModelManager viewModelManager,
-        AppSettingsManager appSettingsManager,
+        LauncherSettingsManager launcherSettingsManager,
         WindowsSandboxComposer windowsSandboxComposer,
         TableClothCatalogService tableClothCatalogService,
-        ProcessManagerFactory processManagerFactory)
+        ProcessManagerFactory processManagerFactory,
+        AvaloniaWindowManager windowManager)
     {
         _messenger = messenger;
         _viewModelManager = viewModelManager;
-        _appSettingsManager = appSettingsManager;
+        _launcherSettingsManager = launcherSettingsManager;
         _windowsSandboxComposer = windowsSandboxComposer;
         _tableClothCatalogService = tableClothCatalogService;
         _processManagerFactory = processManagerFactory;
+        _windowManager = windowManager;
     }
 
     public LauncherMainWindowViewModel() { }
 
     private readonly IMessenger _messenger = default!;
     private readonly AvaloniaViewModelManager _viewModelManager = default!;
-    private readonly AppSettingsManager _appSettingsManager = default!;
+    private readonly LauncherSettingsManager _launcherSettingsManager = default!;
     private readonly WindowsSandboxComposer _windowsSandboxComposer = default!;
     private readonly TableClothCatalogService _tableClothCatalogService = default!;
     private readonly ProcessManagerFactory _processManagerFactory = default!;
+    private readonly AvaloniaWindowManager _windowManager = default!;
+
+    public sealed record class ShowDisclaimerWindowMessage();
+
+    public interface IShowDisclaimerWindowMessageRecipient : IRecipient<ShowDisclaimerWindowMessage>;
 
     public sealed record class AboutButtonMessage;
 
@@ -77,6 +87,9 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
     private bool _mountSpecificFolders = false;
 
     [ObservableProperty]
+    private DateTime? _disclaimerAccepted = default;
+
+    [ObservableProperty]
     private ObservableCollection<string> _folders = new ObservableCollection<string>();
 
     [ObservableProperty]
@@ -98,7 +111,7 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
                     throw new Exception("Only one Windows Sandbox session allowed.");
 
             var warnings = new List<string>();
-            var config = await _appSettingsManager.LoadAsync<LauncherSerializerContext, LauncherSettingsModel>(LauncherSerializerContext.Default, "launcherConfig.json", cancellationToken).ConfigureAwait(false);
+            var config = await _launcherSettingsManager.LoadSettingsAsync(cancellationToken).ConfigureAwait(false);
             var wsbPath = await _windowsSandboxComposer.GenerateWindowsSandboxProfileAsync(
                 this, warnings, cancellationToken).ConfigureAwait(false);
 
@@ -129,24 +142,18 @@ public sealed partial class LauncherMainWindowViewModel : BaseViewModel
         => _messenger.Send<ManageFolderButtonMessage>(new ManageFolderButtonMessage(Folders));
 
     [RelayCommand]
-    private void Loaded(CancellationToken cancellationToken = default)
+    private async Task Loaded(CancellationToken cancellationToken = default)
     {
         if (Design.IsDesignMode)
             return;
 
         Loading = true;
 
-        Task.WhenAll([
+        await Task.WhenAll([
             _tableClothCatalogService.DownloadCatalogAsync(cancellationToken),
             _tableClothCatalogService.DownloadImagesAsync(cancellationToken),
-        ])
-        .ContinueWith(x =>
-        {
-            Loading = false;
-        })
-        .SafeFireAndForget(ex =>
-        {
-            // TODO: Notify Error Event
-        });
+        ]);
+
+        Loading = false;
     }
 }

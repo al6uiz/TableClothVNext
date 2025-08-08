@@ -8,4 +8,5 @@ public sealed class LauncherSettingsModel
     public bool MountNpkiFolders { get; set; }
     public bool MountSpecificFolders { get; set; }
     public string[] Folders { get; set; } = Array.Empty<string>();
+    public DateTime? DisclaimerAccepted { get; set; }
 }

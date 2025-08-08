@@ -42,8 +42,18 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
             OnPropertyChanged(nameof(FilteredCatalogItems));
         };
 
+        AddonItems.CollectionChanged += (s, e) =>
+        {
+            OnPropertyChanged(nameof(HasAddonItems));
+            OnPropertyChanged(nameof(HasNoAddonItems));
+            OnPropertyChanged(nameof(IsAddonLoading));
+            OnPropertyChanged(nameof(FilteredAddonItems));
+        };
+
         ApplyCatalogFilter();
     }
+
+    // Catalog
 
     partial void OnIsCatalogLoadingChanged(bool value)
         => OnPropertyChanged(nameof(IsCatalogLoadingCompleted));
@@ -120,23 +130,21 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         => ApplyCatalogFilter();
 
     [RelayCommand]
-    private async Task Loaded(CancellationToken cancellationToken = default)
-    {
-        if (Design.IsDesignMode)
-            return;
-
-        await RefreshCatalog(cancellationToken).ConfigureAwait(false);
-    }
-
-    [RelayCommand]
     private void ApplyCatalogFilter()
     {
-        var query = (IEnumerable<TableClothCatalogItemViewModel>)CatalogItems;
+        var catalogQuery = (IEnumerable<TableClothCatalogItemViewModel>)CatalogItems;
         if (!string.IsNullOrWhiteSpace(CatalogFilterText))
-            query = query.Where(x => x.DisplayName.Contains(CatalogFilterText, StringComparison.OrdinalIgnoreCase));
+            catalogQuery = catalogQuery.Where(x => x.DisplayName.Contains(CatalogFilterText, StringComparison.OrdinalIgnoreCase));
         if (SelectedCatalogCategory != null && !SelectedCatalogCategory.IsWildcard)
-            query = query.Where(x => x.Category.Equals(SelectedCatalogCategory.CategoryName, StringComparison.OrdinalIgnoreCase));
-        FilteredCatalogItems = query;
+            catalogQuery = catalogQuery.Where(x => x.Category.Equals(SelectedCatalogCategory.CategoryName, StringComparison.OrdinalIgnoreCase));
+        FilteredCatalogItems = catalogQuery;
+
+        var addonQuery = (IEnumerable<TableClothAddonItemViewModel>)AddonItems;
+        if (!string.IsNullOrWhiteSpace(CatalogFilterText))
+            addonQuery = addonQuery.Where(x => x.DisplayName.Contains(CatalogFilterText, StringComparison.OrdinalIgnoreCase));
+        if (SelectedCatalogCategory != null && !SelectedCatalogCategory.IsWildcard)
+            addonQuery = addonQuery.Where(x => x.DisplayName.Equals(SelectedCatalogCategory.CategoryName, StringComparison.OrdinalIgnoreCase));
+        FilteredAddonItems = addonQuery;
     }
 
     [RelayCommand]
@@ -259,6 +267,142 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
         ApplyCatalogFilter();
     }
+
+    // Addons
+
+    [RelayCommand]
+    private async Task Loaded(CancellationToken cancellationToken = default)
+    {
+        if (Design.IsDesignMode)
+            return;
+
+        await RefreshCatalog(cancellationToken).ConfigureAwait(false);
+        await RefreshAddon(cancellationToken).ConfigureAwait(false);
+    }
+
+    [ObservableProperty]
+    private ObservableCollection<TableClothAddonItemViewModel> _addonItems = [];
+
+    [ObservableProperty]
+    private IEnumerable<TableClothAddonItemViewModel> _filteredAddonItems = [];
+
+    [ObservableProperty]
+    private string _addonFilterText = string.Empty;
+
+    [ObservableProperty]
+    private bool _isAddonLoading = false;
+
+    public bool IsAddonLoadingCompleted => !IsAddonLoading;
+
+    public bool HasAddonItems
+    {
+        get
+        {
+            try { return FilteredAddonItems.Any(); }
+            catch { return false; }
+        }
+    }
+
+    public bool HasNoAddonItems => !HasAddonItems;
+
+    partial void OnAddonFilterTextChanged(string value)
+        => ApplyAddonFilter();
+
+    [RelayCommand]
+    private void ApplyAddonFilter()
+    {
+        var query = (IEnumerable<TableClothAddonItemViewModel>)AddonItems;
+        if (!string.IsNullOrWhiteSpace(AddonFilterText))
+            query = query.Where(x => x.DisplayName.Contains(AddonFilterText, StringComparison.OrdinalIgnoreCase));
+        FilteredAddonItems = query;
+    }
+
+    [RelayCommand]
+    private async Task RefreshAddon(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            IsAddonLoading = true;
+            AddonItems.Clear();
+
+            if (_scenarioRouter.GetSporkScenario() == SporkScenario.Standalone)
+            {
+                var catalogDownloadTask = _catalogService.DownloadCatalogAsync(cancellationToken);
+                var imageDownloadTask = _catalogService.DownloadImagesAsync(cancellationToken);
+                await Task.WhenAll(catalogDownloadTask, imageDownloadTask).ConfigureAwait(false);
+            }
+            else
+            {
+                var launcherDataDirectory = _sporkLocationService.GetDesktopSubDirectory("Launcher");
+                if (Directory.Exists(launcherDataDirectory))
+                {
+                    var launcherImagesDirectory = Path.Combine(launcherDataDirectory, "Images");
+
+                    var destAppDataDirectory = _sporkLocationService.EnsureAppDataDirectoryCreated().FullName;
+                    var destImagesDirectory = _sporkLocationService.EnsureImagesDirectoryCreated().FullName;
+
+                    File.Copy(
+                        Path.Combine(launcherDataDirectory, "build-info.json"),
+                        Path.Combine(destAppDataDirectory, "build-info.json"),
+                        true);
+                    File.Copy(
+                        Path.Combine(launcherDataDirectory, "Catalog.xml"),
+                        Path.Combine(destAppDataDirectory, "Catalog.xml"),
+                        true);
+
+                    foreach (var eachFile in Directory.GetFiles(launcherImagesDirectory, "*.*"))
+                    {
+                        File.Copy(
+                            eachFile,
+                            Path.Combine(destImagesDirectory, Path.GetFileName(eachFile)),
+                            true);
+                    }
+                }
+
+                var npkiDirectory = _sporkLocationService.GetDesktopSubDirectory("NPKI");
+                if (Directory.Exists(npkiDirectory))
+                {
+                    var destNPKIDirectory = _sporkLocationService.EnsureLocalLowNpkiDirectoryCreated().FullName;
+                    CopyDirectory(npkiDirectory, destNPKIDirectory, true);
+                }
+            }
+
+            var doc = await _catalogService.LoadCatalogAsync(cancellationToken).ConfigureAwait(false);
+            var addons = doc.XPathSelectElements("/TableClothCatalog/Companions/Companion");
+
+            foreach (var eachAddon in addons)
+            {
+                var id = eachAddon.Attribute("Id")?.Value;
+
+                if (string.IsNullOrWhiteSpace(id))
+                    continue;
+
+                var displayName = eachAddon.Attribute("DisplayName")?.Value ?? id;
+                var url = eachAddon.Attribute("Url")?.Value;
+                var arguments = eachAddon.Attribute("Arguments")?.Value ?? string.Empty;
+
+                var viewModel = _avaloniaViewModelManager.GetAvaloniaViewModel<TableClothAddonItemViewModel>();
+                viewModel.AddonId = id;
+                viewModel.DisplayName = displayName;
+                viewModel.Arguments = arguments;
+                viewModel.TargetUrl = url ?? string.Empty;
+
+                AddonItems.Add(viewModel);
+            }
+        }
+        catch (Exception ex)
+        {
+            _messenger?.Send<LoadingFailureNotification>(new(ex));
+        }
+        finally
+        {
+            IsAddonLoading = false;
+        }
+
+        ApplyAddonFilter();
+    }
+
+    // Shared
 
     [RelayCommand]
     private void CloseButton()

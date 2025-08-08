@@ -135,7 +135,7 @@ public sealed class WindowsSandboxComposer
 
         if (Directory.Exists(dotnetCoreDirectory))
         {
-            var dotnetCoreFolder = CreateHostFolderMappingElement(dotnetCoreDirectory, "C:\\Program Files\\dotnet", true);
+            var dotnetCoreFolder = CreateHostFolderMappingElement(dotnetCoreDirectory);
             if (dotnetCoreFolder.HasValue)
                 foldersToMount.Add(dotnetCoreFolder.Value.Key, dotnetCoreFolder.Value.Value);
         }

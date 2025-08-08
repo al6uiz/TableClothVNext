@@ -86,71 +86,88 @@ public partial class SporkMainWindow :
 
     void IRecipient<CloseButtonRequest>.Receive(CloseButtonRequest message)
     {
-        Close();
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            Close();
+        });
     }
 
     void IRecipient<LaunchSiteRequest>.Receive(LaunchSiteRequest message)
     {
-        var installerWindow = _windowManager.GetAvaloniaWindow<InstallerProgressWindow>();
-        installerWindow.ViewModel.TargetUrl = message.ViewModel.TargetUrl;
-
-        foreach (var eachStep in message.ViewModel.Packages)
+        Dispatcher.UIThread.Invoke(() =>
         {
-            var eachVM = _viewModelManager.GetAvaloniaViewModel<InstallerStepItemViewModel>();
-            eachVM.ServiceId = message.ViewModel.ServiceId;
-            eachVM.PackageName = eachStep.PackageName;
-            eachVM.PackageUrl = eachStep.PackageUrl;
-            eachVM.PackageArguments = eachStep.PackageArguments;
-            eachVM.RequireUserConfirmation = false;
-            eachVM.RequireIndirectExecute = false;
-            installerWindow.ViewModel.Steps.Add(eachVM);
-        }
+            var installerWindow = _windowManager.GetAvaloniaWindow<InstallerProgressWindow>();
+            installerWindow.ViewModel.TargetUrl = message.ViewModel.TargetUrl;
 
-        var stSessVM = _viewModelManager.GetAvaloniaViewModel<InstallerStepItemViewModel>();
-        stSessVM.ServiceId = message.ViewModel.ServiceId;
-        stSessVM.PackageName = "AstxConfig";
-        stSessVM.LocalFilePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-            "AhnLab", "Safe Transaction", "StSess.exe");
-        stSessVM.PackageArguments = "/config";
-        stSessVM.RequireUserConfirmation = true;
-        stSessVM.UserConfirmationText = SporkStrings.AstxConfirmationMessage;
-        stSessVM.RequireIndirectExecute = true;
-        installerWindow.ViewModel.Steps.Add(stSessVM);
+            foreach (var eachStep in message.ViewModel.Packages)
+            {
+                var eachVM = _viewModelManager.GetAvaloniaViewModel<InstallerStepItemViewModel>();
+                eachVM.ServiceId = message.ViewModel.ServiceId;
+                eachVM.PackageName = eachStep.PackageName;
+                eachVM.PackageUrl = eachStep.PackageUrl;
+                eachVM.PackageArguments = eachStep.PackageArguments;
+                eachVM.RequireUserConfirmation = false;
+                eachVM.RequireIndirectExecute = false;
+                installerWindow.ViewModel.Steps.Add(eachVM);
+            }
 
-        installerWindow.ShowDialog(this);
+            var stSessVM = _viewModelManager.GetAvaloniaViewModel<InstallerStepItemViewModel>();
+            stSessVM.ServiceId = message.ViewModel.ServiceId;
+            stSessVM.PackageName = "AstxConfig";
+            stSessVM.LocalFilePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                "AhnLab", "Safe Transaction", "StSess.exe");
+            stSessVM.PackageArguments = "/config";
+            stSessVM.RequireUserConfirmation = true;
+            stSessVM.UserConfirmationText = SporkStrings.AstxConfirmationMessage;
+            stSessVM.RequireIndirectExecute = true;
+            installerWindow.ViewModel.Steps.Add(stSessVM);
+
+            installerWindow.ShowDialog(this);
+        });
     }
 
     void IRecipient<LaunchAddonRequest>.Receive(LaunchAddonRequest message)
     {
-        // TODO: Add arguments support
-        using var process = _processManagerFactory.CreateShellExecuteProcess(message.ViewModel.TargetUrl/*, message.ViewModel.Arguments*/);
-        if (process.Start())
-            process.WaitForExit();
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            // TODO: Add arguments support
+            using var process = _processManagerFactory.CreateShellExecuteProcess(message.ViewModel.TargetUrl/*, message.ViewModel.Arguments*/);
+            if (process.Start())
+                process.WaitForExit();
+        });
     }
 
     void IRecipient<VisitWebSiteButtonMessage>.Receive(VisitWebSiteButtonMessage message)
     {
-        if (!Uri.TryCreate(SharedStrings.ProjectWebSiteUrl, UriKind.Absolute, out var parsedUri) ||
-            parsedUri == null)
-            return;
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            if (!Uri.TryCreate(SharedStrings.ProjectWebSiteUrl, UriKind.Absolute, out var parsedUri) ||
+                parsedUri == null)
+                return;
 
-        using var process = _processManagerFactory.CreateShellExecuteProcess(parsedUri.AbsoluteUri);
-        process.Start();
+            using var process = _processManagerFactory.CreateShellExecuteProcess(parsedUri.AbsoluteUri);
+            process.Start();
+        });
     }
 
     void IRecipient<VisitGitHubButtonMessage>.Receive(VisitGitHubButtonMessage message)
     {
-        if (!Uri.TryCreate(SharedStrings.GitHubUrl, UriKind.Absolute, out var parsedUri) ||
-            parsedUri == null)
-            return;
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            if (!Uri.TryCreate(SharedStrings.GitHubUrl, UriKind.Absolute, out var parsedUri) ||
+                parsedUri == null)
+                return;
 
-        using var process = _processManagerFactory.CreateShellExecuteProcess(parsedUri.AbsoluteUri);
-        process.Start();
+            using var process = _processManagerFactory.CreateShellExecuteProcess(parsedUri.AbsoluteUri);
+            process.Start();
+        });
     }
 
     void IRecipient<CheckUpdateButtonMessage>.Receive(CheckUpdateButtonMessage message)
     {
-        // TODO
+        Dispatcher.UIThread.Invoke(() => {
+            // TODO
+        });
     }
 }

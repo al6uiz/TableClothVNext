@@ -34,9 +34,7 @@ public sealed class ScenarioRouter
 
     public Uri? GetSporkTargetUri()
     {
-        if (GetScenario() != Scenario.Lite)
-            return default;
-        var uriString = _configuration["LiteTargetUri"];
+        var uriString = _configuration["TargetUri"];
         if (string.IsNullOrWhiteSpace(uriString))
             return default;
         if (!Uri.TryCreate(uriString, UriKind.Absolute, out var uri))

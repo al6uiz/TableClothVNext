@@ -10,7 +10,7 @@
         },
         "Lite": {
             "commandName": "Project",
-            "commandLineArgs": "--mode lite --liteTargetUri https://www.wooribank.com/"
+            "commandLineArgs": "--mode spork --targeturi https://spib.wooribank.com/pib/Dream?withyou=PSINQ0001"
         },
         "Help": {
             "commandName": "Project",

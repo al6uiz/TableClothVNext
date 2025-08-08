@@ -11,6 +11,7 @@ using TableCloth3.Shared.Languages;
 using TableCloth3.Shared.Models;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.ViewModels;
+using TableCloth3.Spork.Services;
 using static TableCloth3.Shared.ViewModels.AboutWindowViewModel;
 
 namespace TableCloth3.Spork.ViewModels;
@@ -23,7 +24,8 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         TableClothCatalogService catalogService,
         AvaloniaViewModelManager avaloniaViewModelManager,
         LocationService sporkLocationService,
-        ScenarioRouter scenarioRouter)
+        ScenarioRouter scenarioRouter,
+        DomainCompareService domainCompareService)
         : this()
     {
         _messenger = messenger;
@@ -31,6 +33,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
         _avaloniaViewModelManager = avaloniaViewModelManager;
         _sporkLocationService = sporkLocationService;
         _scenarioRouter = scenarioRouter;
+        _domainCompareService = domainCompareService;
     }
 
     public SporkMainWindowViewModel()
@@ -74,6 +77,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
     private readonly AvaloniaViewModelManager _avaloniaViewModelManager = default!;
     private readonly LocationService _sporkLocationService = default!;
     private readonly ScenarioRouter _scenarioRouter = default!;
+    private readonly DomainCompareService _domainCompareService = default!;
 
     protected override void PrepareDesignTimePreview()
     {
@@ -247,7 +251,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
 
             AddonItems.Clear();
 
-            if (_scenarioRouter.GetSporkScenario() == SporkScenario.Standalone)
+            if (_scenarioRouter.GetSporkScenario() != SporkScenario.Embedded)
             {
                 var catalogDownloadTask = _catalogService.DownloadCatalogAsync(cancellationToken);
                 var imageDownloadTask = _catalogService.DownloadImagesAsync(cancellationToken);
@@ -309,6 +313,19 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
                 viewModel.TargetUrl = url ?? string.Empty;
 
                 AddonItems.Add(viewModel);
+            }
+
+            var targetUrl = _scenarioRouter.GetSporkTargetUri()?.AbsoluteUri;
+
+            if (targetUrl != null)
+            {
+                foreach (var eachCatalogItem in CatalogItems)
+                {
+                    if (!(await _domainCompareService.IsSameDomainAsync(targetUrl, eachCatalogItem.TargetUrl, cancellationToken).ConfigureAwait(false)))
+                        continue;
+
+                    _messenger.Send<TableClothCatalogItemViewModel.LaunchSiteRequest>(new(eachCatalogItem));
+                }
             }
         }
         catch (Exception ex)

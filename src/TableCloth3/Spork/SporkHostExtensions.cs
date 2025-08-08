@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Diagnostics;
-using TableCloth3.Shared.Services;
 using TableCloth3.Spork.Contracts;
 using TableCloth3.Spork.Services;
 using TableCloth3.Spork.ViewModels;
@@ -17,6 +15,8 @@ internal static class SporkHostExtensions
             builder.Services.AddSingleton<IElevationService, WindowsElevationService>();
         else
             builder.Services.AddSingleton<IElevationService, UnixElevationService>();
+
+        builder.Services.AddSingleton<DomainCompareService>();
 
         builder.Services.AddTransient<InstallerProgressWindowViewModel>();
         builder.Services.AddTransient<InstallerStepItemViewModel>();

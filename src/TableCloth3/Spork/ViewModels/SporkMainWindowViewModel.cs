@@ -162,13 +162,7 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
             IsLoading = true;
             CatalogItems.Clear();
 
-            if (_scenarioRouter.GetSporkScenario() == SporkScenario.Standalone)
-            {
-                var catalogDownloadTask = _catalogService.DownloadCatalogAsync(cancellationToken);
-                var imageDownloadTask = _catalogService.DownloadImagesAsync(cancellationToken);
-                await Task.WhenAll(catalogDownloadTask, imageDownloadTask).ConfigureAwait(false);
-            }
-            else
+            if (_scenarioRouter.GetSporkScenario() == SporkScenario.Embedded)
             {
                 var launcherDataDirectory = _sporkLocationService.GetDesktopSubDirectory("Launcher");
                 if (Directory.Exists(launcherDataDirectory))
@@ -202,6 +196,12 @@ public sealed partial class SporkMainWindowViewModel : BaseViewModel
                     var destNPKIDirectory = _sporkLocationService.EnsureLocalLowNpkiDirectoryCreated().FullName;
                     CopyDirectory(npkiDirectory, destNPKIDirectory, true);
                 }
+            }
+            else
+            {
+                var catalogDownloadTask = _catalogService.DownloadCatalogAsync(cancellationToken);
+                var imageDownloadTask = _catalogService.DownloadImagesAsync(cancellationToken);
+                await Task.WhenAll(catalogDownloadTask, imageDownloadTask).ConfigureAwait(false);
             }
 
             var doc = await _catalogService.LoadCatalogAsync(cancellationToken).ConfigureAwait(false);

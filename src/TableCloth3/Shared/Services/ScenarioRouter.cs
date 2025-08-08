@@ -31,4 +31,16 @@ public sealed class ScenarioRouter
 
         return scenarioValue;
     }
+
+    public Uri? GetSporkTargetUri()
+    {
+        if (GetScenario() != Scenario.Spork)
+            return default;
+        var uriString = _configuration["SporkTargetUri"];
+        if (string.IsNullOrWhiteSpace(uriString))
+            return default;
+        if (!Uri.TryCreate(uriString, UriKind.Absolute, out var uri))
+            return default;
+        return uri;
+    }
 }

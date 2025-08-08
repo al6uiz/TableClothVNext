@@ -12,6 +12,7 @@ internal static class LauncherHostExtensions
     {
         builder.Services.AddSingleton<WindowsSandboxComposer>();
         builder.Services.AddSingleton<LauncherSettingsManager>();
+        builder.Services.AddSingleton<EnvironmentValidationService>();
 
         builder.Services.AddSingleton<DisclaimerWindowViewModel>();
         builder.Services.AddSingleton<DisclaimerWindow>();

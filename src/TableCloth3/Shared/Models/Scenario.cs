@@ -4,5 +4,6 @@ public enum Scenario
 {
     Launcher = 0,
     Spork,
+    Lite,
     Help,
 }

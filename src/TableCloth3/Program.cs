@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using System.Runtime.Versioning;
 using TableCloth3.Help;
 using TableCloth3.Launcher;
+using TableCloth3.Lite;
 using TableCloth3.Shared;
 using TableCloth3.Shared.Models;
 using TableCloth3.Shared.Services;
@@ -36,6 +37,10 @@ public static class Program
 
             case Scenario.Spork:
                 builder.UseTableCloth3SporkComponents();
+                break;
+
+            case Scenario.Lite:
+                builder.UseTableCloth3LiteComponents();
                 break;
 
             case Scenario.Help:

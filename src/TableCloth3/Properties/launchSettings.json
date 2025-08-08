@@ -8,6 +8,10 @@
             "commandName": "Project",
             "commandLineArgs": "--mode spork"
         },
+        "Lite": {
+            "commandName": "Project",
+            "commandLineArgs": "--mode lite --liteTargetUri https://www.wooribank.com/"
+        },
         "Help": {
             "commandName": "Project",
             "commandLineArgs": "--mode Help"

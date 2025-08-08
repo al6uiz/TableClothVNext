@@ -5,11 +5,13 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
+using System.Diagnostics;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.Windows;
 using TableCloth3.Spork.Languages;
 using TableCloth3.Spork.ViewModels;
 using static TableCloth3.Spork.ViewModels.SporkMainWindowViewModel;
+using static TableCloth3.Spork.ViewModels.TableClothAddonItemViewModel;
 using static TableCloth3.Spork.ViewModels.TableClothCatalogItemViewModel;
 
 namespace TableCloth3.Spork.Windows;
@@ -18,24 +20,28 @@ public partial class SporkMainWindow :
     Window,
     IRecipient<LoadingFailureNotification>,
     IRecipient<CloseButtonRequest>,
-    IRecipient<LaunchSiteRequest>
+    IRecipient<LaunchSiteRequest>,
+    IRecipient<LaunchAddonRequest>
 {
     [ActivatorUtilitiesConstructor]
     public SporkMainWindow(
         SporkMainWindowViewModel viewModel,
         IMessenger messenger,
         AvaloniaWindowManager windowManager,
-        AvaloniaViewModelManager viewModelManager)
+        AvaloniaViewModelManager viewModelManager,
+        ProcessManagerFactory processManagerFactory)
         : this()
     {
         _viewModel = viewModel;
         _messenger = messenger;
         _windowManager = windowManager;
         _viewModelManager = viewModelManager;
+        _processManagerFactory = processManagerFactory;
 
         _messenger.Register<LoadingFailureNotification>(this);
         _messenger.Register<CloseButtonRequest>(this);
         _messenger.Register<LaunchSiteRequest>(this);
+        _messenger.Register<LaunchAddonRequest>(this);
 
         DataContext = _viewModel;
     }
@@ -50,6 +56,7 @@ public partial class SporkMainWindow :
     private readonly IMessenger _messenger = default!;
     private readonly AvaloniaWindowManager _windowManager = default!;
     private readonly AvaloniaViewModelManager _viewModelManager = default!;
+    private readonly ProcessManagerFactory _processManagerFactory = default!;
 
     protected override void OnClosed(EventArgs e)
     {
@@ -104,5 +111,13 @@ public partial class SporkMainWindow :
         installerWindow.ViewModel.Steps.Add(stSessVM);
 
         installerWindow.ShowDialog(this);
+    }
+
+    void IRecipient<LaunchAddonRequest>.Receive(LaunchAddonRequest message)
+    {
+        // TODO: Add arguments support
+        using var process = _processManagerFactory.CreateShellExecuteProcess(message.ViewModel.TargetUrl/*, message.ViewModel.Arguments*/);
+        if (process.Start())
+            process.WaitForExit();
     }
 }

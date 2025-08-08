@@ -29,4 +29,25 @@ public sealed class ProcessManagerFactory
 
         return process;
     }
+
+    public Process CreateShellExecuteProcess(string fileName, string arguments = "")
+    {
+        if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            throw new PlatformNotSupportedException("This method is only supported on Windows.");
+
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = fileName,
+            Arguments = arguments,
+            UseShellExecute = true,
+        };
+
+        var process = new Process()
+        {
+            EnableRaisingEvents = true,
+            StartInfo = startInfo,
+        };
+
+        return process;
+    }
 }

@@ -135,7 +135,7 @@
   <data name="InstallerProgressWindowTitle" xml:space="preserve">
     <value>플러그인 설치 중</value>
   </data>
-  <data name="InstructionLabel" xml:space="preserve">
+  <data name="CategoryInstructionLabel" xml:space="preserve">
     <value>실행할 웹 사이트를 선택하세요: </value>
   </data>
   <data name="LaunchButton" xml:space="preserve">
@@ -197,5 +197,8 @@
   </data>
   <data name="InstallerProgressErrorTitle" xml:space="preserve">
     <value>오류</value>
+  </data>
+  <data name="AddonInstructionLabel" xml:space="preserve">
+    <value>설치할 부가 기능을 선택하세요:</value>
   </data>
 </root>

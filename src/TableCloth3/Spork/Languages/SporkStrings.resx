@@ -141,7 +141,7 @@
     <value>Installing Plugins</value>
     <comment>InstallerProgressWIndow</comment>
   </data>
-  <data name="InstructionLabel" xml:space="preserve">
+  <data name="CategoryInstructionLabel" xml:space="preserve">
     <value>Select a web site to launch: </value>
     <comment>SporkMainWindow</comment>
   </data>
@@ -224,5 +224,9 @@
   <data name="InstallerProgressErrorTitle" xml:space="preserve">
     <value>Error</value>
     <comment>InstallerProgressWindow</comment>
+  </data>
+  <data name="AddonInstructionLabel" xml:space="preserve">
+    <value>Select an addon to install:</value>
+    <comment>SporkMainWindow</comment>
   </data>
 </root>

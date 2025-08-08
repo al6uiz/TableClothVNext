@@ -79,6 +79,15 @@ namespace TableCloth3.Spork.Languages {
         }
         
         /// <summary>
+        ///   Select an addon to install:과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string AddonInstructionLabel {
+            get {
+                return ResourceManager.GetString("AddonInstructionLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Addons과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         public static string AddonsHeader {
@@ -111,6 +120,15 @@ namespace TableCloth3.Spork.Languages {
         public static string CatalogHeader {
             get {
                 return ResourceManager.GetString("CatalogHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Select a web site to launch: 과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        public static string CategoryInstructionLabel {
+            get {
+                return ResourceManager.GetString("CategoryInstructionLabel", resourceCulture);
             }
         }
         
@@ -192,15 +210,6 @@ namespace TableCloth3.Spork.Languages {
         public static string InstallerProgressWindowTitle {
             get {
                 return ResourceManager.GetString("InstallerProgressWindowTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Select a web site to launch: 과(와) 유사한 지역화된 문자열을 찾습니다.
-        /// </summary>
-        public static string InstructionLabel {
-            get {
-                return ResourceManager.GetString("InstructionLabel", resourceCulture);
             }
         }
         

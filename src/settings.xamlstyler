@@ -1,0 +1,12 @@
+{
+	// 인덴트 관련
+	"IndentSize": 4,
+	"IndentWithTabs": true,
+
+	// 속성 줄바꿈 관련
+	"KeepFirstAttributeOnSameLine": false,
+	"MaxAttributesPerLine": 1,
+	"AttributesTolerance": 0,
+
+	"EnableAttributeReordering": false
+}

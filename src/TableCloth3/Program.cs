@@ -15,53 +15,53 @@ namespace TableCloth3;
 
 public static class Program
 {
-    [STAThread]
-    [SupportedOSPlatform("windows")]
-    private static void Main(string[] args)
-    {
-        var builder = Host.CreateApplicationBuilder(args);
-        builder.Configuration.AddCommandLine(args);
-        builder.Configuration.AddEnvironmentVariables();
+	[STAThread]
+	[SupportedOSPlatform("windows")]
+	private static async Task Main(string[] args)
+	{
+		var builder = Host.CreateApplicationBuilder(args);
+		builder.Configuration.AddCommandLine(args);
+		builder.Configuration.AddEnvironmentVariables();
 
-        var scenarioRouter = new ScenarioRouter(builder.Configuration);
-        builder.Services.AddSingleton(scenarioRouter);
-        builder.UseTableCloth3SharedComponents();
+		var scenarioRouter = new ScenarioRouter(builder.Configuration);
+		builder.Services.AddSingleton(scenarioRouter);
+		builder.UseTableCloth3SharedComponents();
 
-        switch (scenarioRouter.GetScenario())
-        {
-            default:
-            case Scenario.Launcher:
-                builder.UseTableCloth3LauncherComponents();
-                break;
+		switch (scenarioRouter.GetScenario())
+		{
+			default:
+			case Scenario.Launcher:
+				builder.UseTableCloth3LauncherComponents();
+				break;
 
-            case Scenario.Spork:
-                builder.UseTableCloth3SporkComponents();
-                break;
+			case Scenario.Spork:
+				builder.UseTableCloth3SporkComponents();
+				break;
 
-            case Scenario.Help:
-                builder.UseTableCloth3HelpComponents();
-                break;
-        }
+			case Scenario.Help:
+				builder.UseTableCloth3HelpComponents();
+				break;
+		}
 
-        builder.Services.AddAvaloniauiDesktopApplication<App>(BuildAvaloniaApp);
+		builder.Services.AddAvaloniauiDesktopApplication<App>(BuildAvaloniaApp);
 
-        var app = builder.Build();
-        app.RunAvaloniauiApplication(args).GetAwaiter().GetResult();
-    }
+		var app = builder.Build();
+		await app.RunAvaloniauiApplication(args);
+	}
 
-    // This method is used by both AppHost Avalonia runtime and the Avalonia Designer.
-    private static AppBuilder BuildAvaloniaApp(AppBuilder? app)
-    {
-        if (app == null)
-            app = AppBuilder.Configure<App>();
+	// This method is used by both AppHost Avalonia runtime and the Avalonia Designer.
+	private static AppBuilder BuildAvaloniaApp(AppBuilder? app)
+	{
+		if (app == null)
+			app = AppBuilder.Configure<App>();
 
-        return app
-            .UsePlatformDetect()
-            .LogToTrace();
-    }
+		return app
+			.UsePlatformDetect()
+			.LogToTrace();
+	}
 
-    // This method is required for use with the Avalonia designer.
-    // The Avalonia designer will look for this method regardless of whether or not it is private.
-    private static AppBuilder BuildAvaloniaApp()
-        => BuildAvaloniaApp(null);
+	// This method is required for use with the Avalonia designer.
+	// The Avalonia designer will look for this method regardless of whether or not it is private.
+	private static AppBuilder BuildAvaloniaApp()
+		=> BuildAvaloniaApp(null);
 }

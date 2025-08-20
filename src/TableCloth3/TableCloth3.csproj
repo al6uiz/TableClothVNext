@@ -23,15 +23,16 @@
 		<ApplicationIcon>App.ico</ApplicationIcon>
 		<EmitCompilerGeneratedFiles>True</EmitCompilerGeneratedFiles>
 		<RuntimeFrameworkVersion>9.0.7</RuntimeFrameworkVersion>
+		<AvaloniaVersion>11.3.2</AvaloniaVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="AsyncAwaitBestPractices" Version="9.0.0" />
-		<PackageReference Include="Avalonia.Desktop" Version="11.3.2" />
-		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.2" />
-		<PackageReference Include="Avalonia.Themes.Simple" Version="11.3.2" />
+		<PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" /> 
+		<PackageReference Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="DotNext.Threading" Version="5.23.0" />
+		<PackageReference Include="FluentAvaloniaUI" Version="2.4.0" />
 		<PackageReference Include="Lemon.Hosting.AvaloniauiDesktop" Version="1.0.0" />
 		<PackageReference Include="MessageBox.Avalonia" Version="3.2.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
@@ -43,23 +44,18 @@
 	<ItemGroup>
 		<AvaloniaResource Include="Assets\Fonts\*.ttf" />
 		<AvaloniaResource Include="Assets\Images\*.png" />
+		<AvaloniaResource Include="Assets\Images\*.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Content Include="App.ico" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Compile Update="App.axaml.cs">
-			<DependentUpon>App.axaml</DependentUpon>
-		</Compile>
+	<ItemGroup> 
 		<Compile Update="Launcher\Languages\LauncherStrings.Designer.cs">
 		  <DesignTime>True</DesignTime>
 		  <AutoGen>True</AutoGen>
 		  <DependentUpon>LauncherStrings.resx</DependentUpon>
-		</Compile>
-		<Compile Update="Launcher\Windows\FolderManageWindow.axaml.cs">
-			<DependentUpon>FolderManageWindow.axaml</DependentUpon>
 		</Compile>
 		<Compile Update="Shared\Languages\SharedStrings.Designer.cs">
 		  <DesignTime>True</DesignTime>

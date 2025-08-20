@@ -1,48 +1,49 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using TableCloth3.Launcher.ViewModels;
+using TableCloth3.Shared.Windows;
 using static TableCloth3.Launcher.ViewModels.DisclaimerWindowViewModel;
 
 namespace TableCloth3.Launcher.Windows;
 
 public partial class DisclaimerWindow :
-    Window,
-    IAcceptButtonMessageRecipient
+	BaseWindow,
+	IAcceptButtonMessageRecipient
 {
-    [ActivatorUtilitiesConstructor]
-    public DisclaimerWindow(
-        DisclaimerWindowViewModel viewModel,
-        IMessenger messenger)
-        : this()
-    {
-        _viewModel = viewModel;
-        _messenger = messenger;
+	[ActivatorUtilitiesConstructor]
+	public DisclaimerWindow(
+		DisclaimerWindowViewModel viewModel,
+		IMessenger messenger)
+		: this()
+	{
+		_viewModel = viewModel;
+		_messenger = messenger;
 
-        _messenger.Register<AcceptButtonMessage>(this);
+		_messenger.Register<AcceptButtonMessage>(this);
 
-        DataContext = _viewModel;
-    }
+		DataContext = _viewModel;
 
-    public DisclaimerWindow()
-        : base()
-    {
-        InitializeComponent();
-    }
+		ShowAsDialog = true;
+	}
 
-    private readonly DisclaimerWindowViewModel _viewModel = default!;
-    private readonly IMessenger _messenger = default!;
+	public DisclaimerWindow()
+		: base()
+	{
+		InitializeComponent();
+	}
 
-    override protected void OnClosed(EventArgs e)
-    {
-        _messenger.UnregisterAll(this);
-        base.OnClosed(e);
-    }
+	private readonly DisclaimerWindowViewModel _viewModel = default!;
+	private readonly IMessenger _messenger = default!;
 
-    void IRecipient<AcceptButtonMessage>.Receive(AcceptButtonMessage message)
-    {
-        Close();
-    }
+	override protected void OnClosed(EventArgs e)
+	{
+		_messenger.UnregisterAll(this);
+		base.OnClosed(e);
+	}
+
+	void IRecipient<AcceptButtonMessage>.Receive(AcceptButtonMessage message)
+	{
+		Close();
+	}
 }

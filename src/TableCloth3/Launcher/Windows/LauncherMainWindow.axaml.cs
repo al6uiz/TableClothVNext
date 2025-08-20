@@ -1,7 +1,6 @@
 using AsyncAwaitBestPractices;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Rendering;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +18,7 @@ using static TableCloth3.Launcher.ViewModels.LauncherMainWindowViewModel;
 namespace TableCloth3.Launcher.Windows;
 
 public partial class LauncherMainWindow :
-    Window,
+    BaseWindow,
     IShowDisclaimerWindowMessageRecipient,
     IAboutButtonMessageRecipient,
     ICloseButtonMessageRecipient,
@@ -42,12 +41,14 @@ public partial class LauncherMainWindow :
 
         DataContext = _viewModel;
 
-        _messenger.Register<ShowDisclaimerWindowMessage>(this);
+		_messenger.Register<ShowDisclaimerWindowMessage>(this);
         _messenger.Register<AboutButtonMessage>(this);
         _messenger.Register<CloseButtonMessage>(this);
         _messenger.Register<ManageFolderButtonMessage>(this);
         _messenger.Register<NotifyErrorMessage>(this);
         _messenger.Register<NotifyWarningsMessage>(this);
+
+		ShowAsDialog = true;
     }
 
     public LauncherMainWindow()
@@ -57,8 +58,11 @@ public partial class LauncherMainWindow :
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
-    {
-        _launcherSettingsManager.LoadSettingsAsync()
+	{
+		if (Design.IsDesignMode)
+			return;
+
+		_launcherSettingsManager.LoadSettingsAsync()
             .ContinueWith(x =>
             {
                 var config = x.Result ?? new LauncherSettingsModel();

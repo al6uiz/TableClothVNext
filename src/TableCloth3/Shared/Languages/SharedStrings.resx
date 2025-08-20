@@ -135,6 +135,9 @@
   <data name="AppLicense" xml:space="preserve">
     <value>This application is released as open source under the Affero GPL v3 license.</value>
   </data>
+  <data name="AppSlogan" xml:space="preserve">
+    <value>Secure • Clean • Always</value>
+  </data>
   <data name="AppTitle" xml:space="preserve">
     <value>TableCloth</value>
   </data>

@@ -132,6 +132,9 @@
   <data name="AppLicense" xml:space="preserve">
     <value>이 소프트웨어는 Affero GPL v3 라이선스를 따르는 오픈 소스 소프트웨어입니다.</value>
   </data>
+  <data name="AppSlogan" xml:space="preserve">
+    <value>언제나 • 안전하고 • 깨끗하게</value>
+  </data>
   <data name="AppTitle" xml:space="preserve">
     <value>식탁보®</value>
   </data>

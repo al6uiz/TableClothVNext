@@ -5,6 +5,8 @@ namespace TableCloth3.Launcher.Services;
 
 public sealed class LauncherSettingsManager
 {
+    private const string SETTINGS_FILENAME = "launcherConfig.json";
+
     public LauncherSettingsManager(AppSettingsManager appSettingsManager)
     {
         _appSettingsManager = appSettingsManager;
@@ -17,7 +19,7 @@ public sealed class LauncherSettingsManager
     {
         return await _appSettingsManager.LoadAsync<LauncherSerializerContext, LauncherSettingsModel>(
             LauncherSerializerContext.Default,
-            "launcherConfig.json",
+            SETTINGS_FILENAME,
             cancellationToken).ConfigureAwait(false);
     }
 
@@ -30,7 +32,7 @@ public sealed class LauncherSettingsManager
         await _appSettingsManager.SaveAsync<LauncherSerializerContext, LauncherSettingsModel>(
             LauncherSerializerContext.Default,
             settings,
-            "launcherConfig.json",
+            SETTINGS_FILENAME,
             cancellationToken).ConfigureAwait(false);
     }
 }

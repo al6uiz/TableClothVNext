@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using System.Diagnostics;
+using TableCloth3.Shared.Windows;
 using TableCloth3.Spork.Languages;
 using TableCloth3.Spork.ViewModels;
 using static TableCloth3.Spork.ViewModels.InstallerProgressWindowViewModel;
@@ -14,7 +15,7 @@ using static TableCloth3.Spork.ViewModels.InstallerStepItemViewModel;
 namespace TableCloth3.Spork.Windows;
 
 public partial class InstallerProgressWindow :
-    Window,
+    BaseWindow,
     ICancelNotificationRecipient,
     IFailureNotificationRecipient,
     IFinishNotificationRecipient,

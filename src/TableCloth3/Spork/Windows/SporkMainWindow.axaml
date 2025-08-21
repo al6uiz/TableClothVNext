@@ -1,368 +1,763 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+<Window	xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:lang="clr-namespace:TableCloth3.Spork.Languages"
 		xmlns:vm="clr-namespace:TableCloth3.Spork.ViewModels"
 		xmlns:ui="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
 		xmlns:controls="clr-namespace:TableCloth3.Shared.Controls"
-        mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="480"
-		Width="640" Height="480" CanResize="True"
-		MinWidth="640" MinHeight="480"
-        x:Class="TableCloth3.Spork.Windows.SporkMainWindow"
+		mc:Ignorable="d"
+		xmlns:ctl="clr-namespace:TableCloth3.Spork.Controls"
+		xmlns:input="clr-namespace:Avalonia.Input;assembly=Avalonia.Base"
+		xmlns:local="clr-namespace:TableCloth3.Spork.Windows"
+		Width="680" Height="500" MinWidth="680" MinHeight="500"
+		x:Class="TableCloth3.Spork.Windows.SporkMainWindow"
 		x:DataType="vm:SporkMainWindowViewModel"
-        Title="{x:Static lang:SporkStrings.SporkMainWindowTitle}" Padding="20"
+		Title="{x:Static lang:SporkStrings.SporkMainWindowTitle}"
 		Icon="avares:/Assets/Images/Spork.png"
 		WindowStartupLocation="CenterScreen">
 	<Design.DataContext>
 		<vm:SporkMainWindowViewModel />
 	</Design.DataContext>
 	<Interaction.Behaviors>
-		<RoutedEventTriggerBehavior RoutedEvent="{x:Static ui:Control.LoadedEvent}">
-			<InvokeCommandAction Command="{Binding LoadedCommand}" />
+		<RoutedEventTriggerBehavior
+			RoutedEvent="{x:Static ui:Control.LoadedEvent}">
+			<InvokeCommandAction
+				Command="{Binding LoadedCommand}" />
 		</RoutedEventTriggerBehavior>
 	</Interaction.Behaviors>
-	<TabControl>
-		<TabItem Header="{x:Static lang:SporkStrings.CatalogHeader}">
-			<Grid>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="90*" />
-					<RowDefinition Height="Auto" />
-				</Grid.RowDefinitions>
-				<Grid Grid.Row="0">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="50*" />
-						<ColumnDefinition Width="50*" />
-					</Grid.ColumnDefinitions>
-					<Label Grid.Column="0" Padding="0 0 0 10" VerticalAlignment="Center" Content="{x:Static lang:SporkStrings.CategoryInstructionLabel}" />
-					<TextBox
-						Grid.Column="1"
-						Watermark="{x:Static lang:SporkStrings.SearchBoxWatermark}"
-						Width="200"
-						Text="{Binding CatalogFilterText, UpdateSourceTrigger=PropertyChanged}"
-						HorizontalAlignment="Right"
-					/>
-				</Grid>
-				<Grid Grid.Row="1" IsVisible="{Binding IsLoadingCompleted}">
-					<StackPanel
-						IsVisible="{Binding HasNoCatalogItems}"
-						HorizontalAlignment="Center"
-						VerticalAlignment="Center"
-						Margin="32"
-						Spacing="16">
+	<DockPanel
+		Background="#C33334">
+		<DockPanel
+			Margin="10"
+			Width="120">
+			<DockPanel.Resources>
+				<ControlTheme
+					x:Key="MenuToggleButtonTheme"
+					TargetType="ToggleButton">
+					<Setter Property="Foreground" Value="#A0FFFFFF" />
+					<Setter Property="Background" Value="Transparent" />
+					<Setter Property="CornerRadius" Value="4" />
+					<Setter Property="VerticalContentAlignment" Value="Center" />
+					<Setter Property="FontSize" Value="16" />
+					<Setter Property="FontWeight" Value="SemiBold" />
+					<Setter Property="MinHeight" Value="36" />
+					<Setter Property="Padding" Value="8,4" />
+					<Setter Property="IsHitTestVisible" Value="{Binding !$self.IsChecked}" />
+					<Setter Property="Template">
+						<ControlTemplate
+							TargetType="ToggleButton">
+							<Border
+								Name="PART_Border"
+								Background="{TemplateBinding Background}"
+								CornerRadius="{TemplateBinding CornerRadius}">
 
-						<Canvas Width="64" Height="64">
-							<Path
-								Stroke="#B0B6BE"
-								StrokeThickness="2"
-								Fill="#F3F4F6"
-								Data="M8,20 L32,8 L56,20 L32,32 Z"/>
-							<Path
-								Stroke="#B0B6BE"
-								StrokeThickness="2"
-								Fill="#E8EAF0"
-								Data="M8,20 L8,44 L32,56 L32,32 Z"/>
-							<Path
-								Stroke="#B0B6BE"
-								StrokeThickness="2"
-								Fill="#E2E4EB"
-								Data="M56,20 L56,44 L32,56 L32,32 Z"/>
-							<Path
-								Stroke="#B0B6BE"
-								StrokeThickness="2"
-								StrokeDashArray="2,3"
-								Data="M20,40 Q32,48 44,40" />
-						</Canvas>
+								<ContentPresenter
+									Name="PART_ContentPresenter"
+									Margin="{TemplateBinding Padding}"
+									HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+									VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+									Content="{TemplateBinding Content}"
+									ContentTemplate="{TemplateBinding ContentTemplate}"
+									FontWeight="{TemplateBinding FontWeight}"
+									Foreground="{TemplateBinding Foreground}" />
+							</Border>
+						</ControlTemplate>
+					</Setter>
+					<Style
+						Selector="^:pointerover">
+						<Setter Property="Foreground" Value="White" />
+					</Style>
+					<Style
+						Selector="^:checked">
+						<Setter Property="Background" Value="#da3836" />
+						<Setter Property="Foreground" Value="White" />
+						<Setter Property="FontWeight" Value="Bold" />
+					</Style>
+				</ControlTheme>
+			</DockPanel.Resources>
+
+			<TextBlock
+				Margin="0,0,0,10"
+				DockPanel.Dock="Top"
+				FontSize="20"
+				FontWeight="Bold"
+				Foreground="White"
+				Text="{Binding $parent[Window].Title}" />
+
+			<StackPanel
+				DockPanel.Dock="Bottom">
+				<Border
+					Height="2"
+					CornerRadius="1"
+					Margin="0,4"
+					BorderThickness="0,0,0,1"
+					Background="{DynamicResource ControlStrokeColorSecondary}"
+					BorderBrush="{DynamicResource LayerOnAcrylicFillColorDefault}" />
+				<ToggleButton
+					Command="{Binding SetMenuCommand}"
+					CommandParameter="Addon"
+					IsChecked="{Binding MenuIndex, Converter={local:Int32EqualsConverter}, ConverterParameter=1}"
+					Theme="{StaticResource MenuToggleButtonTheme}">
+					<StackPanel
+						Orientation="Horizontal">
+						<Path
+							Width="16"
+							Height="16"
+							Fill="{Binding $parent[ToggleButton].Foreground}"
+							Stretch="Fill"
+							Data="M352-120H200q-33 0-56.5-23.5T120-200v-152q48 0 84-30.5t36-77.5q0-47-36-77.5T120-568v-152q0-33 23.5-56.5T200-800h160q0-42 29-71t71-29q42 0 71 29t29 71h160q33 0 56.5 23.5T800-720v160q42 0 71 29t29 71q0 42-29 71t-71 29v160q0 33-23.5 56.5T720-120H568q0-50-31.5-85T460-240q-45 0-76.5 35T352-120Zm-152-80h85q24-66 77-93t98-27q45 0 98 27t77 93h85v-240h80q8 0 14-6t6-14q0-8-6-14t-14-6h-80v-240H480v-80q0-8-6-14t-14-6q-8 0-14 6t-6 14v80H200v88q54 20 87 67t33 105q0 57-33 104t-87 68v88Zm260-260Z" />
 
 						<TextBlock
-							Text="{x:Static lang:SporkStrings.NoResultsFound}"
-							FontWeight="Bold"
-							FontSize="18"
-							HorizontalAlignment="Center"
-							Foreground="#3A3A4A"/>
+							Margin="8,0,0,0"
+							Text="{x:Static lang:SporkStrings.AddonsHeader}" />
 					</StackPanel>
-					<Grid IsVisible="{Binding HasCatalogItems}">
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="120" />
-							<ColumnDefinition Width="80*" />
-						</Grid.ColumnDefinitions>
-						<ListBox Grid.Column="0" Background="Transparent"
-								 IsVisible="{Binding HasCatalogItems}"
-								 ItemsSource="{Binding CatalogCategoryItems}"
-								 SelectedValue="{Binding Path=SelectedCatalogCategory}"
-								 DisplayMemberBinding="{Binding CategoryDisplayName}" />
-						<ScrollViewer Grid.Column="1" IsVisible="{Binding HasCatalogItems}" Padding="10 0 0 0">
-							<ItemsControl ItemsSource="{Binding FilteredCatalogItems}" IsVisible="{x:True}">
-								<ItemsControl.ItemTemplate>
-									<DataTemplate>
-										<Border Margin="0,8"
-												CornerRadius="12"
-												BorderBrush="#E0E0E0"
-												BorderThickness="1"
-												Padding="18,12">
-											<Grid ColumnDefinitions="auto,70*,auto" RowDefinitions="auto,auto">
-												<Image Width="32" Height="32" Margin="0,0,16,0"
-													   Grid.RowSpan="2" Source="{Binding ServiceIcon}"
-													   VerticalAlignment="Center"/>
-
-												<StackPanel Orientation="Horizontal" Spacing="8" Grid.Column="1">
-													<TextBlock Text="{Binding DisplayName}" FontWeight="Bold" FontSize="18"/>
-													<Border Background="#FFD54F" CornerRadius="8" Padding="3,0" VerticalAlignment="Center" Margin="0,0,0,2">
-														<TextBlock Text="{Binding CategoryDisplayName}" FontSize="12" Padding="3" Foreground="#665600"/>
-													</Border>
-												</StackPanel>
-
-												<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TargetUrl}" FontSize="13" Foreground="#757575" Margin="0,3,0,0"/>
-
-												<StackPanel Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
-															VerticalAlignment="Center" HorizontalAlignment="Right" Spacing="5">
-													<Button Content="{x:Static lang:SporkStrings.LaunchButton}" Command="{Binding LaunchSiteCommand}" CommandParameter="{Binding ServiceId}" MinWidth="60" />
-												</StackPanel>
-											</Grid>
-										</Border>
-									</DataTemplate>
-								</ItemsControl.ItemTemplate>
-							</ItemsControl>
-						</ScrollViewer>
-					</Grid>
-				</Grid>
-				<Grid Grid.Row="1" IsVisible="{Binding IsLoading}">
+				</ToggleButton>
+				<Border
+					Height="2"
+					CornerRadius="1"
+					Margin="0,4"
+					BorderThickness="0,0,0,1"
+					Background="{DynamicResource ControlStrokeColorSecondary}"
+					BorderBrush="{DynamicResource LayerOnAcrylicFillColorDefault}" />
+				<ToggleButton
+					Command="{Binding SetMenuCommand}"
+					CommandParameter="About"
+					IsChecked="{Binding MenuIndex, Converter={local:Int32EqualsConverter}, ConverterParameter=3}"
+					Theme="{StaticResource MenuToggleButtonTheme}">
 					<StackPanel
-						HorizontalAlignment="Center"
-						VerticalAlignment="Center"
-						Margin="32"
-						Spacing="16">
-
-						<Canvas Width="64" Height="64">
-							<Path
-								Stroke="#B0B6BE"
-								StrokeThickness="2"
-								Fill="#F3F4F6"
-								Data="M16,10 L48,10 Q52,10 52,14 L52,18 Q52,22 48,24 Q32,32 48,40 Q52,42 52,46 L52,50 Q52,54 48,54 L16,54 Q12,54 12,50 L12,46 Q12,42 16,40 Q32,32 16,24 Q12,22 12,18 L12,14 Q12,10 16,10 Z"/>
-							<Path
-								Fill="#E2E4EB"
-								Stroke="Transparent"
-								Data="M20,14 Q32,18 44,14 Q44,18 32,24 Q20,18 20,14 Z"/>
-							<Ellipse
-								Fill="#E8EAF0"
-								Stroke="Transparent"
-								Width="8"
-								Height="4"
-								Canvas.Left="28"
-								Canvas.Top="48"/>
-							<Path
-								Stroke="#8BA4E2"
-								StrokeThickness="2"
-								StrokeDashArray="2,2"
-								Data="M32,24 L32,48"/>
-							<Rectangle
-								Fill="#B0B6BE"
-								Width="32"
-								Height="4"
-								RadiusX="2"
-								RadiusY="2"
-								Canvas.Left="16"
-								Canvas.Top="6"/>
-							<Rectangle
-								Fill="#B0B6BE"
-								Width="32"
-								Height="4"
-								RadiusX="2"
-								RadiusY="2"
-								Canvas.Left="16"
-								Canvas.Top="54"/>
-						</Canvas>
-						<TextBlock
-							Text="{x:Static lang:SporkStrings.LoadingMessage}"
-							FontWeight="Bold"
-							FontSize="18"
-							HorizontalAlignment="Center"
-							Foreground="#3A3A4A"/>
-					</StackPanel>
-				</Grid>
-				<Grid Grid.Row="2">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="50*" />
-						<ColumnDefinition Width="50*" />
-					</Grid.ColumnDefinitions>
-					<StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0 20 0 0" Height="30">
-						<Button Content="{x:Static lang:SporkStrings.RefreshButton}" Command="{Binding RefreshCommand}" />
-					</StackPanel>
-					<StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 20 0 0" Height="30">
-						<Button Content="{x:Static lang:SporkStrings.CloseButton}" Command="{Binding CloseButtonCommand}" />
-					</StackPanel>
-				</Grid>
-			</Grid>
-		</TabItem>
-		<TabItem Header="{x:Static lang:SporkStrings.AddonsHeader}">
-			<Grid>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="90*" />
-					<RowDefinition Height="Auto" />
-				</Grid.RowDefinitions>
-				<Grid Grid.Row="0">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="50*" />
-						<ColumnDefinition Width="50*" />
-					</Grid.ColumnDefinitions>
-					<Label Grid.Column="0" Padding="0 0 0 10" VerticalAlignment="Center" Content="{x:Static lang:SporkStrings.AddonInstructionLabel}" />
-					<TextBox
-						Grid.Column="1"
-						Watermark="{x:Static lang:SporkStrings.SearchBoxWatermark}"
-						Width="200"
-						Text="{Binding AddonFilterText, UpdateSourceTrigger=PropertyChanged}"
-						HorizontalAlignment="Right"
-					/>
-				</Grid>
-				<Grid Grid.Row="1" IsVisible="{Binding IsLoadingCompleted}">
-					<StackPanel
-						IsVisible="{Binding HasNoAddonItems}"
-						HorizontalAlignment="Center"
-						VerticalAlignment="Center"
-						Margin="32"
-						Spacing="16">
-
-						<Canvas Width="64" Height="64">
-							<Path
-								Stroke="#B0B6BE"
-								StrokeThickness="2"
-								Fill="#F3F4F6"
-								Data="M8,20 L32,8 L56,20 L32,32 Z"/>
-							<Path
-								Stroke="#B0B6BE"
-								StrokeThickness="2"
-								Fill="#E8EAF0"
-								Data="M8,20 L8,44 L32,56 L32,32 Z"/>
-							<Path
-								Stroke="#B0B6BE"
-								StrokeThickness="2"
-								Fill="#E2E4EB"
-								Data="M56,20 L56,44 L32,56 L32,32 Z"/>
-							<Path
-								Stroke="#B0B6BE"
-								StrokeThickness="2"
-								StrokeDashArray="2,3"
-								Data="M20,40 Q32,48 44,40" />
-						</Canvas>
+						Orientation="Horizontal">
+						<Path
+							Width="16"
+							Height="16"
+							Fill="{Binding $parent[ToggleButton].Foreground}"
+							Stretch="Fill"
+							Data="M480-280q17 0 28.5-11.5T520-320v-160q0-17-11.5-28.5T480-520q-17 0-28.5 11.5T440-480v160q0 17 11.5 28.5T480-280Zm0-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
 
 						<TextBlock
-							Text="{x:Static lang:SporkStrings.NoResultsFound}"
-							FontWeight="Bold"
-							FontSize="18"
-							HorizontalAlignment="Center"
-							Foreground="#3A3A4A"/>
+							Margin="8,0,0,0"
+							Text="{x:Static lang:SporkStrings.AboutHeader}" />
 					</StackPanel>
-					<Grid IsVisible="{Binding HasAddonItems}">
-						<ScrollViewer IsVisible="{Binding HasAddonItems}" Padding="10 0 0 0">
-							<ItemsControl ItemsSource="{Binding FilteredAddonItems}" IsVisible="{x:True}">
-								<ItemsControl.ItemTemplate>
-									<DataTemplate>
-										<Border Margin="0,8"
-												CornerRadius="12"
-												BorderBrush="#E0E0E0"
-												BorderThickness="1"
-												Padding="18,12">
-											<Grid ColumnDefinitions="auto,70*,auto" RowDefinitions="auto,auto">
-												<Image Width="32" Height="32" Margin="0,0,16,0"
-													   Grid.RowSpan="2" Source="{Binding AddonIcon}"
-													   VerticalAlignment="Center"/>
+				</ToggleButton>
+			</StackPanel>
 
-												<StackPanel Orientation="Horizontal" Spacing="8" Grid.Column="1">
-													<TextBlock Text="{Binding DisplayName}" FontWeight="Bold" FontSize="18"/>
-												</StackPanel>
+			<ToggleButton
+				DockPanel.Dock="Top"
+				Background="Transparent"
+				Command="{Binding SetMenuCommand}"
+				CommandParameter="Catalog"
+				IsChecked="{Binding MenuIndex, Converter={local:Int32EqualsConverter}, ConverterParameter=0}"
+				Theme="{StaticResource MenuToggleButtonTheme}">
+				<StackPanel
+					Orientation="Horizontal">
+					<Path
+						Width="16"
+						Height="16"
+						Fill="{Binding $parent[ToggleButton].Foreground}"
+						Stretch="Fill"
+						Data="M260-320q47 0 91.5 10.5T440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6Zm260 42q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-396q-33-14-68.5-21t-71.5-7q-47 0-93 12t-87 36v394Zm-40 97q-14 0-26.5-3.5T430-194q-39-23-82-34.5T260-240q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q58 0 113.5 15T480-740q51-30 106.5-45T700-800q52 0 102 12t96 36q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-45 0-88 11.5T530-194q-11 6-23.5 9.5T480-181ZM280-494Zm280-115q0-9 6.5-18.5T581-640q29-10 58-15t61-5q20 0 39.5 2.5T778-651q9 2 15.5 10t6.5 18q0 17-11 25t-28 4q-14-3-29.5-4.5T700-600q-26 0-51 5t-48 13q-18 7-29.5-1T560-609Zm0 220q0-9 6.5-18.5T581-420q29-10 58-15t61-5q20 0 39.5 2.5T778-431q9 2 15.5 10t6.5 18q0 17-11 25t-28 4q-14-3-29.5-4.5T700-380q-26 0-51 4.5T601-363q-18 7-29.5-.5T560-389Zm0-110q0-9 6.5-18.5T581-530q29-10 58-15t61-5q20 0 39.5 2.5T778-541q9 2 15.5 10t6.5 18q0 17-11 25t-28 4q-14-3-29.5-4.5T700-490q-26 0-51 5t-48 13q-18 7-29.5-1T560-499Z" />
 
-												<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TargetUrl}" FontSize="13" Foreground="#757575" Margin="0,3,0,0"/>
+					<TextBlock
+						Margin="8,0,0,0"
+						Text="{x:Static lang:SporkStrings.CatalogHeader}" />
+				</StackPanel>
+			</ToggleButton>
 
-												<StackPanel Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
-															VerticalAlignment="Center" HorizontalAlignment="Right" Spacing="5">
-													<Button Content="{x:Static lang:SporkStrings.LaunchButton}" Command="{Binding LaunchAddonCommand}" CommandParameter="{Binding AddonId}" MinWidth="60" />
-												</StackPanel>
-											</Grid>
-										</Border>
-									</DataTemplate>
-								</ItemsControl.ItemTemplate>
-							</ItemsControl>
-						</ScrollViewer>
-					</Grid>
-				</Grid>
-				<Grid Grid.Row="1" IsVisible="{Binding IsLoading}">
-					<StackPanel
-						HorizontalAlignment="Center"
-						VerticalAlignment="Center"
-						Margin="32"
-						Spacing="16">
+			<ListBox
+				Margin="10,0,10,0"
+				Background="Transparent"
+				DisplayMemberBinding="{Binding CategoryDisplayName}"
+				IsVisible="{Binding HasCatalogItems}"
+				ItemsSource="{Binding CatalogCategoryItems}"
+				SelectedValue="{Binding Path=SelectedCatalogCategory}">
+				<Interaction.Behaviors>
+					<RoutedEventTriggerBehavior
+						RoutedEvent="{x:Static input:InputElement.GotFocusEvent}">
+						<InvokeCommandAction
+							Command="{Binding SetMenuCommand}"
+							CommandParameter="Catalog" />
+					</RoutedEventTriggerBehavior>
+				</Interaction.Behaviors>
+				<ListBox.ItemContainerTheme>
+					<ControlTheme
+						TargetType="ListBoxItem">
+						<Setter Property="Foreground" Value="#A0FFFFFF" />
+						<Setter Property="Background" Value="Transparent" />
+						<Setter Property="CornerRadius" Value="4" />
+						<Setter Property="VerticalContentAlignment" Value="Center" />
+						<Setter Property="MinHeight" Value="36" />
+						<Setter Property="Padding" Value="8,4" />
+						<Setter Property="Template">
+							<ControlTemplate
+								TargetType="ListBoxItem">
+								<Border
+									Name="PART_Border"
+									Background="{TemplateBinding Background}"
+									CornerRadius="{TemplateBinding CornerRadius}">
 
-						<Canvas Width="64" Height="64">
-							<Path
-								Stroke="#B0B6BE"
-								StrokeThickness="2"
-								Fill="#F3F4F6"
-								Data="M16,10 L48,10 Q52,10 52,14 L52,18 Q52,22 48,24 Q32,32 48,40 Q52,42 52,46 L52,50 Q52,54 48,54 L16,54 Q12,54 12,50 L12,46 Q12,42 16,40 Q32,32 16,24 Q12,22 12,18 L12,14 Q12,10 16,10 Z"/>
-							<Path
-								Fill="#E2E4EB"
-								Stroke="Transparent"
-								Data="M20,14 Q32,18 44,14 Q44,18 32,24 Q20,18 20,14 Z"/>
-							<Ellipse
-								Fill="#E8EAF0"
-								Stroke="Transparent"
-								Width="8"
-								Height="4"
-								Canvas.Left="28"
-								Canvas.Top="48"/>
-							<Path
-								Stroke="#8BA4E2"
-								StrokeThickness="2"
-								StrokeDashArray="2,2"
-								Data="M32,24 L32,48"/>
-							<Rectangle
-								Fill="#B0B6BE"
-								Width="32"
-								Height="4"
-								RadiusX="2"
-								RadiusY="2"
-								Canvas.Left="16"
-								Canvas.Top="6"/>
-							<Rectangle
-								Fill="#B0B6BE"
-								Width="32"
-								Height="4"
-								RadiusX="2"
-								RadiusY="2"
-								Canvas.Left="16"
-								Canvas.Top="54"/>
-						</Canvas>
-						<TextBlock
-							Text="{x:Static lang:SporkStrings.LoadingMessage}"
-							FontWeight="Bold"
-							FontSize="18"
-							HorizontalAlignment="Center"
-							Foreground="#3A3A4A"/>
-					</StackPanel>
-				</Grid>
-				<Grid Grid.Row="2">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="50*" />
-						<ColumnDefinition Width="50*" />
-					</Grid.ColumnDefinitions>
-					<StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0 20 0 0" Height="30">
-						<Button Content="{x:Static lang:SporkStrings.RefreshButton}" Command="{Binding RefreshCommand}" />
-					</StackPanel>
-					<StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 20 0 0" Height="30">
-						<Button Content="{x:Static lang:SporkStrings.CloseButton}" Command="{Binding CloseButtonCommand}" />
-					</StackPanel>
-				</Grid>
-			</Grid>
-		</TabItem>
-		<TabItem Header="{x:Static lang:SporkStrings.ChatHeader}" IsVisible="False">
-		</TabItem>
-		<TabItem Header="{x:Static lang:SporkStrings.AboutHeader}">
-			<controls:AboutControl
-				VersionInfo="{Binding VersionInfo}"
-				VisitGitHubCommand="{Binding VisitGitHubButtonCommand}"
-				VisitWebSiteCommand="{Binding VisitWebSiteButtonCommand}"
-				CheckUpdateCommand="{Binding CheckUpdateButtonCommand}" />
-		</TabItem>
-	</TabControl>
+									<ContentPresenter
+										Name="PART_ContentPresenter"
+										Margin="{TemplateBinding Padding}"
+										HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+										VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+										Content="{TemplateBinding Content}"
+										ContentTemplate="{TemplateBinding ContentTemplate}"
+										FontWeight="{TemplateBinding FontWeight}"
+										Foreground="{TemplateBinding Foreground}" />
+								</Border>
+							</ControlTemplate>
+						</Setter>
+						<Style
+							Selector="^:pointerover">
+							<Setter Property="Foreground" Value="White" />
+						</Style>
+						<Style
+							Selector="^:selected">
+							<Setter Property="Background" Value="#da3836" />
+							<Setter Property="Foreground" Value="White" />
+							<Setter Property="FontWeight" Value="SemiBold" />
+						</Style>
+					</ControlTheme>
+				</ListBox.ItemContainerTheme>
+			</ListBox>
+		</DockPanel>
+
+		<Border
+			Background="White"
+			CornerRadius="8,0,0,8">
+			<DockPanel>
+				<TabControl
+					SelectedIndex="{Binding MenuIndex}">
+					<TabControl.Template>
+						<ControlTemplate
+							TargetType="TabControl">
+							<Border
+								Margin="{TemplateBinding Margin}"
+								HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+								VerticalAlignment="{TemplateBinding VerticalAlignment}"
+								Background="{TemplateBinding Background}"
+								BorderBrush="{TemplateBinding BorderBrush}"
+								BorderThickness="{TemplateBinding BorderThickness}">
+								<DockPanel>
+									<ItemsPresenter
+										Name="PART_ItemsPresenter"
+										DockPanel.Dock="{TemplateBinding TabStripPlacement}"
+										IsVisible="False"
+										ItemsPanel="{TemplateBinding ItemsPanel}" />
+									<ContentPresenter
+										Name="PART_SelectedContentHost"
+										Margin="{TemplateBinding Padding}"
+										HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+										VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+										Content="{TemplateBinding SelectedContent}"
+										ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+								</DockPanel>
+							</Border>
+						</ControlTemplate>
+					</TabControl.Template>
+					<TabItem
+						Header="{x:Static lang:SporkStrings.CatalogHeader}">
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="Auto" />
+								<RowDefinition
+									Height="Auto" />
+								<RowDefinition
+									Height="*" />
+							</Grid.RowDefinitions>
+							<TextBox
+								Width="240"
+								Margin="0,4"
+								HorizontalAlignment="Center"
+								Text="{Binding CatalogFilterText, UpdateSourceTrigger=PropertyChanged}"
+								Watermark="{x:Static lang:SporkStrings.SearchBoxWatermark}" />
+
+							<Grid
+								Grid.Row="1">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition
+										Width="*" />
+									<ColumnDefinition
+										Width="Auto" />
+								</Grid.ColumnDefinitions>
+								<Label
+									Grid.Column="0"
+									VerticalAlignment="Center"
+									Content="{x:Static lang:SporkStrings.CategoryInstructionLabel}" />
+								<Button
+									Grid.Column="1"
+									HorizontalAlignment="Right"
+									Command="{Binding RefreshCommand}"
+									Content="{x:Static lang:SporkStrings.RefreshButton}" />
+							</Grid>
+
+							<Grid
+								Grid.Row="2"
+								Margin="0,10,0,10"
+								IsVisible="{Binding IsLoadingCompleted}">
+								<StackPanel
+									Margin="32"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Center"
+									IsVisible="{Binding HasNoCatalogItems}"
+									Spacing="16">
+
+									<Canvas
+										Width="64"
+										Height="64">
+										<Path
+											Data="M8,20 L32,8 L56,20 L32,32 Z"
+											Fill="#F3F4F6"
+											Stroke="#B0B6BE"
+											StrokeThickness="2" />
+										<Path
+											Data="M8,20 L8,44 L32,56 L32,32 Z"
+											Fill="#E8EAF0"
+											Stroke="#B0B6BE"
+											StrokeThickness="2" />
+										<Path
+											Data="M56,20 L56,44 L32,56 L32,32 Z"
+											Fill="#E2E4EB"
+											Stroke="#B0B6BE"
+											StrokeThickness="2" />
+										<Path
+											Data="M20,40 Q32,48 44,40"
+											Stroke="#B0B6BE"
+											StrokeDashArray="2,3"
+											StrokeThickness="2" />
+									</Canvas>
+
+									<TextBlock
+										HorizontalAlignment="Center"
+										FontSize="18"
+										FontWeight="Bold"
+										Foreground="#3A3A4A"
+										Text="{x:Static lang:SporkStrings.NoResultsFound}" />
+								</StackPanel>
+								<Border
+									Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+									BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+									BorderThickness="1"
+									CornerRadius="{DynamicResource ControlCornerRadius}"
+									IsVisible="{Binding HasCatalogItems}">
+									<ListBox
+										ItemsSource="{Binding FilteredCatalogItems}">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate>
+												<Border
+													Margin="0,8"
+													Padding="0,6,12,6">
+													<Grid
+														ColumnDefinitions="Auto,*,Auto"
+														RowDefinitions="auto,auto">
+														<Image
+															Grid.RowSpan="2"
+															Width="32"
+															Height="32"
+															Margin="0,0,16,0"
+															VerticalAlignment="Center"
+															RenderOptions.BitmapInterpolationMode="HighQuality"
+															Source="{Binding ServiceIcon}" />
+
+														<StackPanel
+															Grid.Column="1"
+															Height="23"
+															Orientation="Horizontal"
+															Spacing="8">
+															<TextBlock
+																FontSize="18"
+																FontWeight="SemiBold"
+																Text="{Binding DisplayName}" />
+															<Border
+																Padding="3,0"
+																VerticalAlignment="Center"
+																Background="#FFD54F"
+																CornerRadius="8">
+																<TextBlock
+																	Padding="3"
+																	FontSize="12"
+																	Foreground="#665600"
+																	Text="{Binding CategoryDisplayName}" />
+															</Border>
+														</StackPanel>
+
+														<TextBlock
+															Grid.Row="1"
+															Grid.Column="1"
+															Margin="0,3,0,0"
+															FontSize="13"
+															Foreground="#757575"
+															Text="{Binding TargetUrl}" />
+
+														<StackPanel
+															Grid.Row="0"
+															Grid.RowSpan="2"
+															Grid.Column="2"
+															HorizontalAlignment="Right"
+															VerticalAlignment="Center"
+															Spacing="5">
+															<Button
+																MinWidth="60"
+																Command="{Binding LaunchSiteCommand}"
+																CommandParameter="{Binding ServiceId}"
+																Content="{x:Static lang:SporkStrings.LaunchButton}" />
+														</StackPanel>
+													</Grid>
+												</Border>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ListBox>
+								</Border>
+							</Grid>
+
+							<Grid
+								Grid.Row="2"
+								IsVisible="{Binding IsLoading}">
+								<StackPanel
+									Margin="32"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Center"
+									Spacing="16">
+
+									<Canvas
+										Width="64"
+										Height="64">
+										<Path
+											Data="M16,10 L48,10 Q52,10 52,14 L52,18 Q52,22 48,24 Q32,32 48,40 Q52,42 52,46 L52,50 Q52,54 48,54 L16,54 Q12,54 12,50 L12,46 Q12,42 16,40 Q32,32 16,24 Q12,22 12,18 L12,14 Q12,10 16,10 Z"
+											Fill="#F3F4F6"
+											Stroke="#B0B6BE"
+											StrokeThickness="2" />
+										<Path
+											Data="M20,14 Q32,18 44,14 Q44,18 32,24 Q20,18 20,14 Z"
+											Fill="#E2E4EB"
+											Stroke="Transparent" />
+										<Ellipse
+											Canvas.Left="28"
+											Canvas.Top="48"
+											Width="8"
+											Height="4"
+											Fill="#E8EAF0"
+											Stroke="Transparent" />
+										<Path
+											Data="M32,24 L32,48"
+											Stroke="#8BA4E2"
+											StrokeDashArray="2,2"
+											StrokeThickness="2" />
+										<Rectangle
+											Canvas.Left="16"
+											Canvas.Top="6"
+											Width="32"
+											Height="4"
+											Fill="#B0B6BE"
+											RadiusX="2"
+											RadiusY="2" />
+										<Rectangle
+											Canvas.Left="16"
+											Canvas.Top="54"
+											Width="32"
+											Height="4"
+											Fill="#B0B6BE"
+											RadiusX="2"
+											RadiusY="2" />
+									</Canvas>
+									<TextBlock
+										HorizontalAlignment="Center"
+										FontSize="18"
+										FontWeight="Bold"
+										Foreground="#3A3A4A"
+										Text="{x:Static lang:SporkStrings.LoadingMessage}" />
+								</StackPanel>
+							</Grid>
+						</Grid>
+					</TabItem>
+					<TabItem
+						Header="{x:Static lang:SporkStrings.AddonsHeader}">
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition
+									Height="Auto" />
+								<RowDefinition
+									Height="Auto" />
+								<RowDefinition
+									Height="*" />
+							</Grid.RowDefinitions>
+							<TextBox
+								Width="240"
+								Margin="0,4"
+								HorizontalAlignment="Center"
+								Watermark="{x:Static lang:SporkStrings.SearchBoxWatermark}"
+								Text="{Binding AddonFilterText, UpdateSourceTrigger=PropertyChanged}" />
+							<Grid
+								Grid.Row="1">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition
+										Width="*" />
+									<ColumnDefinition
+										Width="Auto" />
+								</Grid.ColumnDefinitions>
+								<Label
+									Grid.Column="0"
+									VerticalAlignment="Center"
+									Content="{x:Static lang:SporkStrings.AddonInstructionLabel}" />
+
+								<Button
+									Grid.Column="1"
+									HorizontalAlignment="Right"
+									Command="{Binding RefreshCommand}"
+									Content="{x:Static lang:SporkStrings.RefreshButton}" />
+							</Grid>
+							<Grid
+								Grid.Row="2"
+								Margin="0,10,0,10"
+								IsVisible="{Binding IsLoadingCompleted}">
+								<StackPanel
+									Margin="32"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Center"
+									IsVisible="{Binding HasNoAddonItems}"
+									Spacing="16">
+
+									<Canvas
+										Width="64"
+										Height="64">
+										<Path
+											Data="M8,20 L32,8 L56,20 L32,32 Z"
+											Fill="#F3F4F6"
+											Stroke="#B0B6BE"
+											StrokeThickness="2" />
+										<Path
+											Data="M8,20 L8,44 L32,56 L32,32 Z"
+											Fill="#E8EAF0"
+											Stroke="#B0B6BE"
+											StrokeThickness="2" />
+										<Path
+											Data="M56,20 L56,44 L32,56 L32,32 Z"
+											Fill="#E2E4EB"
+											Stroke="#B0B6BE"
+											StrokeThickness="2" />
+										<Path
+											Data="M20,40 Q32,48 44,40"
+											Stroke="#B0B6BE"
+											StrokeDashArray="2,3"
+											StrokeThickness="2" />
+									</Canvas>
+
+									<TextBlock
+										HorizontalAlignment="Center"
+										FontSize="18"
+										FontWeight="Bold"
+										Foreground="#3A3A4A"
+										Text="{x:Static lang:SporkStrings.NoResultsFound}" />
+								</StackPanel>
+
+								<Border
+									Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+									BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+									BorderThickness="1"
+									CornerRadius="{DynamicResource ControlCornerRadius}"
+									IsVisible="{Binding HasAddonItems}">
+									<ListBox
+										ItemsSource="{Binding FilteredAddonItems}">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate>
+												<Border
+													Margin="0,8"
+													Padding="0,6,12,6">
+													<Grid
+														ColumnDefinitions="Auto,*,Auto"
+														RowDefinitions="auto,auto">
+														<Image
+															Grid.RowSpan="2"
+															Width="32"
+															Height="32"
+															Margin="0,0,16,0"
+															VerticalAlignment="Center"
+															RenderOptions.BitmapInterpolationMode="HighQuality"
+															Source="{Binding AddonIcon}" />
+
+														<StackPanel
+															Grid.Column="1"
+															Height="23"
+															Orientation="Horizontal"
+															Spacing="8">
+															<TextBlock
+																FontSize="18"
+																FontWeight="SemiBold"
+																Text="{Binding DisplayName}" />
+															<Border
+																Padding="3,0"
+																VerticalAlignment="Center"
+																CornerRadius="8">
+																<TextBlock
+																	Padding="3"
+																	FontSize="12"
+																	Foreground="#665600"
+																	Text=" " />
+															</Border>
+														</StackPanel>
+
+														<TextBlock
+															Grid.Row="1"
+															Grid.Column="1"
+															Margin="0,3,0,0"
+															FontSize="13"
+															Foreground="#757575"
+															Text="{Binding TargetUrl}" />
+
+														<StackPanel
+															Grid.Row="0"
+															Grid.RowSpan="2"
+															Grid.Column="2"
+															HorizontalAlignment="Right"
+															VerticalAlignment="Center"
+															Spacing="5">
+															<Button
+																MinWidth="60"
+																Command="{Binding LaunchAddonCommand}"
+																CommandParameter="{Binding AddonId}"
+																Content="{x:Static lang:SporkStrings.LaunchButton}" />
+														</StackPanel>
+													</Grid>
+												</Border>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ListBox>
+								</Border>
+								<Grid
+									Grid.Row="1"
+									IsVisible="{Binding IsLoading}">
+									<StackPanel
+										Margin="32"
+										HorizontalAlignment="Center"
+										VerticalAlignment="Center"
+										Spacing="16">
+
+										<Canvas
+											Width="64"
+											Height="64">
+											<Path
+												Data="M16,10 L48,10 Q52,10 52,14 L52,18 Q52,22 48,24 Q32,32 48,40 Q52,42 52,46 L52,50 Q52,54 48,54 L16,54 Q12,54 12,50 L12,46 Q12,42 16,40 Q32,32 16,24 Q12,22 12,18 L12,14 Q12,10 16,10 Z"
+												Fill="#F3F4F6"
+												Stroke="#B0B6BE"
+												StrokeThickness="2" />
+											<Path
+												Data="M20,14 Q32,18 44,14 Q44,18 32,24 Q20,18 20,14 Z"
+												Fill="#E2E4EB"
+												Stroke="Transparent" />
+											<Ellipse
+												Canvas.Left="28"
+												Canvas.Top="48"
+												Width="8"
+												Height="4"
+												Fill="#E8EAF0"
+												Stroke="Transparent" />
+											<Path
+												Data="M32,24 L32,48"
+												Stroke="#8BA4E2"
+												StrokeDashArray="2,2"
+												StrokeThickness="2" />
+											<Rectangle
+												Canvas.Left="16"
+												Canvas.Top="6"
+												Width="32"
+												Height="4"
+												Fill="#B0B6BE"
+												RadiusX="2"
+												RadiusY="2" />
+											<Rectangle
+												Canvas.Left="16"
+												Canvas.Top="54"
+												Width="32"
+												Height="4"
+												Fill="#B0B6BE"
+												RadiusX="2"
+												RadiusY="2" />
+										</Canvas>
+										<TextBlock
+											HorizontalAlignment="Center"
+											FontSize="18"
+											FontWeight="Bold"
+											Foreground="#3A3A4A"
+											Text="{x:Static lang:SporkStrings.LoadingMessage}" />
+									</StackPanel>
+								</Grid>
+							</Grid>
+
+							<Grid
+								Grid.Row="2"
+								IsVisible="{Binding IsLoading}">
+								<StackPanel
+									Margin="32"
+									HorizontalAlignment="Center"
+									VerticalAlignment="Center"
+									Spacing="16">
+
+									<Canvas
+										Width="64"
+										Height="64">
+										<Path
+											Data="M16,10 L48,10 Q52,10 52,14 L52,18 Q52,22 48,24 Q32,32 48,40 Q52,42 52,46 L52,50 Q52,54 48,54 L16,54 Q12,54 12,50 L12,46 Q12,42 16,40 Q32,32 16,24 Q12,22 12,18 L12,14 Q12,10 16,10 Z"
+											Fill="#F3F4F6"
+											Stroke="#B0B6BE"
+											StrokeThickness="2" />
+										<Path
+											Data="M20,14 Q32,18 44,14 Q44,18 32,24 Q20,18 20,14 Z"
+											Fill="#E2E4EB"
+											Stroke="Transparent" />
+										<Ellipse
+											Canvas.Left="28"
+											Canvas.Top="48"
+											Width="8"
+											Height="4"
+											Fill="#E8EAF0"
+											Stroke="Transparent" />
+										<Path
+											Data="M32,24 L32,48"
+											Stroke="#8BA4E2"
+											StrokeDashArray="2,2"
+											StrokeThickness="2" />
+										<Rectangle
+											Canvas.Left="16"
+											Canvas.Top="6"
+											Width="32"
+											Height="4"
+											Fill="#B0B6BE"
+											RadiusX="2"
+											RadiusY="2" />
+										<Rectangle
+											Canvas.Left="16"
+											Canvas.Top="54"
+											Width="32"
+											Height="4"
+											Fill="#B0B6BE"
+											RadiusX="2"
+											RadiusY="2" />
+									</Canvas>
+									<TextBlock
+										HorizontalAlignment="Center"
+										FontSize="18"
+										FontWeight="Bold"
+										Foreground="#3A3A4A"
+										Text="{x:Static lang:SporkStrings.LoadingMessage}" />
+								</StackPanel>
+							</Grid>
+						</Grid>
+					</TabItem>
+					<TabItem
+						Header="{x:Static lang:SporkStrings.ChatHeader}"
+						IsVisible="False" />
+					<TabItem
+						Header="{x:Static lang:SporkStrings.AboutHeader}">
+						<controls:AboutControl
+							Margin="20"
+							CheckUpdateCommand="{Binding CheckUpdateButtonCommand}"
+							VersionInfo="{Binding VersionInfo}"
+							VisitGitHubCommand="{Binding VisitGitHubButtonCommand}"
+							VisitWebSiteCommand="{Binding VisitWebSiteButtonCommand}" />
+					</TabItem>
+				</TabControl>
+			</DockPanel>
+		</Border>
+	</DockPanel>
 </Window>

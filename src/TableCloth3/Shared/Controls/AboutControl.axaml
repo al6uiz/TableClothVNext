@@ -4,23 +4,23 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:lang="clr-namespace:TableCloth3.Shared.Languages"
              xmlns:vm="clr-namespace:TableCloth3.Shared.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="250"
-             Width="600" Height="250" 
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
              x:Class="TableCloth3.Shared.Controls.AboutControl"
-			 x:CompileBindings="True">
+             x:CompileBindings="True">
 	<Grid>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="80*" />
-			<RowDefinition Height="20*" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
-		<Image Source="avares:/Assets/Images/TableCloth.png" Opacity="0.16" />
-		<Rectangle Fill="#66FFFFFF" Grid.RowSpan="2" />
+		<Image Source="avares:/Assets/Images/TableCloth.png" Opacity="0.25" />
 
 		<Label Grid.Row="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
 			<TextBlock TextAlignment="Center">
-				<TextBlock FontSize="25" Text="{x:Static lang:SharedStrings.AppTitle}" />
+				<TextBlock FontSize="30" Text="{x:Static lang:SharedStrings.AppTitle}" FontWeight="Bold" />
+				<LineBreak />
 				<LineBreak />
 				<TextBlock x:Name="VersionInfoBlock" />
+				<LineBreak />
 				<LineBreak />
 				<LineBreak />
 				<TextBlock Text="{x:Static lang:SharedStrings.AppLicense}" />
@@ -32,11 +32,9 @@
 			</TextBlock>
 		</Label>
 
-		<StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" Height="30">
+		<StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
 			<Button x:Name="VisitWebSiteButton" Content="{x:Static lang:SharedStrings.VisitWebSiteButton}" />
-			<TextBlock Margin="5" />
-			<Button x:Name="VisitGitHubButton" Content="{x:Static lang:SharedStrings.VisitGitHubButton}" />
-			<TextBlock Margin="5" />
+			<Button x:Name="VisitGitHubButton" Content="{x:Static lang:SharedStrings.VisitGitHubButton}" Margin="10,0" />
 			<Button x:Name="CheckUpdateButton" Content="{x:Static lang:SharedStrings.CheckUpdateButton}" />
 		</StackPanel>
 	</Grid>

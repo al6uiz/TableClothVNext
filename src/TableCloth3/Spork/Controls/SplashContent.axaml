@@ -1,0 +1,62 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             xmlns:lang="clr-namespace:TableCloth3.Shared.Languages"
+             xmlns:vm="clr-namespace:TableCloth3.Spork.ViewModels"
+             d:DesignWidth="800"
+             d:DesignHeight="628"
+             x:DataType="vm:SporkMainWindowViewModel"
+             Background="{DynamicResource CardStrokeColorDefaultSolid}"
+             x:Class="TableCloth3.Spork.Controls.SplashContent">
+    <Grid Name="RootGrid"
+          Width="800"
+          Margin="0,-2,0,-2"
+          Background="{DynamicResource LayerFillColorDefaultBrush}"
+          ClipToBounds="True"
+          Height="630">
+        <StackPanel Name="image"
+                    VerticalAlignment="Top"
+                    Opacity="0"
+                    RenderTransformOrigin="0.5,0.0">
+            <StackPanel.RenderTransform>
+                <TranslateTransform Y="-700" />
+            </StackPanel.RenderTransform> 
+            <Image Source="avares:/Assets/Images/SplashStretch.png"
+                   Height="400"
+                   Stretch="Fill" />
+            <Image Source="avares:/Assets/Images/SplashBottom.png" />
+        </StackPanel>
+
+        <StackPanel Name="text"
+                    RenderTransformOrigin="0.5,0.0"
+                    HorizontalAlignment="Center"
+                    Opacity="0"
+                    TextElement.Foreground="White"
+                    VerticalAlignment="Center"
+                    Margin="0,0,0,100">
+            <StackPanel.RenderTransform>
+                <TranslateTransform Y="0" />
+            </StackPanel.RenderTransform>
+            <TextBlock FontSize="64"
+                       Text="{x:Static lang:SharedStrings.AppTitle}"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center" />
+            <TextBlock FontSize="24"
+                       Margin="0,10,0,0"
+                       Text="{x:Static lang:SharedStrings.AppSlogan}"
+                       HorizontalAlignment="Center" />
+            <TextBlock FontSize="16"
+                       Margin="0,40,0,0"
+                       Text="version text"
+                       FontWeight="Light"
+                       HorizontalAlignment="Center" />
+            <TextBlock FontSize="16"
+                       Margin="0,10,0,0"
+                       FontWeight="SemiBold"
+                       Text="{x:Static lang:SharedStrings.AppCopyright}"
+                       HorizontalAlignment="Center" />
+        </StackPanel>
+    </Grid>
+</UserControl>

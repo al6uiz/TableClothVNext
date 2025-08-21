@@ -1,14 +1,14 @@
 using AsyncAwaitBestPractices;
-using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
+using FluentAvalonia.UI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
-using System.Diagnostics;
 using TableCloth3.Shared.Languages;
 using TableCloth3.Shared.Services;
 using TableCloth3.Shared.Windows;
+using TableCloth3.Spork.Controls;
 using TableCloth3.Spork.Languages;
 using TableCloth3.Spork.ViewModels;
 using static TableCloth3.Shared.ViewModels.AboutWindowViewModel;
@@ -19,7 +19,7 @@ using static TableCloth3.Spork.ViewModels.TableClothCatalogItemViewModel;
 namespace TableCloth3.Spork.Windows;
 
 public partial class SporkMainWindow :
-    Window,
+    BaseWindow,
     ILoadingFailureNotificationRecipient,
     ICloseButtonRequestRecipient,
     ILaunchSiteRequestRecipient,
@@ -52,6 +52,11 @@ public partial class SporkMainWindow :
         _messenger.Register<CheckUpdateButtonMessage>(this);
 
         DataContext = _viewModel;
+
+        SplashScreen = new SplashScreen();
+
+        TitleBar.ExtendsContentIntoTitleBar = true;
+        TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
     }
 
     public SporkMainWindow()

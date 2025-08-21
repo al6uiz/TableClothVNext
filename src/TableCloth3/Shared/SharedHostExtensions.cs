@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Reflection;
@@ -44,8 +45,17 @@ internal static class SharedHostExtensions
         return client;
     }
 
-    public static IHostApplicationBuilder UseTableCloth3SharedComponents(this IHostApplicationBuilder builder)
+    public static IHostApplicationBuilder UseTableCloth3SharedComponents(
+        this IHostApplicationBuilder builder,
+        string[] args,
+        out ScenarioRouter scenarioRouter)
     {
+        builder.Configuration.AddCommandLine(args);
+        builder.Configuration.AddEnvironmentVariables();
+
+        scenarioRouter = new ScenarioRouter(builder.Configuration);
+        builder.Services.AddSingleton(scenarioRouter);
+
         builder.Services.AddSingleton<LocationService>();
         builder.Services.AddSingleton<AppSettingsManager>();
         builder.Services.AddSingleton<TableClothCatalogService>();

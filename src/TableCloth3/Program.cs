@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Lemon.Hosting.AvaloniauiDesktop;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,15 +20,11 @@ public static class Program
 	[SupportedOSPlatform("windows")]
 	private static void Main(string[] args)
 	{
-		var builder = Host.CreateApplicationBuilder(args);
-		builder.Configuration.AddCommandLine(args);
-		builder.Configuration.AddEnvironmentVariables();
+		var builder = WebApplication.CreateBuilder(args);
+		builder.UseTableCloth3SharedComponents(args, out var scenarioRouter);
+        builder.AddMcpServer();
 
-		var scenarioRouter = new ScenarioRouter(builder.Configuration);
-		builder.Services.AddSingleton(scenarioRouter);
-		builder.UseTableCloth3SharedComponents();
-
-		switch (scenarioRouter.GetScenario())
+        switch (scenarioRouter.GetScenario())
 		{
 			default:
 			case Scenario.Launcher:
@@ -45,7 +42,9 @@ public static class Program
 
 		builder.Services.AddAvaloniauiDesktopApplication<App>(BuildAvaloniaApp);
 
-		var app = builder.Build();
+		using var app = builder.Build();
+        app.TryMapMcpServer();
+
 		app.RunAvaloniauiApplication(args).GetAwaiter().GetResult();
 	}
 

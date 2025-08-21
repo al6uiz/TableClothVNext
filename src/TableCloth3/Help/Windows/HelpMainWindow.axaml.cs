@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using TableCloth3.Help.ViewModels;
@@ -7,7 +8,7 @@ using static TableCloth3.Help.ViewModels.HelpMainWindowViewModel;
 
 namespace TableCloth3.Help.Windows;
 
-public partial class HelpMainWindow : BaseWindow, ICloseButtonMessageRecipient
+public partial class HelpMainWindow : Window, ICloseButtonMessageRecipient
 {
     [ActivatorUtilitiesConstructor]
     public HelpMainWindow(
@@ -20,7 +21,7 @@ public partial class HelpMainWindow : BaseWindow, ICloseButtonMessageRecipient
 
         DataContext = _viewModel;
         
-		ShowAsDialog = true;
+		//ShowAsDialog = true;
 
         _messenger.Register<CloseButtonMessage>(this);
     }

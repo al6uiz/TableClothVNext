@@ -5,7 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Styling;
 
-using FluentAvalonia.UI.Windowing;
+//using FluentAvalonia.UI.Windowing;
 
 namespace TableCloth3.Spork.Controls;
 
@@ -143,6 +143,7 @@ public partial class SplashContent : UserControl
     }
 }
 
+/*
 public class SplashScreen : IApplicationSplashScreen
 {
     private SplashContent _splashContent = new SplashContent();
@@ -171,3 +172,4 @@ public class SplashScreen : IApplicationSplashScreen
         }
     }
 }
+*/

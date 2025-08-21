@@ -3,11 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fa="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
              xmlns:ctl="clr-namespace:TableCloth3.Shared.Controls"
-             xmlns:sty="using:FluentAvalonia.Styling">
+             >
     <Application.Styles>
+		<SimpleTheme />
 
-        <sty:FluentAvaloniaTheme UseSystemFontOnWindows="False"
-                                 CustomAccentColor="#C33334" />
+        <!--
+		xmlns:sty="using:FluentAvalonia.Styling"
+		<sty:FluentAvaloniaTheme UseSystemFontOnWindows="False"
+                                 CustomAccentColor="#C33334" />-->
 
     </Application.Styles>
     <Application.Resources>

@@ -15,7 +15,7 @@ using static TableCloth3.Spork.ViewModels.InstallerStepItemViewModel;
 namespace TableCloth3.Spork.Windows;
 
 public partial class InstallerProgressWindow :
-    BaseWindow,
+    Window,
     ICancelNotificationRecipient,
     IFailureNotificationRecipient,
     IFinishNotificationRecipient,

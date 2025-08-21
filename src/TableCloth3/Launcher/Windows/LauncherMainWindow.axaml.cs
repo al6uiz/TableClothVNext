@@ -18,7 +18,7 @@ using static TableCloth3.Launcher.ViewModels.LauncherMainWindowViewModel;
 namespace TableCloth3.Launcher.Windows;
 
 public partial class LauncherMainWindow :
-    BaseWindow,
+    Window,
     IShowDisclaimerWindowMessageRecipient,
     IAboutButtonMessageRecipient,
     ICloseButtonMessageRecipient,
@@ -48,7 +48,7 @@ public partial class LauncherMainWindow :
         _messenger.Register<NotifyErrorMessage>(this);
         _messenger.Register<NotifyWarningsMessage>(this);
 
-		ShowAsDialog = true;
+		//ShowAsDialog = true;
     }
 
     public LauncherMainWindow()

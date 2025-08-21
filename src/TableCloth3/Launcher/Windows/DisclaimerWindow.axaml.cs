@@ -8,7 +8,7 @@ using static TableCloth3.Launcher.ViewModels.DisclaimerWindowViewModel;
 namespace TableCloth3.Launcher.Windows;
 
 public partial class DisclaimerWindow :
-	BaseWindow,
+	Window,
 	IAcceptButtonMessageRecipient
 {
 	[ActivatorUtilitiesConstructor]
@@ -24,7 +24,7 @@ public partial class DisclaimerWindow :
 
 		DataContext = _viewModel;
 
-		ShowAsDialog = true;
+		//ShowAsDialog = true;
 	}
 
 	public DisclaimerWindow()

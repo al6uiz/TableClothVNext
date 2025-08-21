@@ -1,5 +1,5 @@
-﻿using FluentAvalonia.UI.Windowing;
+﻿//using FluentAvalonia.UI.Windowing;
 
 namespace TableCloth3.Shared.Windows;
 
-public class BaseWindow : AppWindow;
+//public abstract class BaseWindow : AppWindow;

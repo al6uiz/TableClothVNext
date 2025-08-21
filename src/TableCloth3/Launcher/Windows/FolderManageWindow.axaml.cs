@@ -1,4 +1,5 @@
 using AsyncAwaitBestPractices;
+using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Messaging;
@@ -13,7 +14,7 @@ using static TableCloth3.Launcher.ViewModels.FolderManageWindowViewModel;
 namespace TableCloth3.Launcher.Windows;
 
 public partial class FolderManageWindow :
-    BaseWindow,
+    Window,
     IDoubleTappedMessageRecipient,
     IAddFolderButtonMessageRecipient,
     IRemoveFolderButtonMessageRecipient,

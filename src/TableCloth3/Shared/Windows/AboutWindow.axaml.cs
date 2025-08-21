@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using TableCloth3.Shared.Languages;
@@ -8,7 +9,7 @@ using static TableCloth3.Shared.ViewModels.AboutWindowViewModel;
 namespace TableCloth3.Shared.Windows;
 
 public partial class AboutWindow :
-    BaseWindow,
+    Window,
     IVisitWebSiteButtonMessageRecipient,
     IVisitGitHubButtonMessageRecipient,
     ICheckUpdateButtonMessageRecipient
@@ -30,7 +31,7 @@ public partial class AboutWindow :
         _messenger.Register<VisitGitHubButtonMessage>(this);
         _messenger.Register<CheckUpdateButtonMessage>(this);
 
-		ShowAsDialog = true;
+		//ShowAsDialog = true;
     }
 
     public AboutWindow()

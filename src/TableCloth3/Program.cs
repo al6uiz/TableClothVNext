@@ -17,7 +17,7 @@ public static class Program
 {
 	[STAThread]
 	[SupportedOSPlatform("windows")]
-	private static async Task Main(string[] args)
+	private static void Main(string[] args)
 	{
 		var builder = Host.CreateApplicationBuilder(args);
 		builder.Configuration.AddCommandLine(args);
@@ -46,7 +46,7 @@ public static class Program
 		builder.Services.AddAvaloniauiDesktopApplication<App>(BuildAvaloniaApp);
 
 		var app = builder.Build();
-		await app.RunAvaloniauiApplication(args);
+		app.RunAvaloniauiApplication(args).GetAwaiter().GetResult();
 	}
 
 	// This method is used by both AppHost Avalonia runtime and the Avalonia Designer.
